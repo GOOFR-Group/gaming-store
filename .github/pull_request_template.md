@@ -1,3 +1,5 @@
+Refs: #ISSUE_NUMBER
+
 ## Summary
 
 Quick summary of the purpose of this pull request.
