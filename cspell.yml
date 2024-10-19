@@ -3,7 +3,6 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
-  - GOOFR
   - tseslint
 ignorePaths:
   - web/public
