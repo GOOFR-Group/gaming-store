@@ -1,5 +1,3 @@
-Refs: closes #ISSUE_NUMBER_1, closes #ISSUE_NUMBER_2
-
 ## Summary
 
 Quick summary of the purpose of this pull request.
