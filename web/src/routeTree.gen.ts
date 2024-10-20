@@ -11,77 +11,164 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
-import { Route as AboutImport } from "./routes/about";
-import { Route as IndexImport } from "./routes/index";
+import { Route as LayoutImport } from "./routes/_layout";
+import { Route as LayoutIndexImport } from "./routes/_layout/index";
+import { Route as LayoutCartImport } from "./routes/_layout/cart";
+import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
+import { Route as LayoutAccountImport } from "./routes/_layout/account";
+import { Route as LayoutGamesGameIdImport } from "./routes/_layout/games/$gameId";
 
 // Create/Update Routes
 
-const AboutRoute = AboutImport.update({
-  path: "/about",
+const LayoutRoute = LayoutImport.update({
+  id: "/_layout",
   getParentRoute: () => rootRoute,
 } as any);
 
-const IndexRoute = IndexImport.update({
+const LayoutIndexRoute = LayoutIndexImport.update({
   path: "/",
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutCartRoute = LayoutCartImport.update({
+  path: "/cart",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutBrowseRoute = LayoutBrowseImport.update({
+  path: "/browse",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutAccountRoute = LayoutAccountImport.update({
+  path: "/account",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutGamesGameIdRoute = LayoutGamesGameIdImport.update({
+  path: "/games/$gameId",
+  getParentRoute: () => LayoutRoute,
 } as any);
 
 // Populate the FileRoutesByPath interface
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexImport;
+    "/_layout": {
+      id: "/_layout";
+      path: "";
+      fullPath: "";
+      preLoaderRoute: typeof LayoutImport;
       parentRoute: typeof rootRoute;
     };
-    "/about": {
-      id: "/about";
-      path: "/about";
-      fullPath: "/about";
-      preLoaderRoute: typeof AboutImport;
-      parentRoute: typeof rootRoute;
+    "/_layout/account": {
+      id: "/_layout/account";
+      path: "/account";
+      fullPath: "/account";
+      preLoaderRoute: typeof LayoutAccountImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/browse": {
+      id: "/_layout/browse";
+      path: "/browse";
+      fullPath: "/browse";
+      preLoaderRoute: typeof LayoutBrowseImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/cart": {
+      id: "/_layout/cart";
+      path: "/cart";
+      fullPath: "/cart";
+      preLoaderRoute: typeof LayoutCartImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/": {
+      id: "/_layout/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof LayoutIndexImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/games/$gameId": {
+      id: "/_layout/games/$gameId";
+      path: "/games/$gameId";
+      fullPath: "/games/$gameId";
+      preLoaderRoute: typeof LayoutGamesGameIdImport;
+      parentRoute: typeof LayoutImport;
     };
   }
 }
 
 // Create and export the route tree
 
+interface LayoutRouteChildren {
+  LayoutAccountRoute: typeof LayoutAccountRoute;
+  LayoutBrowseRoute: typeof LayoutBrowseRoute;
+  LayoutCartRoute: typeof LayoutCartRoute;
+  LayoutIndexRoute: typeof LayoutIndexRoute;
+  LayoutGamesGameIdRoute: typeof LayoutGamesGameIdRoute;
+}
+
+const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutAccountRoute: LayoutAccountRoute,
+  LayoutBrowseRoute: LayoutBrowseRoute,
+  LayoutCartRoute: LayoutCartRoute,
+  LayoutIndexRoute: LayoutIndexRoute,
+  LayoutGamesGameIdRoute: LayoutGamesGameIdRoute,
+};
+
+const LayoutRouteWithChildren =
+  LayoutRoute._addFileChildren(LayoutRouteChildren);
+
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/about": typeof AboutRoute;
+  "": typeof LayoutRouteWithChildren;
+  "/account": typeof LayoutAccountRoute;
+  "/browse": typeof LayoutBrowseRoute;
+  "/cart": typeof LayoutCartRoute;
+  "/": typeof LayoutIndexRoute;
+  "/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
 
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/about": typeof AboutRoute;
+  "/account": typeof LayoutAccountRoute;
+  "/browse": typeof LayoutBrowseRoute;
+  "/cart": typeof LayoutCartRoute;
+  "/": typeof LayoutIndexRoute;
+  "/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute;
-  "/": typeof IndexRoute;
-  "/about": typeof AboutRoute;
+  "/_layout": typeof LayoutRouteWithChildren;
+  "/_layout/account": typeof LayoutAccountRoute;
+  "/_layout/browse": typeof LayoutBrowseRoute;
+  "/_layout/cart": typeof LayoutCartRoute;
+  "/_layout/": typeof LayoutIndexRoute;
+  "/_layout/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/about";
+  fullPaths: "" | "/account" | "/browse" | "/cart" | "/" | "/games/$gameId";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/about";
-  id: "__root__" | "/" | "/about";
+  to: "/account" | "/browse" | "/cart" | "/" | "/games/$gameId";
+  id:
+    | "__root__"
+    | "/_layout"
+    | "/_layout/account"
+    | "/_layout/browse"
+    | "/_layout/cart"
+    | "/_layout/"
+    | "/_layout/games/$gameId";
   fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AboutRoute: typeof AboutRoute;
+  LayoutRoute: typeof LayoutRouteWithChildren;
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  LayoutRoute: LayoutRouteWithChildren,
 };
 
 export const routeTree = rootRoute
@@ -96,15 +183,38 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/about"
+        "/_layout"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/_layout": {
+      "filePath": "_layout.tsx",
+      "children": [
+        "/_layout/account",
+        "/_layout/browse",
+        "/_layout/cart",
+        "/_layout/",
+        "/_layout/games/$gameId"
+      ]
     },
-    "/about": {
-      "filePath": "about.tsx"
+    "/_layout/account": {
+      "filePath": "_layout/account.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/browse": {
+      "filePath": "_layout/browse.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/cart": {
+      "filePath": "_layout/cart.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/": {
+      "filePath": "_layout/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/games/$gameId": {
+      "filePath": "_layout/games/$gameId.tsx",
+      "parent": "/_layout"
     }
   }
 }

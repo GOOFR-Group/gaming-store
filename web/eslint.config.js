@@ -43,6 +43,7 @@ export default [
         {
           callbacksLast: true,
           shorthandFirst: true,
+          reservedFirst: true,
           multiline: "last",
         },
       ],
