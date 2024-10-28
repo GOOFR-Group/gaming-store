@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, User } from "lucide-react";
+import { Download, Gamepad2, Heart, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,61 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_layout/account")({
   component: Component,
 });
+
+function AddFunds() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="mt-2">Add Funds</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add Funds to Your Account</DialogTitle>
+          <DialogDescription>
+            Enter the amount you'd like to add to your account balance.
+          </DialogDescription>
+        </DialogHeader>
+        <form>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right" htmlFor="amount">
+                Amount
+              </Label>
+              <Input
+                required
+                className="col-span-3"
+                id="amount"
+                min="0.01"
+                placeholder="0.00"
+                step="0.01"
+                type="number"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit">Add Funds</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
@@ -41,9 +91,7 @@ function Component() {
           <div className="text-center sm:text-right">
             <p className="font-semibold">Balance</p>
             <p className="text-2xl font-bold">€50.00</p>
-            <Button className="mt-2" variant="link">
-              Add Funds
-            </Button>
+            <AddFunds />
           </div>
         </CardHeader>
         <CardContent>
@@ -52,7 +100,7 @@ function Component() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
                 Library
@@ -60,6 +108,10 @@ function Component() {
               <TabsTrigger value="account">
                 <User className="mr-2 h-4 w-4" />
                 Account
+              </TabsTrigger>
+              <TabsTrigger value="wishlist">
+                <Heart className="mr-2 h-4 w-4" />
+                Wishlist
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
@@ -83,8 +135,8 @@ function Component() {
                     </Link>
                     <div className="p-4 flex items-center justify-between flex-wrap">
                       <div>
+                        <p className="text-sm text-gray-400">Stellar Games</p>
                         <h3 className="text-xl font-semibold">{game}</h3>
-                        <p className="text-sm text-gray-300">Stellar Games</p>
                       </div>
                       <Button size="icon" variant="secondary">
                         <Download className="size-5" />
@@ -140,6 +192,8 @@ function Component() {
                 </div>
               </div>
             </TabsContent>
+
+            <TabsContent className="mt-4" value="wishlist"></TabsContent>
           </Tabs>
         </CardContent>
       </Card>

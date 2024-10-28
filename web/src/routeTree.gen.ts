@@ -13,6 +13,8 @@
 import { Route as rootRoute } from "./routes/__root";
 import { Route as LayoutImport } from "./routes/_layout";
 import { Route as LayoutIndexImport } from "./routes/_layout/index";
+import { Route as LayoutSigninImport } from "./routes/_layout/signin";
+import { Route as LayoutRegisterImport } from "./routes/_layout/register";
 import { Route as LayoutCartImport } from "./routes/_layout/cart";
 import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
 import { Route as LayoutAccountImport } from "./routes/_layout/account";
@@ -27,6 +29,16 @@ const LayoutRoute = LayoutImport.update({
 
 const LayoutIndexRoute = LayoutIndexImport.update({
   path: "/",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutSigninRoute = LayoutSigninImport.update({
+  path: "/signin",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutRegisterRoute = LayoutRegisterImport.update({
+  path: "/register",
   getParentRoute: () => LayoutRoute,
 } as any);
 
@@ -82,6 +94,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCartImport;
       parentRoute: typeof LayoutImport;
     };
+    "/_layout/register": {
+      id: "/_layout/register";
+      path: "/register";
+      fullPath: "/register";
+      preLoaderRoute: typeof LayoutRegisterImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/signin": {
+      id: "/_layout/signin";
+      path: "/signin";
+      fullPath: "/signin";
+      preLoaderRoute: typeof LayoutSigninImport;
+      parentRoute: typeof LayoutImport;
+    };
     "/_layout/": {
       id: "/_layout/";
       path: "/";
@@ -105,6 +131,8 @@ interface LayoutRouteChildren {
   LayoutAccountRoute: typeof LayoutAccountRoute;
   LayoutBrowseRoute: typeof LayoutBrowseRoute;
   LayoutCartRoute: typeof LayoutCartRoute;
+  LayoutRegisterRoute: typeof LayoutRegisterRoute;
+  LayoutSigninRoute: typeof LayoutSigninRoute;
   LayoutIndexRoute: typeof LayoutIndexRoute;
   LayoutGamesGameIdRoute: typeof LayoutGamesGameIdRoute;
 }
@@ -113,6 +141,8 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAccountRoute: LayoutAccountRoute,
   LayoutBrowseRoute: LayoutBrowseRoute,
   LayoutCartRoute: LayoutCartRoute,
+  LayoutRegisterRoute: LayoutRegisterRoute,
+  LayoutSigninRoute: LayoutSigninRoute,
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutGamesGameIdRoute: LayoutGamesGameIdRoute,
 };
@@ -125,6 +155,8 @@ export interface FileRoutesByFullPath {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
+  "/register": typeof LayoutRegisterRoute;
+  "/signin": typeof LayoutSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
@@ -133,6 +165,8 @@ export interface FileRoutesByTo {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
+  "/register": typeof LayoutRegisterRoute;
+  "/signin": typeof LayoutSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
@@ -143,21 +177,40 @@ export interface FileRoutesById {
   "/_layout/account": typeof LayoutAccountRoute;
   "/_layout/browse": typeof LayoutBrowseRoute;
   "/_layout/cart": typeof LayoutCartRoute;
+  "/_layout/register": typeof LayoutRegisterRoute;
+  "/_layout/signin": typeof LayoutSigninRoute;
   "/_layout/": typeof LayoutIndexRoute;
   "/_layout/games/$gameId": typeof LayoutGamesGameIdRoute;
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "" | "/account" | "/browse" | "/cart" | "/" | "/games/$gameId";
+  fullPaths:
+    | ""
+    | "/account"
+    | "/browse"
+    | "/cart"
+    | "/register"
+    | "/signin"
+    | "/"
+    | "/games/$gameId";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/account" | "/browse" | "/cart" | "/" | "/games/$gameId";
+  to:
+    | "/account"
+    | "/browse"
+    | "/cart"
+    | "/register"
+    | "/signin"
+    | "/"
+    | "/games/$gameId";
   id:
     | "__root__"
     | "/_layout"
     | "/_layout/account"
     | "/_layout/browse"
     | "/_layout/cart"
+    | "/_layout/register"
+    | "/_layout/signin"
     | "/_layout/"
     | "/_layout/games/$gameId";
   fileRoutesById: FileRoutesById;
@@ -192,6 +245,8 @@ export const routeTree = rootRoute
         "/_layout/account",
         "/_layout/browse",
         "/_layout/cart",
+        "/_layout/register",
+        "/_layout/signin",
         "/_layout/",
         "/_layout/games/$gameId"
       ]
@@ -206,6 +261,14 @@ export const routeTree = rootRoute
     },
     "/_layout/cart": {
       "filePath": "_layout/cart.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/register": {
+      "filePath": "_layout/register.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/signin": {
+      "filePath": "_layout/signin.tsx",
       "parent": "/_layout"
     },
     "/_layout/": {

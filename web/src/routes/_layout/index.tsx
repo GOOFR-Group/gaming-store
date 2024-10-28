@@ -15,7 +15,7 @@ function gamesQueryOptions() {
         return {
           title: `Game ${idx}`,
           image: "/images/game.jpg",
-          genre: "Platform",
+          publisher: "Stellar Games",
           price: 59.99,
         };
       });
@@ -74,9 +74,9 @@ function Component() {
           {data.map((game) => (
             <Game
               key={game.title}
-              genre={game.genre}
               image={game.image}
               price={game.price}
+              publisher={game.publisher}
               title={game.title}
             />
           ))}
@@ -86,9 +86,9 @@ function Component() {
           {data.map((game) => (
             <Game
               key={game.title}
-              genre={game.genre}
               image={game.image}
               price={game.price}
+              publisher={game.publisher}
               title={game.title}
             />
           ))}
@@ -98,9 +98,9 @@ function Component() {
           {data.map((game) => (
             <Game
               key={game.title}
-              genre={game.genre}
               image={game.image}
               price={game.price}
+              publisher={game.publisher}
               title={game.title}
             />
           ))}

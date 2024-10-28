@@ -21,26 +21,20 @@ function Component() {
               />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <Button
-                asChild
-                className="text-sm font-medium transition-colors hover:text-primary"
-                variant="ghost"
-              >
+              <Button asChild className="text-sm font-medium" variant="ghost">
                 <Link href="/browse">Browse</Link>
               </Button>
 
-              <Button
-                className="text-sm font-medium transition-colors hover:text-primary"
-                variant="ghost"
-              >
-                Distribute
+              <Button asChild className="text-sm font-medium" variant="ghost">
+                <Link href="/news">News</Link>
               </Button>
 
-              <Button
-                className="text-sm font-medium transition-colors hover:text-primary"
-                variant="ghost"
-              >
-                Support
+              <Button asChild className="text-sm font-medium" variant="ghost">
+                <Link href="/support">Support</Link>
+              </Button>
+
+              <Button asChild className="text-sm font-medium" variant="ghost">
+                <Link href="/distribute">Distribute</Link>
               </Button>
             </nav>
           </div>
