@@ -33,7 +33,7 @@ npm install
 
 ### Server App
 
-The server application is written in [Go](https://go.dev/) and uses the version `1.22`.
+The server application is written in [Go](https://go.dev/) and uses the version `1.23`.
 
 ### Docker
 
