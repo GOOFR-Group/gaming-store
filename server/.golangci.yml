@@ -1,0 +1,20 @@
+linters-settings:
+  goimports:
+    local-prefixes: github.com/goofr-group/gaming-store/server/
+
+linters:
+  enable:
+    - bodyclose
+    - errname
+    - errorlint
+    - godot
+    - gofumpt
+    - gofmt
+    - goimports
+    - govet
+    - misspell
+    - stylecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
