@@ -34,7 +34,7 @@ func NewDatabase(ctx context.Context) *database {
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		Started: true,
 		ContainerRequest: testcontainers.ContainerRequest{
-			Image:        "pgrouting/pgrouting",
+			Image:        "postgres",
 			ExposedPorts: []string{port},
 			AutoRemove:   true,
 			Env: map[string]string{
