@@ -1,0 +1,30 @@
+services:
+  database:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=store
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - store_database_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+
+volumes:
+  store_database_data:
