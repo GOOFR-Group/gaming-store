@@ -3,7 +3,24 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
+  - golangci
   - GOOFR
+  - PGUSER
+  - pkey
+  - plpgsql
+  - sslmode
+  - stretchr
+  - testcontainers
   - tseslint
 ignorePaths:
+  - .golangci.yml
+  - go.mod
+  - go.sum
+  - server/api/swagger/ui
+  - server/deployments
+  - server/config.yml
   - web/public
+ignoreRegExpList:
+  - "import\\s*\\((.|[\r\n])*?\\)" # Ignore go multiline imports.
+  - "import\\s*.*\".*?\"" # Ignore go single line imports.
+  - "//\\s*go:generate.*" # Ignore go generate directive.
