@@ -6,7 +6,11 @@ ignoreWords:
   - Castagnoli93
   - fkey
   - golangci
+  - GOPATH
   - GOOFR
+  - healthcheck
+  - isready
+  - ldflags
   - PGUSER
   - pkey
   - plpgsql

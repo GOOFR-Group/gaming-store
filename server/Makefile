@@ -11,7 +11,7 @@ default: clean generate tidy vendor lint test build
 ## dev: run clean, generate, tidy, vendor and build
 dev: clean generate tidy vendor build
 
-## clean: clean the vendor and dist directoriesand generated files
+## clean: clean the vendor and dist directories and generated files
 clean:
 	rm -rf vendor/
 	rm -rf dist/
