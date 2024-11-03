@@ -21,19 +21,35 @@ function Component() {
               />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <Button asChild className="text-sm font-medium" variant="outline">
+              <Button
+                asChild
+                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                variant="ghost"
+              >
                 <Link href="/browse">Browse</Link>
               </Button>
 
-              <Button asChild className="text-sm font-medium" variant="ghost">
+              <Button
+                asChild
+                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                variant="ghost"
+              >
                 <Link href="/news">News</Link>
               </Button>
 
-              <Button asChild className="text-sm font-medium" variant="ghost">
+              <Button
+                asChild
+                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                variant="ghost"
+              >
                 <Link href="/support">Support</Link>
               </Button>
 
-              <Button asChild className="text-sm font-medium" variant="ghost">
+              <Button
+                asChild
+                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                variant="ghost"
+              >
                 <Link href="/distribute">Distribute</Link>
               </Button>
             </nav>
