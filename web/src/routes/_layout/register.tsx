@@ -61,6 +61,9 @@ const formSchema = z
     address: z.string().min(1, {
       message: "Address is required",
     }),
+    vat: z.string().min(1, {
+      message: "VAT is required",
+    }),
     picture: z.instanceof(File, {
       message: "Picture is required",
     }),
@@ -86,6 +89,7 @@ function Component() {
       dateOfBirth: undefined,
       country: "",
       address: "",
+      vat: "",
       picture: undefined,
       password: "",
       confirm: "",
@@ -231,6 +235,20 @@ function Component() {
                       <FormLabel>Address</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter your address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="vat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>VAT</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your VAT" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
