@@ -70,19 +70,7 @@ function Component() {
           </div>
         </section>
 
-        <Section href="/" title="Featured Games">
-          {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
-          ))}
-        </Section>
-
-        <Section href="/" title="Best Sellers">
+        <Section href="/" title="Featured & Recommended">
           {data.map((game) => (
             <Game
               key={game.title}
@@ -106,9 +94,21 @@ function Component() {
           ))}
         </Section>
 
+        <Section href="/" title="Best Sellers">
+          {data.map((game) => (
+            <Game
+              key={game.title}
+              image={game.image}
+              price={game.price}
+              publisher={game.publisher}
+              title={game.title}
+            />
+          ))}
+        </Section>
+
         <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter mb-8">
-            Browse by Category
+            Browse by Genre
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
@@ -120,13 +120,13 @@ function Component() {
               "Simulation",
               "Puzzle",
               "Indie",
-            ].map((category) => (
+            ].map((genre) => (
               <Button
-                key={category}
+                key={genre}
                 className="h-20 text-lg font-semibold"
                 variant="outline"
               >
-                {category}
+                {genre}
               </Button>
             ))}
           </div>

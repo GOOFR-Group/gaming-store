@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
+import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,12 +35,18 @@ function Component() {
                 galaxy in this expansive multiplayer sci-fi adventure.
               </p>
 
-              <div className="mt-4">
+              <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
                   <Badge variant="secondary">Sci-Fi</Badge>
                   <Badge variant="secondary">Adventure</Badge>
                   <Badge variant="secondary">Multiplayer</Badge>
                 </div>
+
+                <img
+                  alt="Age rating"
+                  className="h-12"
+                  src="/images/pegi/18.png"
+                />
               </div>
             </CardContent>
           </Card>
@@ -136,6 +143,26 @@ function Component() {
           </Card>
         </div>
       </div>
+
+      <section className="py-12 md:py-24 lg:py-32 px-4 md:px-6">
+        <h2 className="text-3xl font-bold tracking-tighter mb-8">
+          More Like This
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 5 }, (_, idx) => {
+            return (
+              <Game
+                key={idx}
+                image="/images/game.jpg"
+                price={59.99}
+                publisher="Stellar Games"
+                title={`Game ${idx}`}
+              />
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

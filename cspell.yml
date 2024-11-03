@@ -3,7 +3,11 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
+  - cmdk
   - GOOFR
+  - pegi
+  - Radeon
+  - Ryzen
   - tseslint
 ignorePaths:
   - web/public

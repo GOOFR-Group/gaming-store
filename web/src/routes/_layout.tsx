@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_layout")({
 
 function Component() {
   return (
-    <>
+    <div className="overflow-auto">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center px-6 py-4 space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10">
@@ -21,7 +21,7 @@ function Component() {
               />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <Button asChild className="text-sm font-medium" variant="ghost">
+              <Button asChild className="text-sm font-medium" variant="outline">
                 <Link href="/browse">Browse</Link>
               </Button>
 
@@ -65,16 +65,11 @@ function Component() {
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Shop</h3>
+              <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
                   <Link className="hover:underline" href="#">
-                    New Releases
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:underline" href="#">
-                    Best Sellers
+                    Featured & Recommended
                   </Link>
                 </li>
                 <li>
@@ -84,7 +79,22 @@ function Component() {
                 </li>
                 <li>
                   <Link className="hover:underline" href="#">
-                    Pre-orders
+                    Best Sellers
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">News</h3>
+              <ul className="space-y-1">
+                <li>
+                  <Link className="hover:underline" href="#">
+                    Latest
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:underline" href="#">
+                    Hot Topics
                   </Link>
                 </li>
               </ul>
@@ -115,41 +125,16 @@ function Component() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">Company</h3>
-              <ul className="space-y-1">
-                <li>
-                  <Link className="hover:underline" href="#">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:underline" href="#">
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:underline" href="#">
-                    Press
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:underline" href="#">
-                    Affiliates
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
               <h3 className="text-lg font-semibold mb-2">Legal</h3>
               <ul className="space-y-1">
                 <li>
                   <Link className="hover:underline" href="#">
-                    Privacy Policy
+                    Terms of Service
                   </Link>
                 </li>
                 <li>
                   <Link className="hover:underline" href="#">
-                    Terms of Service
+                    Privacy Policy
                   </Link>
                 </li>
                 <li>
@@ -159,7 +144,12 @@ function Component() {
                 </li>
                 <li>
                   <Link className="hover:underline" href="#">
-                    Accessibility
+                    Complaints Book
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:underline" href="#">
+                    Dispute Resolution
                   </Link>
                 </li>
               </ul>
@@ -172,6 +162,6 @@ function Component() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

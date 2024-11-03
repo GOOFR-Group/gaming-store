@@ -27,6 +27,14 @@ export default [
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: false,
+        },
+      ],
+    },
   },
   {
     files: ["**/*.js"],
@@ -109,6 +117,13 @@ export default [
         },
       ],
       "simple-import-sort/exports": "error",
+    },
+  },
+
+  // Console ESLint configuration.
+  {
+    rules: {
+      "no-console": "error",
     },
   },
 

@@ -22,13 +22,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/_layout/signin")({
+export const Route = createFileRoute("/distribute/signin")({
   component: Component,
 });
 
 const formSchema = z.object({
-  emailOrUsername: z.string().min(1, {
-    message: "Email or Username is required",
+  email: z.string().email({
+    message: "Please enter a valid email address",
   }),
   password: z.string().min(1, {
     message: "Password is required",
@@ -39,7 +39,7 @@ function Component() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailOrUsername: "",
+      email: "",
       password: "",
     },
   });
@@ -53,24 +53,25 @@ function Component() {
         <div className="absolute right-1/4 bottom-1/4 w-64 h-64 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
         <div className="absolute left-1/3 bottom-1/3 w-64 h-64 bg-accent rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
-      <Card className="w-full max-w-md bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+      <Card className="w-full max-w-lg bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
               <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In
+                Sign In to Distribution Center
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="emailOrUsername"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email or Username</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your email or username"
+                        placeholder="Enter your email"
+                        type="email"
                         {...field}
                       />
                     </FormControl>
@@ -109,7 +110,7 @@ function Component() {
                 className="w-full text-primary-foreground font-semibold"
                 variant="secondary"
               >
-                <Link to="/register">Register</Link>
+                <Link to="/distribute/register">Register</Link>
               </Button>
               <Button
                 className="text-primary hover:text-primary/90"
