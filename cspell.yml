@@ -3,6 +3,8 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
+  - Castagnoli93
+  - fkey
   - golangci
   - GOOFR
   - PGUSER
@@ -12,6 +14,7 @@ ignoreWords:
   - stretchr
   - testcontainers
   - tseslint
+  - vatin
 ignorePaths:
   - .golangci.yml
   - go.mod
