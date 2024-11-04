@@ -52,4 +52,12 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Webkit custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply size-2;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-secondary;
+  }
 }

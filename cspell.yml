@@ -4,6 +4,7 @@ language: en
 useGitignore: true
 ignoreWords:
   - Castagnoli93
+  - cmdk
   - fkey
   - golangci
   - GOPATH
@@ -11,9 +12,12 @@ ignoreWords:
   - healthcheck
   - isready
   - ldflags
+  - pegi
   - PGUSER
   - pkey
   - plpgsql
+  - Radeon
+  - Ryzen
   - sslmode
   - stretchr
   - testcontainers
