@@ -96,7 +96,7 @@ The server application can be found in the `server` directory. It contains the G
 | Route        | Description     |
 | ------------ | --------------- |
 | /            | Web Application |
-| /api         | Rest API        |
+| /api         | REST API        |
 | /api/docs/ui | Swagger UI      |
 
 The server contains a [Makefile](server/Makefile) that defines a set of tasks that can be run to help with development. The available targets can be checked by running the following command inside the `server` directory:
@@ -107,9 +107,9 @@ make help
 
 To serve the web application, the server expects the web static files to be in the `dist/web` directory.
 
-The Rest API is documented in a [Swagger Specification](https://swagger.io/specification/v3/) file ([api.yml](server/api/swagger/api.yml)) in the `api/swagger` directory. This file is also used by the server to generate the API models and server boilerplate code to handle the HTTP API (see the [generate.go](server/api/generate.go) file).
+The REST API is documented in a [Swagger Specification](https://swagger.io/specification/v3/) file ([api.yml](server/api/swagger/api.yml)) in the `api/swagger` directory. This file is also used by the server to generate the API models and server boilerplate code to handle the HTTP API (see the [generate.go](server/api/generate.go) file).
 
-Inside the `api/swagger` directory, there is also a `ui` folder that contains the [Swagger UI](https://swagger.io/tools/swagger-ui/) that is served by the server to present the Rest API documentation. See the [README.md](server/api/swagger/README.md) file in `api/swagger` for more information.
+Inside the `api/swagger` directory, there is also a `ui` folder that contains the [Swagger UI](https://swagger.io/tools/swagger-ui/) that is served by the server to present the REST API documentation. See the [README.md](server/api/swagger/README.md) file in `api/swagger` for more information.
 
 The server application requires a [PostgreSQL](https://www.postgresql.org/) database to manipulate the persistent data. There is a [Docker Compose](https://docs.docker.com/compose/) file ([docker-compose.yml](docker-compose.yml)) in the project root directory that already contains a `database` service that can be run locally.
 

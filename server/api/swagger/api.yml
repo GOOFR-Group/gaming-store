@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: GOOFR Store Rest API
+  title: GOOFR Store REST API
 tags:
   - name: User
     description: User operations
