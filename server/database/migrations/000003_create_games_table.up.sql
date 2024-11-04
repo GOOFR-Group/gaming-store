@@ -2,7 +2,7 @@
 CREATE TABLE tags (
     id          uuid            NOT NULL    DEFAULT GEN_RANDOM_UUID(),
     name        varchar(100)    NOT NULL,
-    description varchar(200)    NOT NULL,
+    description varchar(200),
     created_at  timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     modified_at timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT tags_pkey        PRIMARY KEY (id),
@@ -20,7 +20,7 @@ CREATE TABLE games (
     features        varchar(250)    NOT NULL,
     languages       varchar(20)[]   NOT NULL, -- BCP 47 language tags.
     requirements    json            NOT NULL,
-    url             varchar(2048)   NOT NULL,
+    download_url    varchar(2048)   NOT NULL,
     created_at      timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     modified_at     timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT games_pkey                   PRIMARY KEY (id),
