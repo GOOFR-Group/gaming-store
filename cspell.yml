@@ -23,6 +23,7 @@ ignoreWords:
   - testcontainers
   - tseslint
   - vatin
+  - vatin
 ignorePaths:
   - .golangci.yml
   - go.mod
