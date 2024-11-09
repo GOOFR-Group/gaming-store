@@ -10,22 +10,24 @@ CREATE TABLE tags (
 );
 
 CREATE TABLE games (
-    id              uuid            NOT NULL    DEFAULT GEN_RANDOM_UUID(),
-    publisher_id    uuid            NOT NULL,
-    title           varchar(150)    NOT NULL,
-    price           float8          NOT NULL,
-    is_active       boolean         NOT NULL    DEFAULT FALSE,
-    release_date    date,
-    description     varchar(500)    NOT NULL,
-    features        varchar(250)    NOT NULL,
-    languages       varchar(20)[]   NOT NULL, -- BCP 47 language tags.
-    requirements    json            NOT NULL,
-    download_url    varchar(2048)   NOT NULL,
-    created_at      timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    modified_at     timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT games_pkey                   PRIMARY KEY (id),
-    CONSTRAINT games_publisher_id_fkey      FOREIGN KEY (publisher_id)  REFERENCES publishers (id),
-    CONSTRAINT games_price_positive_check   CHECK (price >= 0)
+    id                      uuid            NOT NULL    DEFAULT GEN_RANDOM_UUID(),
+    publisher_id            uuid            NOT NULL,
+    title                   varchar(150)    NOT NULL,
+    price                   float8          NOT NULL,
+    is_active               boolean         NOT NULL    DEFAULT FALSE,
+    release_date            date,
+    description             varchar(500)    NOT NULL,
+    features                varchar(250)    NOT NULL,
+    languages               varchar(20)[]   NOT NULL, -- BCP 47 language tags.
+    requirements            json            NOT NULL,
+    preview_multimedia_id   uuid            NOT NULL,
+    download_url            varchar(2048)   NOT NULL,
+    created_at              timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
+    modified_at             timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT games_pkey                       PRIMARY KEY (id),
+    CONSTRAINT games_publisher_id_fkey          FOREIGN KEY (publisher_id)          REFERENCES publishers (id),
+    CONSTRAINT games_preview_multimedia_id_fkey FOREIGN KEY (preview_multimedia_id) REFERENCES multimedia (id),
+    CONSTRAINT games_price_positive_check       CHECK (price >= 0)
 );
 
 CREATE TABLE games_tags (
