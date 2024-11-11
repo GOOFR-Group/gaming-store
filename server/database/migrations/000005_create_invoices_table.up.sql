@@ -14,6 +14,7 @@ CREATE TABLE invoices_games (
     invoice_id  uuid        NOT NULL,
     game_id     uuid        NOT NULL,
     price       float8      NOT NULL,
+    tax         float8      NOT NULL,
     created_at  timestamp   NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT invoices_games_pkey              PRIMARY KEY (invoice_id, game_id),
     CONSTRAINT invoices_games_invoice_id_fkey   FOREIGN KEY (invoice_id)            REFERENCES invoices (id)    ON DELETE CASCADE,
