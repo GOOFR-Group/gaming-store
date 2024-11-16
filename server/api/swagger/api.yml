@@ -39,7 +39,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         409:
-          description: Username already exists.
+          description: Username, email or vatin already exists. Or multimedia does not exist.
           content:
             application/json:
               schema:
@@ -62,19 +62,16 @@ components:
       properties:
         code:
           type: string
-          enum:
-            - bad_request
-            - unauthorized
-            - forbidden
-            - not_found
-            - conflict
-            - internal_server_error
         message:
           type: string
     UUID:
       type: string
       format: uuid
       example: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff"
+    Date:
+      type: string
+      format: date
+      example: "2017-07-21"
     DateTime:
       type: string
       format: date-time
@@ -84,42 +81,82 @@ components:
       minLength: 1
       maxLength: 50
       example: john-doe
+    Email:
+      type: string
+      maxLength: 320
+      example: john-doe@email.com
     Password:
       type: string
       format: password
-      description: In addition to the length restrictions, the password should contain at least one regular character, one special character, and one number.
+      description: In addition to the length restrictions, the password must contain at least one regular character, one special character, and one number.
       minLength: 14
       maxLength: 72
       example: ReallySecurePassword$123
     Name:
       type: string
       minLength: 1
+      maxLength: 100
+      example: John Doe
+    Address:
+      type: string
+      minLength: 1
       maxLength: 50
-      example: John
+    Country:
+      type: string
+      description: BCP 47 language tag.
+      minLength: 1
+      maxLength: 20
+    Vatin:
+      type: string
+      minLength: 1
+      maxLength: 20
+
+    UserBalance:
+      type: number
+      format: double
 
     UserPost:
       type: object
       required:
         - username
+        - email
         - password
-        - firstName
-        - lastName
+        - displayName
+        - dateOfBirth
+        - address
+        - country
+        - vatin
       properties:
         username:
           $ref: "#/components/schemas/Username"
+        email:
+          $ref: "#/components/schemas/Email"
         password:
           $ref: "#/components/schemas/Password"
-        firstName:
+        displayName:
           $ref: "#/components/schemas/Name"
-        lastName:
-          $ref: "#/components/schemas/Name"
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
     User:
       type: object
       required:
         - id
         - username
-        - firstName
-        - lastName
+        - email
+        - displayName
+        - dateOfBirth
+        - address
+        - country
+        - vatin
+        - balance
         - createdAt
         - modifiedAt
       properties:
@@ -127,10 +164,22 @@ components:
           $ref: "#/components/schemas/UUID"
         username:
           $ref: "#/components/schemas/Username"
-        firstName:
+        email:
+          $ref: "#/components/schemas/Email"
+        displayName:
           $ref: "#/components/schemas/Name"
-        lastName:
-          $ref: "#/components/schemas/Name"
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        balance:
+          $ref: "#/components/schemas/UserBalance"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
