@@ -99,7 +99,9 @@ const formSchema = z.object({
   screenshots: z.array(z.instanceof(File)).min(1, {
     message: "At least one screenshot must be uploaded",
   }),
-  ageRating: z.number().min(0).max(18),
+  ageRating: z.number().min(0, {
+    message: "An age rating is required",
+  }),
   price: z.number().min(0, {
     message: "Price must be a positive number",
   }),
@@ -109,9 +111,11 @@ const formSchema = z.object({
 export function GameForm({
   mode,
   defaultValues,
+  onSave,
 }: {
   mode: "add" | "edit";
   defaultValues?: z.infer<typeof formSchema>;
+  onSave: () => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -127,14 +131,16 @@ export function GameForm({
         recommended: "",
       },
       screenshots: [],
-      ageRating: 0,
+      ageRating: 3,
       price: 0,
       isActive: false,
     },
   });
   const navigate = useNavigate();
 
-  function onSubmit() {}
+  function onSubmit() {
+    onSave();
+  }
 
   return (
     <Form {...form}>
