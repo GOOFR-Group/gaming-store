@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { GameForm } from "@/components/form/game";
 import {
@@ -14,6 +14,8 @@ export const Route = createFileRoute("/distribute/_layout/games/add")({
 });
 
 function Component() {
+  const navigate = useNavigate();
+
   return (
     <Card className="flex flex-col min-h-full">
       <CardHeader>
@@ -21,7 +23,10 @@ function Component() {
         <CardDescription>Add a game to your game catalog</CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
-        <GameForm mode="add" />
+        <GameForm
+          mode="add"
+          onSave={() => navigate({ to: "/distribute/games" })}
+        />
       </CardContent>
     </Card>
   );

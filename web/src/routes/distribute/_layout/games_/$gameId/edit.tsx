@@ -1,5 +1,9 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useParams,
+} from "@tanstack/react-router";
 
 import { GameForm } from "@/components/form/game";
 import {
@@ -57,6 +61,7 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
 function Component() {
   const params = useParams({ from: "/distribute/_layout/games/$gameId/edit" });
   const { data } = useSuspenseQuery(gameQueryOptions(params.gameId));
+  const navigate = useNavigate();
 
   return (
     <Card className="flex flex-col min-h-full">
@@ -80,6 +85,14 @@ function Component() {
             isActive: data.isActive,
             screenshots: [],
           }}
+          onSave={() =>
+            navigate({
+              to: "/distribute/games/$gameId",
+              params: {
+                gameId: params.gameId,
+              },
+            })
+          }
         />
       </CardContent>
     </Card>

@@ -34,8 +34,8 @@ function Component() {
   const { data } = useSuspenseQuery(gamesQueryOptions());
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1">
+    <div className="flex flex-col items-center min-h-screen">
+      <main className="container flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -50,14 +50,18 @@ function Component() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    Shop Now
+                  <Button
+                    asChild
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Link to="/browse">Shop Now</Link>
                   </Button>
                   <Button
+                    asChild
                     className="border-gray-700 text-white hover:bg-gray-800"
                     variant="outline"
                   >
-                    View Deals
+                    <a href="#recommended">View Recommended Games</a>
                   </Button>
                 </div>
               </div>
@@ -70,7 +74,7 @@ function Component() {
           </div>
         </section>
 
-        <Section href="/" title="Featured & Recommended">
+        <Section href="/" id="recommended" title="Featured & Recommended">
           {data.map((game) => (
             <Game
               key={game.title}
@@ -136,9 +140,17 @@ function Component() {
   );
 }
 
-function Section(props: { children: ReactNode; title: string; href: string }) {
+function Section(props: {
+  children: ReactNode;
+  title: string;
+  href: string;
+  id?: string;
+}) {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
+    <section
+      className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6"
+      id={props.id}
+    >
       <Link className="flex items-center gap-4 mb-8" href={props.href}>
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
