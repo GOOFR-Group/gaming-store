@@ -15,7 +15,7 @@ CREATE TABLE users (
     password                varchar(60)     NOT NULL,
     display_name            varchar(100)    NOT NULL,
     date_of_birth           date            NOT NULL,
-    address                 varchar(50)     NOT NULL,
+    address                 varchar(100)     NOT NULL,
     country                 varchar(20)     NOT NULL, -- BCP 47 language tag.
     vatin                   varchar(20)     NOT NULL,
     balance                 float8          NOT NULL    DEFAULT 0,

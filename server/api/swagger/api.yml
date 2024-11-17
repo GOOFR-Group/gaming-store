@@ -100,7 +100,7 @@ components:
     Address:
       type: string
       minLength: 1
-      maxLength: 50
+      maxLength: 100
     Country:
       type: string
       description: BCP 47 language tag.
