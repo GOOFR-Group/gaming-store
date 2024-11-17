@@ -13,6 +13,7 @@ ignoreWords:
   - ihttp
   - isready
   - ldflags
+  - oapitypes
   - openapi
   - pegi
   - pgconn
@@ -22,6 +23,7 @@ ignoreWords:
   - plpgsql
   - Radeon
   - Ryzen
+  - signin
   - sslmode
   - stretchr
   - testcontainers
