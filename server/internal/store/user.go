@@ -80,6 +80,58 @@ func (s *store) GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domai
 	return user, nil
 }
 
+// GetUserByEmail executes a query to return the user with the specified email.
+func (s *store) GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.User, error) {
+	row := tx.QueryRow(ctx, `
+		SELECT id, username, email, display_name, date_of_birth, address, country, vatin, balance, picture_multimedia_id, created_at, modified_at 
+		FROM users 
+		WHERE email = $1 
+	`,
+		email,
+	)
+
+	user, err := getUserFromRow(row)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrUserNotFound)
+		}
+
+		return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+	}
+
+	return user, nil
+}
+
+// GetUserSignIn executes a query to return the sign-in of the user with the specified username or email.
+func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignIn, error) {
+	row := tx.QueryRow(ctx, `
+		SELECT username, email, password 
+		FROM users 
+		WHERE username = $1 OR email = $2
+		LIMIT 1
+	`,
+		username,
+		email,
+	)
+
+	var signIn domain.SignIn
+
+	err := row.Scan(
+		&signIn.Username,
+		&signIn.Email,
+		&signIn.Password,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrUserNotFound)
+		}
+
+		return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+	}
+
+	return signIn, nil
+}
+
 // getUserFromRow returns the user by scanning the given row.
 func getUserFromRow(row pgx.Row) (domain.User, error) {
 	var (
