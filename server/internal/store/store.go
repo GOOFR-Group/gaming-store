@@ -18,7 +18,8 @@ import (
 
 // Common failure descriptions.
 const (
-	descriptionFailedScanRow = "store: failed to scan row"
+	descriptionFailedScanRow          = "store: failed to scan row"
+	descriptionFailedParseLanguageTag = "store: failed to parse language tag"
 )
 
 // migrationsURL defines the source url of the migrations.

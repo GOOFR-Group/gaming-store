@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
@@ -81,7 +82,10 @@ func (s *store) GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domai
 
 // getUserFromRow returns the user by scanning the given row.
 func getUserFromRow(row pgx.Row) (domain.User, error) {
-	var user domain.User
+	var (
+		user    domain.User
+		country string
+	)
 
 	err := row.Scan(
 		&user.ID,
@@ -90,7 +94,7 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 		&user.DisplayName,
 		&user.DateOfBirth,
 		&user.Address,
-		&user.Country,
+		&country,
 		&user.Vatin,
 		&user.Balance,
 		&user.PictureMultimediaID,
@@ -99,6 +103,11 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 	)
 	if err != nil {
 		return domain.User{}, err
+	}
+
+	user.Country.Tag, err = language.Parse(country)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedParseLanguageTag, err)
 	}
 
 	return user, nil
