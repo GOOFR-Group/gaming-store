@@ -10,10 +10,13 @@ ignoreWords:
   - GOPATH
   - GOOFR
   - healthcheck
+  - ihttp
   - isready
   - ldflags
   - pegi
+  - pgconn
   - PGUSER
+  - pgxpool
   - pkey
   - plpgsql
   - Radeon
