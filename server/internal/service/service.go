@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	descriptionInvalidFieldValue  = "service: invalid field value"
-	descriptionFailedHashPassword = "service: failed to hash password"
+	descriptionInvalidFieldValue       = "service: invalid field value"
+	descriptionFailedHashPassword      = "service: failed to hash password"
+	descriptionFailedCheckPasswordHash = "service: failed to check password hash"
+	descriptionFailedCreateJWT         = "service: failed to create jwt"
 )
 
 // AuthenticationService defines the authentication service interface.
@@ -31,6 +33,8 @@ type AuthenticationService interface {
 type Store interface {
 	CreateUser(ctx context.Context, tx pgx.Tx, editableUser domain.EditableUserWithPassword) (uuid.UUID, error)
 	GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.User, error)
+	GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.User, error)
+	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignIn, error)
 
 	NewTx(ctx context.Context, isoLevel pgx.TxIsoLevel, accessMode pgx.TxAccessMode) (pgx.Tx, error)
 }
@@ -57,6 +61,21 @@ func rollbackFunc(ctx context.Context, tx pgx.Tx) func() {
 			logging.Logger.ErrorContext(ctx, "service: failed to rollback transaction", logging.Error(err))
 		}
 	}
+}
+
+// readOnlyTx returns a read only transaction wrapper.
+func (s *service) readOnlyTx(ctx context.Context, f func(pgx.Tx) error) error {
+	tx, err := s.store.NewTx(ctx, pgx.ReadCommitted, pgx.ReadOnly)
+	if err != nil {
+		return err
+	}
+	defer rollbackFunc(ctx, tx)()
+
+	if err := f(tx); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 // readWriteTx returns a read and write transaction wrapper.

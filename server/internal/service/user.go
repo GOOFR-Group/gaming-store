@@ -6,21 +6,19 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/goofr-group/gaming-store/server/internal/authn"
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 )
 
 const (
-	descriptionFailedCreateUser         = "service: failed to create user"
-	descriptionFailedListUsers          = "service: failed to list users"
-	descriptionFailedGetUserByID        = "service: failed to get user by id"
-	descriptionFailedGetUserByUsername  = "service: failed to get user by username"
-	descriptionFailedGetUserSignIn      = "service: failed to get user sign-in"
-	descriptionFailedPatchUser          = "service: failed to patch user"
-	descriptionFailedUpdateUserPassword = "service: failed to update user password"
-	descriptionFailedDeleteUserByID     = "service: failed to delete user by id"
+	descriptionFailedCreateUser     = "service: failed to create user"
+	descriptionFailedGetUserByID    = "service: failed to get user by id"
+	descriptionFailedGetUserByEmail = "service: failed to get user by email"
+	descriptionFailedGetUserSignIn  = "service: failed to get user sign-in"
 )
 
 // CreateUser creates a new user with the specified data.
@@ -105,4 +103,90 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 	}
 
 	return user, nil
+}
+
+// GetUserByID returns the user with the specified identifier.
+func (s *service) GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "GetUserByID"),
+		slog.String(logging.UserID, id.String()),
+	}
+
+	var (
+		user domain.User
+		err  error
+	)
+
+	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
+		user, err = s.store.GetUserByID(ctx, tx, id)
+		return err
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound):
+			return domain.User{}, logInfoAndWrapError(ctx, err, descriptionFailedGetUserByID, logAttrs...)
+		default:
+			return domain.User{}, logAndWrapError(ctx, err, descriptionFailedGetUserByID, logAttrs...)
+		}
+	}
+
+	return user, nil
+}
+
+// SignInUser returns a JSON Web Token for the specified username or email and password.
+func (s *service) SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error) {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "SignInUser"),
+		slog.String(logging.UserUsername, string(username)),
+		slog.String(logging.UserEmail, string(email)),
+	}
+
+	username = domain.Username(strings.ToLower(string(username)))
+	email = domain.Email(strings.ToLower(string(email)))
+
+	var (
+		signIn domain.SignIn
+		err    error
+	)
+
+	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
+		signIn, err = s.store.GetUserSignIn(ctx, tx, username, email)
+		return err
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound):
+			return "", logInfoAndWrapError(ctx, domain.ErrCredentialsIncorrect, descriptionFailedGetUserSignIn, logAttrs...)
+		default:
+			return "", logAndWrapError(ctx, err, descriptionFailedGetUserSignIn, logAttrs...)
+		}
+	}
+
+	valid, err := s.authnService.CheckPasswordHash([]byte(password), []byte(signIn.Password))
+	if err != nil {
+		return "", logAndWrapError(ctx, err, descriptionFailedCheckPasswordHash, logAttrs...)
+	}
+
+	if !valid {
+		return "", logInfoAndWrapError(ctx, domain.ErrCredentialsIncorrect, descriptionFailedCheckPasswordHash, logAttrs...)
+	}
+
+	var user domain.User
+
+	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
+		user, err = s.store.GetUserByEmail(ctx, tx, signIn.Email)
+		return err
+	})
+	if err != nil {
+		return "", logAndWrapError(ctx, err, descriptionFailedGetUserByEmail, logAttrs...)
+	}
+
+	role := authn.SubjectRoleUser
+
+	token, err := s.authnService.NewJWT(user.ID.String(), []authn.SubjectRole{role})
+	if err != nil {
+		return "", logAndWrapError(ctx, err, descriptionFailedCreateJWT, logAttrs...)
+	}
+
+	return token, nil
 }
