@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 	"net/mail"
 
@@ -25,6 +26,11 @@ const (
 
 	vatinMinLength = 1
 	vatinMaxLength = 20
+)
+
+// Common errors.
+var (
+	ErrCredentialsIncorrect = errors.New("incorrect credentials") // Returned when a username or email is not found or the password is incorrect.
 )
 
 // FieldValueInvalidError is returned when a field contains an invalid value.
