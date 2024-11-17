@@ -16,6 +16,8 @@ const (
 	codeParamInvalidFormat         = "param_invalid_format"
 	codeRequestBodyInvalid         = "request_body_invalid"
 	codeFieldValueInvalid          = "field_value_invalid"
+	codeCredentialsIncorrect       = "credentials_incorrect"
+	codeInternalServerError        = "internal_server_error"
 
 	errAuthorizationHeaderInvalid = "invalid authorization header"
 	errJWTInvalid                 = "invalid jwt"
@@ -24,7 +26,6 @@ const (
 	errParamInvalidFormat         = "invalid parameter format"
 	errRequestBodyInvalid         = "invalid request body"
 	errFieldValueInvalid          = "invalid field value"
-	errFilterValueInvalid         = "invalid filter value"
 	errCredentialsIncorrect       = "incorrect credentials"
 )
 
@@ -49,6 +50,11 @@ func forbidden(w http.ResponseWriter, code, message string) {
 	_ = fault(w, http.StatusForbidden, code, &message)
 }
 
+// notFound writes an error response and sets the header with the not found status code.
+func notFound(w http.ResponseWriter, code, message string) {
+	_ = fault(w, http.StatusNotFound, code, &message)
+}
+
 // conflict writes an error response and sets the header with the conflict status code.
 func conflict(w http.ResponseWriter, code, message string) {
 	_ = fault(w, http.StatusConflict, code, &message)
@@ -56,7 +62,7 @@ func conflict(w http.ResponseWriter, code, message string) {
 
 // internalServerError sets the header with the internal server error status code.
 func internalServerError(w http.ResponseWriter) {
-	_ = fault(w, http.StatusInternalServerError, "internal_server_error", nil)
+	_ = fault(w, http.StatusInternalServerError, codeInternalServerError, nil)
 }
 
 // fault writes an error response and sets the header with the provided status code and content type json.
