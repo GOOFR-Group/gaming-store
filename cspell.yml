@@ -3,26 +3,47 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
+  - Barthélemy
+  - Bouvet
+  - Burkina
+  - Cabo
+  - Caicos
   - Castagnoli93
   - cmdk
+  - Côte
+  - d'Ivoire
+  - Eswatini
+  - Eustatius
+  - Faso
   - fkey
+  - Futuna
   - golangci
   - GOPATH
   - GOOFR
   - healthcheck
   - isready
+  - Kitts
   - ldflags
+  - Leste
+  - Maarten
+  - Marino
+  - Mayen
   - pegi
   - PGUSER
   - pkey
   - plpgsql
   - Radeon
+  - Réunion
+  - Rica
   - Ryzen
   - sslmode
   - stretchr
   - testcontainers
+  - Tokelau
   - tseslint
+  - Türkiye
   - vatin
+  - Viet
 ignorePaths:
   - .golangci.yml
   - go.mod
