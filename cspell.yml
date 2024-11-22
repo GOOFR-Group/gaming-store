@@ -21,6 +21,7 @@ ignoreWords:
   - GOPATH
   - GOOFR
   - healthcheck
+  - ihttp
   - isready
   - Kitts
   - ldflags
@@ -28,14 +29,19 @@ ignoreWords:
   - Maarten
   - Marino
   - Mayen
+  - oapitypes
+  - openapi
   - pegi
+  - pgconn
   - PGUSER
+  - pgxpool
   - pkey
   - plpgsql
   - Radeon
   - Réunion
   - Rica
   - Ryzen
+  - signin
   - sslmode
   - stretchr
   - testcontainers

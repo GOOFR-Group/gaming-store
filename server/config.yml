@@ -1,0 +1,7 @@
+serverHTTP:
+  writeTimeout: 60s
+database:
+  url: postgres://postgres:postgres@database:5432/store?sslmode=disable
+  migrations:
+    apply: true
+    version: 5
