@@ -260,18 +260,25 @@ func userPatchToDomain(userPatch api.UserPatch) domain.EditableUserPatch {
 
 // userFromDomain returns a standardized user based on the domain model.
 func userFromDomain(user domain.User) api.User {
+	var pictureMultimedia *api.Multimedia
+
+	if user.PictureMultimedia != nil {
+		multimedia := multimediaFromDomain(*user.PictureMultimedia)
+		pictureMultimedia = &multimedia
+	}
+
 	return api.User{
-		Id:                  user.ID,
-		Username:            string(user.Username),
-		Email:               string(user.Email),
-		DisplayName:         string(user.DisplayName),
-		DateOfBirth:         dateFromTime(user.DateOfBirth),
-		Address:             string(user.Address),
-		Country:             string(user.Country),
-		Vatin:               string(user.Vatin),
-		Balance:             user.Balance,
-		PictureMultimediaId: user.PictureMultimediaID,
-		CreatedAt:           user.CreatedAt,
-		ModifiedAt:          user.ModifiedAt,
+		Id:                user.ID,
+		Username:          string(user.Username),
+		Email:             string(user.Email),
+		DisplayName:       string(user.DisplayName),
+		DateOfBirth:       dateFromTime(user.DateOfBirth),
+		Address:           string(user.Address),
+		Country:           string(user.Country),
+		Vatin:             string(user.Vatin),
+		Balance:           user.Balance,
+		PictureMultimedia: pictureMultimedia,
+		CreatedAt:         user.CreatedAt,
+		ModifiedAt:        user.ModifiedAt,
 	}
 }
