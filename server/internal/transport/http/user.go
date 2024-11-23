@@ -162,6 +162,8 @@ func (h *handler) PatchUserByID(w http.ResponseWriter, r *http.Request, userID a
 		switch {
 		case errors.As(err, &domainFieldValueInvalidError):
 			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
+		case errors.Is(err, domain.ErrUserNotFound):
+			notFound(w, codeUserNotFound, errUserNotFound)
 		case errors.Is(err, domain.ErrUserUsernameAlreadyExists):
 			conflict(w, codeUserUsernameAlreadyExists, errUserUsernameAlreadyExists)
 		case errors.Is(err, domain.ErrUserEmailAlreadyExists):
