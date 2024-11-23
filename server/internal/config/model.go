@@ -2,8 +2,9 @@ package config
 
 // Service defines the service configuration structure.
 type Service struct {
-	ServerHTTP ServerHTTP `yaml:"serverHTTP"`
-	Database   Database   `yaml:"database"`
+	ServerHTTP   ServerHTTP   `yaml:"serverHTTP"`
+	Database     Database     `yaml:"database"`
+	CloudStorage CloudStorage `yaml:"cloudStorage"`
 }
 
 // ServerHTTP defines the http server configuration structure.
@@ -22,4 +23,9 @@ type DatabaseMigrations struct {
 type Database struct {
 	URL        string             `yaml:"url"`
 	Migrations DatabaseMigrations `yaml:"migrations"`
+}
+
+// CloudStorage defines the cloud storage configuration structure.
+type CloudStorage struct {
+	BucketMultimedia string `yaml:"bucketMultimedia"`
 }

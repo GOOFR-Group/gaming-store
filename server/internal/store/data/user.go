@@ -1,13 +1,13 @@
-package store
+package data
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
@@ -61,9 +61,12 @@ func (s *store) CreateUser(ctx context.Context, tx pgx.Tx, editableUser domain.E
 // GetUserByID executes a query to return the user with the specified identifier.
 func (s *store) GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.User, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT id, username, email, display_name, date_of_birth, address, country, vatin, balance, picture_multimedia_id, created_at, modified_at 
-		FROM users 
-		WHERE id = $1 
+		SELECT u.id, u.username, u.email, u.display_name, u.date_of_birth, u.address, u.country, u.vatin, u.balance, u.created_at, u.modified_at,
+			m.id, m.checksum, m.media_type, m.url, m.created_at 
+		FROM users u
+		LEFT JOIN multimedia m
+			ON m.id = u.picture_multimedia_id
+		WHERE u.id = $1 
 	`,
 		id,
 	)
@@ -83,9 +86,12 @@ func (s *store) GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domai
 // GetUserByEmail executes a query to return the user with the specified email.
 func (s *store) GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.User, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT id, username, email, display_name, date_of_birth, address, country, vatin, balance, picture_multimedia_id, created_at, modified_at 
-		FROM users 
-		WHERE email = $1 
+		SELECT u.id, u.username, u.email, u.display_name, u.date_of_birth, u.address, u.country, u.vatin, u.balance, u.created_at, u.modified_at,
+			m.id, m.checksum, m.media_type, m.url, m.created_at
+		FROM users u
+		LEFT JOIN multimedia m
+			ON m.id = u.picture_multimedia_id
+		WHERE u.email = $1 
 	`,
 		email,
 	)
@@ -132,11 +138,64 @@ func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Us
 	return signIn, nil
 }
 
+// PatchUser executes a query to patch a user with the specified identifier and data.
+func (s *store) PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error {
+	commandTag, err := tx.Exec(ctx, `
+		UPDATE users SET
+			username = coalesce($2, username),
+			email = coalesce($3, email),
+			display_name = coalesce($4, display_name),
+			date_of_birth = coalesce($5, date_of_birth),
+			address = coalesce($6, address),
+			country = coalesce($7, country),
+			vatin = coalesce($8, vatin),
+			balance = coalesce($9, balance),
+			picture_multimedia_id = coalesce($10, picture_multimedia_id)
+		WHERE id = $1
+	`,
+		id,
+		editableUser.Username,
+		editableUser.Email,
+		editableUser.DisplayName,
+		editableUser.DateOfBirth,
+		editableUser.Address,
+		editableUser.Country,
+		editableUser.Vatin,
+		editableUser.Balance,
+		editableUser.PictureMultimediaID,
+	)
+	if err != nil {
+		switch constraintNameFromError(err) {
+		case constraintUsersUsernameKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserUsernameAlreadyExists)
+		case constraintUsersEmailKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserEmailAlreadyExists)
+		case constraintUsersVatinKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserVatinAlreadyExists)
+		case constraintUsersPictureMultimediaIDFkey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrMultimediaNotFound)
+		default:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, err)
+		}
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserNotFound)
+	}
+
+	return nil
+}
+
 // getUserFromRow returns the user by scanning the given row.
 func getUserFromRow(row pgx.Row) (domain.User, error) {
 	var (
-		user    domain.User
-		country string
+		user domain.User
+
+		pictureMultimediaID        *uuid.UUID
+		pictureMultimediaChecksum  *uint32
+		pictureMultimediaMediaType *string
+		pictureMultimediaURL       *string
+		pictureMultimediaCreatedAt *time.Time
 	)
 
 	err := row.Scan(
@@ -146,20 +205,32 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 		&user.DisplayName,
 		&user.DateOfBirth,
 		&user.Address,
-		&country,
+		&user.Country,
 		&user.Vatin,
 		&user.Balance,
-		&user.PictureMultimediaID,
 		&user.CreatedAt,
 		&user.ModifiedAt,
+
+		&pictureMultimediaID,
+		&pictureMultimediaChecksum,
+		&pictureMultimediaMediaType,
+		&pictureMultimediaURL,
+		&pictureMultimediaCreatedAt,
 	)
 	if err != nil {
 		return domain.User{}, err
 	}
 
-	user.Country.Tag, err = language.Parse(country)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedParseLanguageTag, err)
+	if pictureMultimediaID != nil {
+		user.PictureMultimedia = &domain.Multimedia{
+			MultimediaObject: domain.MultimediaObject{
+				Checksum:  *pictureMultimediaChecksum,
+				MediaType: *pictureMultimediaMediaType,
+				URL:       *pictureMultimediaURL,
+			},
+			ID:        *pictureMultimediaID,
+			CreatedAt: *pictureMultimediaCreatedAt,
+		}
 	}
 
 	return user, nil
