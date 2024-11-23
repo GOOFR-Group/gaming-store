@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
-
-	"golang.org/x/text/language"
 )
 
 // Field constraints.
@@ -21,8 +19,7 @@ const (
 	addressMinLength = 1
 	addressMaxLength = 100
 
-	countryMinLength = 1
-	countryMaxLength = 20
+	countryLength = 2
 
 	vatinMinLength = 1
 	vatinMaxLength = 20
@@ -86,14 +83,11 @@ func (a Address) Valid() bool {
 }
 
 // Country defines the country type.
-type Country struct {
-	language.Tag
-}
+type Country string
 
 // Valid returns true if the country is valid, false otherwise.
 func (c Country) Valid() bool {
-	cString := c.String()
-	return len(cString) >= countryMinLength && len(cString) <= countryMaxLength
+	return len(c) == countryLength
 }
 
 // Vatin defines the value-added tax identification number type.

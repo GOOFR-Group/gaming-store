@@ -1,4 +1,4 @@
-package store
+package data
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
@@ -132,12 +131,57 @@ func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Us
 	return signIn, nil
 }
 
+// PatchUser executes a query to patch a user with the specified identifier and data.
+func (s *store) PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error {
+	commandTag, err := tx.Exec(ctx, `
+		UPDATE users SET
+			username = coalesce($2, username),
+			email = coalesce($3, email),
+			display_name = coalesce($4, display_name),
+			date_of_birth = coalesce($5, date_of_birth),
+			address = coalesce($6, address),
+			country = coalesce($7, country),
+			vatin = coalesce($8, vatin),
+			balance = coalesce($9, balance),
+			picture_multimedia_id = coalesce($10, picture_multimedia_id)
+		WHERE id = $1
+	`,
+		id,
+		editableUser.Username,
+		editableUser.Email,
+		editableUser.DisplayName,
+		editableUser.DateOfBirth,
+		editableUser.Address,
+		editableUser.Country,
+		editableUser.Vatin,
+		editableUser.Balance,
+		editableUser.PictureMultimediaID,
+	)
+	if err != nil {
+		switch constraintNameFromError(err) {
+		case constraintUsersUsernameKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserUsernameAlreadyExists)
+		case constraintUsersEmailKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserEmailAlreadyExists)
+		case constraintUsersVatinKey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserVatinAlreadyExists)
+		case constraintUsersPictureMultimediaIDFkey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrMultimediaNotFound)
+		default:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, err)
+		}
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserNotFound)
+	}
+
+	return nil
+}
+
 // getUserFromRow returns the user by scanning the given row.
 func getUserFromRow(row pgx.Row) (domain.User, error) {
-	var (
-		user    domain.User
-		country string
-	)
+	var user domain.User
 
 	err := row.Scan(
 		&user.ID,
@@ -146,7 +190,7 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 		&user.DisplayName,
 		&user.DateOfBirth,
 		&user.Address,
-		&country,
+		&user.Country,
 		&user.Vatin,
 		&user.Balance,
 		&user.PictureMultimediaID,
@@ -155,11 +199,6 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 	)
 	if err != nil {
 		return domain.User{}, err
-	}
-
-	user.Country.Tag, err = language.Parse(country)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedParseLanguageTag, err)
 	}
 
 	return user, nil

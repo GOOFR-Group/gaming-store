@@ -33,6 +33,19 @@ type EditableUserWithPassword struct {
 	Password
 }
 
+// EditableUserPatch defines the patchable user structure.
+type EditableUserPatch struct {
+	Username            *Username
+	Email               *Email
+	DisplayName         *Name
+	DateOfBirth         *time.Time
+	Address             *Address
+	Country             *Country
+	Vatin               *Vatin
+	Balance             *float64
+	PictureMultimediaID *uuid.UUID
+}
+
 // User defines the user structure.
 type User struct {
 	EditableUser

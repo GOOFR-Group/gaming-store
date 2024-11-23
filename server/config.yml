@@ -5,3 +5,5 @@ database:
   migrations:
     apply: true
     version: 5
+cloudStorage:
+  bucketMultimedia: multimedia_bucket
