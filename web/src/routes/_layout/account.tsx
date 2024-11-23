@@ -244,7 +244,9 @@ function UserAvatar(props: { id: string; displayName: string; url?: string }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     async mutationFn(file: File) {
-      await uploadMultimedia(file);
+      const multimedia = await uploadMultimedia(file);
+
+      await updateUser(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
@@ -282,7 +284,11 @@ function UserAvatar(props: { id: string; displayName: string; url?: string }) {
   return (
     <Avatar asChild className="relative size-24 group cursor-pointer">
       <label>
-        <AvatarImage alt="Gamer Avatar" src={props.url} />
+        <AvatarImage
+          alt="Gamer Avatar"
+          className="object-cover"
+          src={props.url}
+        />
         <AvatarFallback>{getInitials(props.displayName)}</AvatarFallback>
         {mutation.isPending ? (
           <>
