@@ -43,6 +43,12 @@ To run the application in containers, the [Docker Engine](https://docs.docker.co
 
 To ensure a smooth development process, we use [GNU Make](https://www.gnu.org/software/make/) to run all necessary commands for building, testing, and deploying this project. Make files help automate these tasks, making it easier to manage complex dependencies and workflows. By using GNU Make, we can maintain consistency across different environments and streamline our development efforts.
 
+### GCP Service Account
+
+To enable the file upload functionality in this project, a Google Cloud Platform (GCP) service account key is required. The service account must have the `Storage Object Admin` role assigned, which grants the necessary permissions to upload files to a GCP Cloud Storage bucket. Ensure that the JSON key file for the service account is properly configured in the [application settings](https://cloud.google.com/docs/authentication/provide-credentials-adc#how-to) to authenticate.
+
+To run the server with the file upload functionality using the [Dockerfile](Dockerfile), it is necessary to have the JSON key file in the `server` directory, named `gcp-key.json`.
+
 ## Applications
 
 ### Quick Start

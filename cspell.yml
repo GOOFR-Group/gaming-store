@@ -10,14 +10,20 @@ ignoreWords:
   - GOPATH
   - GOOFR
   - healthcheck
+  - ihttp
   - isready
   - ldflags
+  - oapitypes
+  - openapi
   - pegi
+  - pgconn
   - PGUSER
+  - pgxpool
   - pkey
   - plpgsql
   - Radeon
   - Ryzen
+  - signin
   - sslmode
   - stretchr
   - testcontainers

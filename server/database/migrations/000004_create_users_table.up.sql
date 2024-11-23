@@ -15,8 +15,8 @@ CREATE TABLE users (
     password                varchar(60)     NOT NULL,
     display_name            varchar(100)    NOT NULL,
     date_of_birth           date            NOT NULL,
-    address                 varchar(50)     NOT NULL,
-    country                 varchar(20)     NOT NULL, -- BCP 47 language tag.
+    address                 varchar(100)    NOT NULL,
+    country                 varchar(2)      NOT NULL, -- ISO 3166-1 alpha-2 code.
     vatin                   varchar(20)     NOT NULL,
     balance                 float8          NOT NULL    DEFAULT 0,
     picture_multimedia_id   uuid,

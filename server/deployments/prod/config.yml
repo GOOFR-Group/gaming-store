@@ -1,0 +1,9 @@
+serverHTTP:
+  writeTimeout: 60s
+database:
+  url: postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=disable
+  migrations:
+    apply: true
+    version: 5
+cloudStorage:
+  bucketMultimedia: multimedia_bucket

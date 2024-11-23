@@ -5,6 +5,8 @@ info:
 tags:
   - name: User
     description: User operations
+  - name: Multimedia
+    description: Multimedia operations
 servers:
   - url: https://TODO/api
     description: Production server.
@@ -39,7 +41,165 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         409:
-          description: Username already exists.
+          description: Username, email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /users/{userId}:
+    get:
+      summary: Get a user by ID.
+      operationId: getUserByID
+      description: Returns the user with the specified identifier.
+      tags:
+        - User
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Invalid user ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Modify a user by ID.
+      operationId: patchUserByID
+      description: Modifies the user with the specified identifier. Only the specified fields in the request body are updated.
+      tags:
+        - User
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPatch"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Invalid user ID or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Username, email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /users/signin:
+    post:
+      summary: Sign in a user.
+      operationId: signInUser
+      description: Returns a JSON Web Token for the specified username or email and password.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JWT"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: Incorrect credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /multimedia:
+    put:
+      summary: Upload multimedia.
+      operationId: uploadMultimedia
+      description: Uploads a multimedia file.
+      tags:
+        - Multimedia
+      security:
+        - BearerAuth: [user, publisher]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/MultimediaPut"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Multimedia"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        413:
+          description: File is too large.
           content:
             application/json:
               schema:
@@ -54,6 +214,15 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+  parameters:
+    UserIdPathParam:
+      name: userId
+      in: path
+      description: User identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
+
   schemas:
     Error:
       type: object
@@ -62,19 +231,16 @@ components:
       properties:
         code:
           type: string
-          enum:
-            - bad_request
-            - unauthorized
-            - forbidden
-            - not_found
-            - conflict
-            - internal_server_error
         message:
           type: string
     UUID:
       type: string
       format: uuid
       example: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff"
+    Date:
+      type: string
+      format: date
+      example: "2017-07-21"
     DateTime:
       type: string
       format: date-time
@@ -84,42 +250,142 @@ components:
       minLength: 1
       maxLength: 50
       example: john-doe
+    Email:
+      type: string
+      maxLength: 320
+      example: john-doe@email.com
     Password:
       type: string
       format: password
-      description: In addition to the length restrictions, the password should contain at least one regular character, one special character, and one number.
+      description: In addition to the length restrictions, the password must contain at least one regular character, one special character, and one number.
       minLength: 14
       maxLength: 72
       example: ReallySecurePassword$123
     Name:
       type: string
       minLength: 1
-      maxLength: 50
-      example: John
+      maxLength: 100
+      example: John Doe
+    Address:
+      type: string
+      minLength: 1
+      maxLength: 100
+    Country:
+      type: string
+      description: ISO 3166-1 alpha-2 code.
+      minLength: 2
+      maxLength: 2
+    Vatin:
+      type: string
+      minLength: 1
+      maxLength: 20
+    File:
+      type: string
+      format: binary
+      description: File size up to 2 MB.
+      maxLength: 2097152
+    Checksum:
+      type: integer
+      format: int64
+      description: CRC32 checksum using the Castagnoli93 polynomial.
+      minimum: 0
+    MediaType:
+      type: string
+      description: MIME type.
+      minLength: 1
+      maxLength: 255
+    URL:
+      type: string
+      minLength: 1
+      maxLength: 2048
+
+    UserBalance:
+      type: number
+      format: double
+
+    SignIn:
+      type: object
+      required:
+        - password
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        email:
+          $ref: "#/components/schemas/Email"
+        password:
+          $ref: "#/components/schemas/Password"
+    JWT:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVcJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiWiBmFtZSI6IkPvaG4gRG9lIiWiaWF0IjOxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssW5c
 
     UserPost:
       type: object
       required:
         - username
+        - email
         - password
-        - firstName
-        - lastName
+        - displayName
+        - dateOfBirth
+        - address
+        - country
+        - vatin
       properties:
         username:
           $ref: "#/components/schemas/Username"
+        email:
+          $ref: "#/components/schemas/Email"
         password:
           $ref: "#/components/schemas/Password"
-        firstName:
+        displayName:
           $ref: "#/components/schemas/Name"
-        lastName:
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    UserPatch:
+      type: object
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        email:
+          $ref: "#/components/schemas/Email"
+        displayName:
           $ref: "#/components/schemas/Name"
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        balance:
+          $ref: "#/components/schemas/UserBalance"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
     User:
       type: object
       required:
         - id
         - username
-        - firstName
-        - lastName
+        - email
+        - displayName
+        - dateOfBirth
+        - address
+        - country
+        - vatin
+        - balance
         - createdAt
         - modifiedAt
       properties:
@@ -127,13 +393,52 @@ components:
           $ref: "#/components/schemas/UUID"
         username:
           $ref: "#/components/schemas/Username"
-        firstName:
+        email:
+          $ref: "#/components/schemas/Email"
+        displayName:
           $ref: "#/components/schemas/Name"
-        lastName:
-          $ref: "#/components/schemas/Name"
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        balance:
+          $ref: "#/components/schemas/UserBalance"
+        pictureMultimedia:
+          $ref: "#/components/schemas/Multimedia"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
+          $ref: "#/components/schemas/DateTime"
+
+    MultimediaPut:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          $ref: "#/components/schemas/File"
+    Multimedia:
+      type: object
+      required:
+        - id
+        - checksum
+        - mediaType
+        - url
+        - createdAt
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        checksum:
+          $ref: "#/components/schemas/Checksum"
+        mediaType:
+          $ref: "#/components/schemas/MediaType"
+        url:
+          $ref: "#/components/schemas/URL"
+        createdAt:
           $ref: "#/components/schemas/DateTime"
 
   responses:
