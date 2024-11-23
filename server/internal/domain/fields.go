@@ -5,6 +5,8 @@ const (
 	FieldParamUserID      = "userId"
 	FieldParamPublisherID = "publisherId"
 
+	FieldKeyFile = "file"
+
 	FieldUsername    = "username"
 	FieldEmail       = "email"
 	FieldPassword    = "password"

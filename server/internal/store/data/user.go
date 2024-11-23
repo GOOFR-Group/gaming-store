@@ -1,4 +1,4 @@
-package store
+package data
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
@@ -182,10 +181,7 @@ func (s *store) PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editable
 
 // getUserFromRow returns the user by scanning the given row.
 func getUserFromRow(row pgx.Row) (domain.User, error) {
-	var (
-		user    domain.User
-		country string
-	)
+	var user domain.User
 
 	err := row.Scan(
 		&user.ID,
@@ -194,7 +190,7 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 		&user.DisplayName,
 		&user.DateOfBirth,
 		&user.Address,
-		&country,
+		&user.Country,
 		&user.Vatin,
 		&user.Balance,
 		&user.PictureMultimediaID,
@@ -203,11 +199,6 @@ func getUserFromRow(row pgx.Row) (domain.User, error) {
 	)
 	if err != nil {
 		return domain.User{}, err
-	}
-
-	user.Country.Tag, err = language.Parse(country)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("%s: %w", descriptionFailedParseLanguageTag, err)
 	}
 
 	return user, nil
