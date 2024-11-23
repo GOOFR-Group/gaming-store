@@ -44,6 +44,7 @@ type AuthorizationService interface {
 type Service interface {
 	CreateUser(ctx context.Context, editableUser domain.EditableUserWithPassword) (domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
+	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
 }
 
