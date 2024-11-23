@@ -5,6 +5,8 @@ info:
 tags:
   - name: User
     description: User operations
+  - name: Publisher
+    description: Publisher operations
   - name: Multimedia
     description: Multimedia operations
 servers:
@@ -166,6 +168,158 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
+  /publishers:
+    post:
+      summary: Create a publisher.
+      operationId: createPublisher
+      description: Creates a new publisher with the specified data.
+      tags:
+        - Publisher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublisherPost"
+      responses:
+        201:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /publishers/{publisherId}:
+    get:
+      summary: Get a publisher by ID.
+      operationId: getPublisherByID
+      description: Returns the publisher with the specified identifier.
+      tags:
+        - Publisher
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid publisher ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Modify a publisher by ID.
+      operationId: patchPublisherByID
+      description: Modifies the publisher with the specified identifier. Only the specified fields in the request body are updated.
+      tags:
+        - Publisher
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublisherPatch"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid publisher ID or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /publishers/signin:
+    post:
+      summary: Sign in a publisher.
+      operationId: signInPublisher
+      description: Returns a JSON Web Token for the specified email and password.
+      tags:
+        - Publisher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JWT"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: Incorrect credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
   /multimedia:
     put:
       summary: Upload multimedia.
@@ -219,6 +373,13 @@ components:
       name: userId
       in: path
       description: User identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
+    PublisherIdPathParam:
+      name: publisherId
+      in: path
+      description: Publisher identifier.
       required: true
       schema:
         $ref: "#/components/schemas/UUID"
@@ -407,6 +568,76 @@ components:
           $ref: "#/components/schemas/Vatin"
         balance:
           $ref: "#/components/schemas/UserBalance"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+        modifiedAt:
+          $ref: "#/components/schemas/DateTime"
+
+    PublisherPost:
+      type: object
+      required:
+        - email
+        - password
+        - name
+        - address
+        - country
+        - vatin
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        password:
+          $ref: "#/components/schemas/Password"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    PublisherPatch:
+      type: object
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    Publisher:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - address
+        - country
+        - vatin
+        - createdAt
+        - modifiedAt
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        email:
+          $ref: "#/components/schemas/Email"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
         pictureMultimediaId:
           $ref: "#/components/schemas/UUID"
         createdAt:

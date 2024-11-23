@@ -46,6 +46,11 @@ type Service interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
+
+	CreatePublisher(ctx context.Context, editablePublisher domain.EditablePublisherWithPassword) (domain.Publisher, error)
+	GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Publisher, error)
+	PatchPublisher(ctx context.Context, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) (domain.Publisher, error)
+	SignInPublisher(ctx context.Context, email domain.Email, password domain.Password) (string, error)
 }
 
 // handler defines the http handler structure.

@@ -7,6 +7,7 @@ const (
 
 	FieldUsername    = "username"
 	FieldEmail       = "email"
+	FieldName        = "name"
 	FieldPassword    = "password"
 	FieldDisplayName = "displayName"
 	FieldAddress     = "address"
