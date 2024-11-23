@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as z from "zod";
@@ -37,11 +37,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Multimedia } from "@/domain/multimedia";
-import { NewUser, User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
+import { createUser } from "@/lib/api";
 import { COUNTRIES } from "@/lib/constants";
+import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+import { passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/_layout/register")({
   component: Component,
@@ -68,10 +69,10 @@ const formSchema = z
     displayName: z
       .string()
       .min(1, {
-        message: "Name is required",
+        message: "Full name is required",
       })
       .max(100, {
-        message: "Name must be shorter than 100 characters",
+        message: "Full name must be shorter than 100 characters",
       }),
     dateOfBirth: z.date({
       required_error: "Date of birth is required",
@@ -95,7 +96,6 @@ const formSchema = z
       .max(20, {
         message: "VAT must be shorter than 20 characters",
       }),
-    picture: z.instanceof(File).optional(),
     password: z
       .string()
       .min(14, {
@@ -104,58 +104,7 @@ const formSchema = z
       .max(72, {
         message: "Password must be shorter than 72 characters",
       })
-      .superRefine((val, ctx) => {
-        const characters = val.split("");
-        let hasLetter = false;
-        let hasDigit = false;
-        let hasSpecial = false;
-
-        characters.forEach((char) => {
-          const charCode = char.charCodeAt(0);
-          const isLetter =
-            (charCode >= 65 && charCode <= 90) ||
-            (charCode >= 97 && charCode <= 122);
-          const isDigit = charCode >= 48 && charCode <= 57;
-          const isSpecial = !isLetter;
-
-          if (isLetter) {
-            hasLetter = true;
-          }
-
-          if (isDigit) {
-            hasDigit = true;
-          }
-
-          if (isSpecial) {
-            hasSpecial = true;
-          }
-        });
-
-        if (!hasLetter) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Password must have at least one regular character",
-          });
-
-          return z.NEVER;
-        }
-
-        if (!hasDigit) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Password must have at least one number",
-          });
-
-          return z.NEVER;
-        }
-
-        if (!hasSpecial) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Password must have at least one special character",
-          });
-        }
-      }),
+      .superRefine(passwordRefinement),
     confirm: z.string().min(1, {
       message: "Passwords don't match",
     }),
@@ -178,15 +127,15 @@ function Component() {
       country: "",
       address: "",
       vatin: "",
-      picture: undefined,
       password: "",
       confirm: "",
     },
   });
   const { toast } = useToast();
-  const { mutate } = useMutation({
+  const navigate = useNavigate();
+  const mutation = useMutation({
     async mutationFn(data: RegisterSchemaType) {
-      const newUser: NewUser = {
+      await createUser({
         username: data.username,
         email: data.email,
         displayName: data.displayName,
@@ -195,52 +144,47 @@ function Component() {
         address: data.address,
         vatin: data.vatin,
         password: data.password,
-      };
-      let response: Response;
+      });
+    },
+    async onSuccess() {
+      await navigate({ to: "/" });
+    },
+    onError(error) {
+      if (error instanceof Conflict) {
+        switch (error.code) {
+          case "user_username_already_exists":
+            form.setError("username", { message: "Username already exists" });
+            break;
 
-      if (data.picture) {
-        const formData = new FormData();
-        formData.append("picture", data.picture);
+          case "user_email_already_exists":
+            form.setError("email", { message: "Email already exists" });
+            break;
 
-        response = await fetch("/api/multimedia/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const pictureMultimedia = (await response.json()) as Multimedia;
-        newUser.pictureMultimediaId = pictureMultimedia.id;
+          case "user_vatin_already_exists":
+            form.setError("vatin", { message: "VAT already exists" });
+            break;
+        }
+        return;
       }
 
-      response = await fetch("/api/users", {
-        method: "POST",
-        body: JSON.stringify(newUser),
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
       });
-      const user = (await response.json()) as User;
-
-      return user;
     },
   });
 
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
   function onSubmit(data: RegisterSchemaType) {
-    mutate(data, {
-      onSuccess() {},
-      onError() {
-        toast({
-          variant: "destructive",
-          title: "Oops! An unexpected error occurred",
-          description: "Please try again later or contact the support team.",
-        });
-      },
-    });
+    mutation.mutate(data);
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/4 top-1/4 w-64 h-64 bg-primary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute right-1/4 bottom-1/4 w-64 h-64 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute left-1/3 bottom-1/3 w-64 h-64 bg-accent rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
       <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -288,9 +232,9 @@ function Component() {
                   name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your name" {...field} />
+                        <Input placeholder="Enter your full name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -372,20 +316,6 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="vatin"
                   render={({ field }) => (
                     <FormItem>
@@ -397,33 +327,21 @@ function Component() {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="picture"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>
-                        Picture{" "}
-                        <span className="text-xs italic text-muted-foreground">
-                          Optional
-                        </span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          accept="image/*"
-                          type="file"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            form.setValue("picture", files[0]);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -460,6 +378,7 @@ function Component() {
             <CardFooter>
               <Button
                 className="w-full text-primary-foreground font-semibold"
+                disabled={mutation.isPending}
                 type="submit"
               >
                 Register Account

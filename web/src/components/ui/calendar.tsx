@@ -54,7 +54,7 @@ function Calendar({
           <SelectContent>
             {[...(new Array(12) as number[])].map((_, index) => {
               return (
-                <SelectItem value={(index + 1).toString()}>
+                <SelectItem key={index + 1} value={(index + 1).toString()}>
                   {months[index + 1]}
                 </SelectItem>
               );
@@ -74,7 +74,7 @@ function Calendar({
             {[...(new Array(new Date().getFullYear()) as number[])]
               .map((_, index) => {
                 return (
-                  <SelectItem value={(index + 1).toString()}>
+                  <SelectItem key={index + 1} value={(index + 1).toString()}>
                     {(index + 1).toString()}
                   </SelectItem>
                 );

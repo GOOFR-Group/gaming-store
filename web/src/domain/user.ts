@@ -27,5 +27,4 @@ export interface NewUser {
   address: string;
   country: string;
   vatin: string;
-  pictureMultimediaId?: string;
 }

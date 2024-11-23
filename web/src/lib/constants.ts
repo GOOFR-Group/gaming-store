@@ -1,3 +1,6 @@
+/**
+ * Map where the key is the country code and the value is the country information.
+ */
 export const COUNTRIES_MAP = {
   AF: { code: "AF", name: "Afghanistan" },
   AL: { code: "AL", name: "Albania" },
@@ -246,4 +249,7 @@ export const COUNTRIES_MAP = {
   ZW: { code: "ZW", name: "Zimbabwe" },
 };
 
+/**
+ * List of countries.
+ */
 export const COUNTRIES = Object.values(COUNTRIES_MAP);
