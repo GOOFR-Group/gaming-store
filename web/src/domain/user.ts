@@ -13,7 +13,7 @@ export interface User {
   country: string;
   vatin: string;
   balance: number;
-  pictureMultimedia: Multimedia | null;
+  pictureMultimedia?: Multimedia;
   createdAt: string;
   modifiedAt: string;
 }

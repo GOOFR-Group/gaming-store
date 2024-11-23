@@ -15,6 +15,7 @@ import {
   CalendarIcon,
   Download,
   Gamepad2,
+  LoaderCircle,
   LogOut,
   Upload,
   User as UserIcon,
@@ -283,8 +284,19 @@ function UserAvatar(props: { id: string; displayName: string; url?: string }) {
       <label>
         <AvatarImage alt="Gamer Avatar" src={props.url} />
         <AvatarFallback>{getInitials(props.displayName)}</AvatarFallback>
-        <div className="absolute size-full bg-black opacity-0 group-hover:opacity-70 transition-opacity" />
-        <Upload className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {mutation.isPending ? (
+          <>
+            <div className="absolute size-full bg-black opacity-70" />
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
+              <LoaderCircle className="animate-spin" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="absolute size-full bg-black opacity-0 group-hover:opacity-70 transition-opacity" />
+            <Upload className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </>
+        )}
         <Input
           accept="image/png, image/jpeg"
           className="hidden"
