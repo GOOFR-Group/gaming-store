@@ -370,6 +370,8 @@ components:
           $ref: "#/components/schemas/Country"
         vatin:
           $ref: "#/components/schemas/Vatin"
+        balance:
+          $ref: "#/components/schemas/UserBalance"
         pictureMultimediaId:
           $ref: "#/components/schemas/UUID"
     User:

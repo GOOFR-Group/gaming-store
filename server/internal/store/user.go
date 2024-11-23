@@ -143,7 +143,8 @@ func (s *store) PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editable
 			address = coalesce($6, address),
 			country = coalesce($7, country),
 			vatin = coalesce($8, vatin),
-			picture_multimedia_id = coalesce($9, picture_multimedia_id)
+			balance = coalesce($9, balance),
+			picture_multimedia_id = coalesce($10, picture_multimedia_id)
 		WHERE id = $1
 	`,
 		id,
@@ -154,6 +155,7 @@ func (s *store) PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editable
 		editableUser.Address,
 		editableUser.Country,
 		editableUser.Vatin,
+		editableUser.Balance,
 		editableUser.PictureMultimediaID,
 	)
 	if err != nil {

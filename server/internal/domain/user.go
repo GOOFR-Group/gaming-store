@@ -42,6 +42,7 @@ type EditableUserPatch struct {
 	Address             *Address
 	Country             *Country
 	Vatin               *Vatin
+	Balance             *float64
 	PictureMultimediaID *uuid.UUID
 }
 

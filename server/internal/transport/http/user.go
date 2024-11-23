@@ -295,6 +295,7 @@ func userPatchToDomain(userPatch api.UserPatch) (domain.EditableUserPatch, error
 		Address:             (*domain.Address)(userPatch.Address),
 		Country:             country,
 		Vatin:               (*domain.Vatin)(userPatch.Vatin),
+		Balance:             userPatch.Balance,
 		PictureMultimediaID: userPatch.PictureMultimediaId,
 	}, nil
 }
