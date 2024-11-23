@@ -1,7 +1,9 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as z from "zod";
 
@@ -35,7 +37,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { createUser, signInUser } from "@/lib/api";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { COUNTRIES } from "@/lib/constants";
+import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
+import { passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/_layout/register")({
   component: Component,
@@ -43,33 +51,61 @@ export const Route = createFileRoute("/_layout/register")({
 
 const formSchema = z
   .object({
-    username: z.string().min(1, {
-      message: "Username is required",
-    }),
-    email: z.string().email({
-      message: "Please enter a valid email address",
-    }),
-    name: z.string().min(1, {
-      message: "Name is required",
-    }),
+    username: z
+      .string()
+      .min(1, {
+        message: "Username is required",
+      })
+      .max(50, {
+        message: "Username must be shorter than 50 characters",
+      }),
+    email: z
+      .string()
+      .email({
+        message: "Please enter a valid email address",
+      })
+      .max(320, {
+        message: "Email must be shorter than 320 characters",
+      }),
+    displayName: z
+      .string()
+      .min(1, {
+        message: "Full name is required",
+      })
+      .max(100, {
+        message: "Full name must be shorter than 100 characters",
+      }),
     dateOfBirth: z.date({
       required_error: "Date of birth is required",
     }),
     country: z.string().min(1, {
       message: "Country is required",
     }),
-    address: z.string().min(1, {
-      message: "Address is required",
-    }),
-    vat: z.string().min(1, {
-      message: "VAT is required",
-    }),
-    picture: z.instanceof(File, {
-      message: "Picture is required",
-    }),
-    password: z.string().min(8, {
-      message: "Password must be at least 8 characters long",
-    }),
+    address: z
+      .string()
+      .min(1, {
+        message: "Address is required",
+      })
+      .max(100, {
+        message: "Address must be shorter than 100 characters",
+      }),
+    vatin: z
+      .string()
+      .min(1, {
+        message: "VAT is required",
+      })
+      .max(20, {
+        message: "VAT must be shorter than 20 characters",
+      }),
+    password: z
+      .string()
+      .min(14, {
+        message: "Password must be at least 14 characters long",
+      })
+      .max(72, {
+        message: "Password must be shorter than 72 characters",
+      })
+      .superRefine(passwordRefinement),
     confirm: z.string().min(1, {
       message: "Passwords don't match",
     }),
@@ -79,32 +115,85 @@ const formSchema = z
     path: ["confirm"],
   });
 
+type RegisterSchemaType = z.infer<typeof formSchema>;
+
 function Component() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
       email: "",
-      name: "",
+      displayName: "",
       dateOfBirth: undefined,
       country: "",
       address: "",
-      vat: "",
-      picture: undefined,
+      vatin: "",
       password: "",
       confirm: "",
     },
   });
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    async mutationFn(data: RegisterSchemaType) {
+      await createUser({
+        username: data.username,
+        email: data.email,
+        displayName: data.displayName,
+        dateOfBirth: format(data.dateOfBirth, "yyyy-MM-dd"),
+        country: data.country,
+        address: data.address,
+        vatin: data.vatin,
+        password: data.password,
+      });
 
-  function onSubmit() {}
+      const jwt = await signInUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      const payload = decodeTokenPayload(jwt.token);
+      storeToken(jwt.token, payload.exp);
+    },
+    async onSuccess() {
+      await navigate({ to: "/account" });
+    },
+    onError(error) {
+      if (error instanceof Conflict) {
+        switch (error.code) {
+          case "user_username_already_exists":
+            form.setError("username", { message: "Username already exists" });
+            break;
+
+          case "user_email_already_exists":
+            form.setError("email", { message: "Email already exists" });
+            break;
+
+          case "user_vatin_already_exists":
+            form.setError("vatin", { message: "VAT already exists" });
+            break;
+        }
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
+  function onSubmit(data: RegisterSchemaType) {
+    mutation.mutate(data);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/4 top-1/4 w-64 h-64 bg-primary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute right-1/4 bottom-1/4 w-64 h-64 bg-secondary rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute left-1/3 bottom-1/3 w-64 h-64 bg-accent rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
       <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -149,12 +238,12 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your name" {...field} />
+                        <Input placeholder="Enter your full name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +267,7 @@ function Component() {
                               )}
                             >
                               {field.value ? (
-                                field.value.toLocaleDateString()
+                                format(field.value, "dd/MM/yyyy")
                               ) : (
                                 <span>Enter your date of birth</span>
                               )}
@@ -189,6 +278,7 @@ function Component() {
                         <PopoverContent align="start" className="w-auto p-0">
                           <Calendar
                             initialFocus
+                            disabled={(date) => date > new Date()}
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
@@ -216,10 +306,16 @@ function Component() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="us">United States</SelectItem>
-                          <SelectItem value="uk">United Kingdom</SelectItem>
-                          <SelectItem value="ca">Canada</SelectItem>
-                          <SelectItem value="au">Australia</SelectItem>
+                          {COUNTRIES.map((country) => {
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                value={country.code}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -229,21 +325,7 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="vat"
+                  name="vatin"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>VAT</FormLabel>
@@ -254,28 +336,21 @@ function Component() {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="picture"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Picture</FormLabel>
-                      <FormControl>
-                        <Input
-                          accept="image/*"
-                          type="file"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            form.setValue("picture", files[0]);
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -312,6 +387,7 @@ function Component() {
             <CardFooter>
               <Button
                 className="w-full text-primary-foreground font-semibold"
+                disabled={mutation.isPending}
                 type="submit"
               >
                 Register Account

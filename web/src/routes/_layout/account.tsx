@@ -1,7 +1,8 @@
 import { useState } from "react";
 
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, Heart, User } from "lucide-react";
+import { queryOptions } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Download, Gamepad2, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -24,49 +25,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getUser } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+  return queryOptions({
+    queryKey: ["account"],
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const user = await getUser(userId);
+
+      return user;
+    },
+  });
+}
 
 export const Route = createFileRoute("/_layout/account")({
   component: Component,
+  loader(opts) {
+    return opts.context.queryClient.ensureQueryData(userQueryOptions());
+  },
+  onError() {
+    redirect({
+      to: "/signin",
+      replace: true,
+      throw: true,
+    });
+  },
 });
-
-function AddFunds() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="mt-2">Add Funds</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add Funds to Your Account</DialogTitle>
-          <DialogDescription>
-            Enter the amount you'd like to add to your account balance.
-          </DialogDescription>
-        </DialogHeader>
-        <form>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right" htmlFor="amount">
-                Amount
-              </Label>
-              <Input
-                required
-                className="col-span-3"
-                id="amount"
-                min="0.01"
-                placeholder="0.00"
-                step="0.01"
-                type="number"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Add Funds</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
@@ -100,7 +93,7 @@ function Component() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
                 Library
@@ -108,10 +101,6 @@ function Component() {
               <TabsTrigger value="account">
                 <User className="mr-2 h-4 w-4" />
                 Account
-              </TabsTrigger>
-              <TabsTrigger value="wishlist">
-                <Heart className="mr-2 h-4 w-4" />
-                Wishlist
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
@@ -174,7 +163,7 @@ function Component() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Date of birth
+                    Date of Birth
                   </p>
                   <p className="text-lg">January 1, 1990</p>
                 </div>
@@ -192,11 +181,48 @@ function Component() {
                 </div>
               </div>
             </TabsContent>
-
-            <TabsContent className="mt-4" value="wishlist"></TabsContent>
           </Tabs>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function AddFunds() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="mt-2">Add Funds</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add Funds to Your Account</DialogTitle>
+          <DialogDescription>
+            Enter the amount you'd like to add to your account balance.
+          </DialogDescription>
+        </DialogHeader>
+        <form>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right" htmlFor="amount">
+                Amount
+              </Label>
+              <Input
+                required
+                className="col-span-3"
+                id="amount"
+                min="0.01"
+                placeholder="0.00"
+                step="0.01"
+                type="number"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit">Add Funds</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
