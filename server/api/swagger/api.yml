@@ -84,6 +84,53 @@ paths:
                 $ref: "#/components/schemas/Error"
         500:
           $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Modify a user by ID.
+      operationId: patchUserByID
+      description: Modifies the user with the specified identifier. Only the specified fields in the request body are updated.
+      tags:
+        - User
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPatch"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: Invalid user ID or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Username, email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
   /users/signin:
     post:
       summary: Sign in a user.
@@ -304,6 +351,27 @@ components:
           $ref: "#/components/schemas/Country"
         vatin:
           $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    UserPatch:
+      type: object
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        email:
+          $ref: "#/components/schemas/Email"
+        displayName:
+          $ref: "#/components/schemas/Name"
+        dateOfBirth:
+          $ref: "#/components/schemas/Date"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        balance:
+          $ref: "#/components/schemas/UserBalance"
         pictureMultimediaId:
           $ref: "#/components/schemas/UUID"
     User:

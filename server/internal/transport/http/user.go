@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"golang.org/x/text/language"
 
@@ -46,11 +47,11 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	domainEditableUser, err := userPostToDomain(userPost)
 	if err != nil {
-		var domainErrFieldValueInvalid *domain.FieldValueInvalidError
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
 
 		switch {
-		case errors.As(err, &domainErrFieldValueInvalid):
-			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainErrFieldValueInvalid.FieldName))
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
 		default:
 			internalServerError(w)
 		}
@@ -60,11 +61,11 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	domainUser, err := h.service.CreateUser(ctx, domainEditableUser)
 	if err != nil {
-		var domainErrFieldValueInvalid *domain.FieldValueInvalidError
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
 
 		switch {
-		case errors.As(err, &domainErrFieldValueInvalid):
-			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainErrFieldValueInvalid.FieldName))
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
 		case errors.Is(err, domain.ErrUserUsernameAlreadyExists):
 			conflict(w, codeUserUsernameAlreadyExists, errUserUsernameAlreadyExists)
 		case errors.Is(err, domain.ErrUserEmailAlreadyExists):
@@ -102,6 +103,75 @@ func (h *handler) GetUserByID(w http.ResponseWriter, r *http.Request, userID api
 		switch {
 		case errors.Is(err, domain.ErrUserNotFound):
 			notFound(w, codeUserNotFound, errUserNotFound)
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
+
+	user := userFromDomain(domainUser)
+
+	responseBody, err := json.Marshal(user)
+	if err != nil {
+		logging.Logger.ErrorContext(ctx, descriptionFailedToMarshalResponseBody, logging.Error(err))
+		internalServerError(w)
+
+		return
+	}
+
+	writeResponseJSON(w, http.StatusOK, responseBody)
+}
+
+// PatchUserByID handles the http request to modify a user by ID.
+func (h *handler) PatchUserByID(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam) {
+	ctx := r.Context()
+
+	requestBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		badRequest(w, codeRequestBodyInvalid, errRequestBodyInvalid)
+		return
+	}
+
+	var userPatch api.UserPatch
+
+	err = json.Unmarshal(requestBody, &userPatch)
+	if err != nil {
+		badRequest(w, codeRequestBodyInvalid, errRequestBodyInvalid)
+		return
+	}
+
+	domainEditableUser, err := userPatchToDomain(userPatch)
+	if err != nil {
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
+
+		switch {
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
+
+	domainUser, err := h.service.PatchUser(ctx, userID, domainEditableUser)
+	if err != nil {
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
+
+		switch {
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
+		case errors.Is(err, domain.ErrUserNotFound):
+			notFound(w, codeUserNotFound, errUserNotFound)
+		case errors.Is(err, domain.ErrUserUsernameAlreadyExists):
+			conflict(w, codeUserUsernameAlreadyExists, errUserUsernameAlreadyExists)
+		case errors.Is(err, domain.ErrUserEmailAlreadyExists):
+			conflict(w, codeUserEmailAlreadyExists, errUserEmailAlreadyExists)
+		case errors.Is(err, domain.ErrUserVatinAlreadyExists):
+			conflict(w, codeUserVatinAlreadyExists, errUserVatinAlreadyExists)
+		case errors.Is(err, domain.ErrMultimediaNotFound):
+			conflict(w, codeMultimediaNotFound, errMultimediaNotFound)
 		default:
 			internalServerError(w)
 		}
@@ -194,6 +264,39 @@ func userPostToDomain(userPost api.UserPost) (domain.EditableUserWithPassword, e
 			PictureMultimediaID: userPost.PictureMultimediaId,
 		},
 		Password: domain.Password(userPost.Password),
+	}, nil
+}
+
+// userPatchToDomain returns a domain patchable user based on the standardized user patch.
+func userPatchToDomain(userPatch api.UserPatch) (domain.EditableUserPatch, error) {
+	var dateOfBirth *time.Time
+
+	if userPatch.DateOfBirth != nil {
+		temp := userPatch.DateOfBirth.Time
+		dateOfBirth = &temp
+	}
+
+	var country *domain.Country
+
+	if userPatch.Country != nil {
+		temp, err := language.Parse(*userPatch.Country)
+		if err != nil {
+			return domain.EditableUserPatch{}, &domain.FieldValueInvalidError{FieldName: domain.FieldCountry}
+		}
+
+		country = &domain.Country{Tag: temp}
+	}
+
+	return domain.EditableUserPatch{
+		Username:            (*domain.Username)(userPatch.Username),
+		Email:               (*domain.Email)(userPatch.Email),
+		DisplayName:         (*domain.Name)(userPatch.DisplayName),
+		DateOfBirth:         dateOfBirth,
+		Address:             (*domain.Address)(userPatch.Address),
+		Country:             country,
+		Vatin:               (*domain.Vatin)(userPatch.Vatin),
+		Balance:             userPatch.Balance,
+		PictureMultimediaID: userPatch.PictureMultimediaId,
 	}, nil
 }
 
