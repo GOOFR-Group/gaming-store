@@ -31,6 +31,21 @@ export interface NewUser {
 }
 
 /**
+ * Represents a update user of the store.
+ */
+export interface UpdateUser {
+  username?: string;
+  email?: string;
+  displayName?: string;
+  dateOfBirth?: string;
+  address?: string;
+  country?: string;
+  vatin?: string;
+  balance?: number;
+  pictureMultimediaId?: string;
+}
+
+/**
  * Represents the user credentials to sign in.
  */
 export interface UserCredentials {

@@ -43,60 +43,14 @@ import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { COUNTRIES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import { passwordRefinement } from "@/lib/zod";
+import { accountDetailsSchema, passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/_layout/register")({
   component: Component,
 });
 
-const formSchema = z
-  .object({
-    username: z
-      .string()
-      .min(1, {
-        message: "Username is required",
-      })
-      .max(50, {
-        message: "Username must be shorter than 50 characters",
-      }),
-    email: z
-      .string()
-      .email({
-        message: "Please enter a valid email address",
-      })
-      .max(320, {
-        message: "Email must be shorter than 320 characters",
-      }),
-    displayName: z
-      .string()
-      .min(1, {
-        message: "Full name is required",
-      })
-      .max(100, {
-        message: "Full name must be shorter than 100 characters",
-      }),
-    dateOfBirth: z.date({
-      required_error: "Date of birth is required",
-    }),
-    country: z.string().min(1, {
-      message: "Country is required",
-    }),
-    address: z
-      .string()
-      .min(1, {
-        message: "Address is required",
-      })
-      .max(100, {
-        message: "Address must be shorter than 100 characters",
-      }),
-    vatin: z
-      .string()
-      .min(1, {
-        message: "VAT is required",
-      })
-      .max(20, {
-        message: "VAT must be shorter than 20 characters",
-      }),
+const formSchema = accountDetailsSchema
+  .extend({
     password: z
       .string()
       .min(14, {
