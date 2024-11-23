@@ -71,6 +71,9 @@ func (s *service) UploadMultimedia(ctx context.Context, file []byte, contentType
 		}
 	}
 
+	// Update the media type, as the media type of the object may be different from the initial one.
+	multimediaObject.MediaType = contentType
+
 	err = s.readWriteTx(ctx, func(tx pgx.Tx) error {
 		id, err := s.dataStore.CreateMultimedia(ctx, tx, multimediaObject)
 		if err != nil {
