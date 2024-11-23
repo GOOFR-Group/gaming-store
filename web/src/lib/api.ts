@@ -180,12 +180,11 @@ export async function uploadMultimedia(file: File) {
   const formData = new FormData();
   formData.set("file", file);
 
-  const response = await fetch("/multimedia", {
+  const response = await fetch("/api/multimedia", {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "multipart/form-data",
     },
     body: formData,
   });

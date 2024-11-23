@@ -14,7 +14,6 @@ import { format } from "date-fns";
 import {
   CalendarIcon,
   Download,
-  FileUp,
   Gamepad2,
   LogOut,
   Upload,
@@ -124,6 +123,7 @@ function Component() {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <UserAvatar
               displayName={user.displayName}
+              id={user.id}
               url={user.pictureMultimedia?.url}
             />
             <div className="text-center sm:text-left">
@@ -249,11 +249,12 @@ function UserAvatar(props: { id: string; displayName: string; url?: string }) {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
     },
     onError(error) {
-      if (error) {
-        switch (error instanceof ContentTooLarge) {
-          case value:
-            break;
-        }
+      if (error instanceof ContentTooLarge) {
+        toast({
+          variant: "destructive",
+          title: "Picture size must be smaller than 2MB",
+        });
+        return;
       }
 
       toast({
