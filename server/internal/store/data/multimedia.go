@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
 // CreateMultimedia executes a query to create a multimedia with the specified data.

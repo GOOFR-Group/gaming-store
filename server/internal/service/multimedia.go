@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
-	"github.com/jackc/pgx/v5"
 )
 
 const (
