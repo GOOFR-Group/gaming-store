@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { queryOptions } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Download, Gamepad2, User } from "lucide-react";
+import { Download, Gamepad2, LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUser } from "@/lib/api";
-import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { clearToken, decodeTokenPayload, getToken } from "@/lib/auth";
 
 /**
  * Query options for retrieving the signed in user.
@@ -84,7 +84,10 @@ function Component() {
           <div className="text-center sm:text-right">
             <p className="font-semibold">Balance</p>
             <p className="text-2xl font-bold">€50.00</p>
-            <AddFunds />
+            <div className="flex items-center gap-2 mt-2">
+              <SignOut />
+              <AddFunds />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -192,7 +195,7 @@ function AddFunds() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mt-2">Add Funds</Button>
+        <Button>Add Funds</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -224,5 +227,21 @@ function AddFunds() {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SignOut() {
+  /**
+   * Signs out a user and reloads the current page.
+   */
+  function handleClick() {
+    clearToken();
+    window.location.reload();
+  }
+
+  return (
+    <Button variant="ghost" onClick={handleClick}>
+      <LogOut className="mr-2" /> Sign Out
+    </Button>
   );
 }
