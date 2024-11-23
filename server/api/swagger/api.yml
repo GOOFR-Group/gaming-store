@@ -272,9 +272,9 @@ components:
       maxLength: 100
     Country:
       type: string
-      description: BCP 47 language tag.
-      minLength: 1
-      maxLength: 20
+      description: ISO 3166-1 alpha-2 code.
+      minLength: 2
+      maxLength: 2
     Vatin:
       type: string
       minLength: 1
