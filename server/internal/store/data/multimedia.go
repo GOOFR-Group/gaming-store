@@ -57,7 +57,7 @@ func (s *store) GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) 
 
 // GetMultimediaByChecksumAndMediaType executes a query to return the multimedia with the specified checksum and media
 // type.
-func (s *store) GetMultimediaByChecksumAndMediaType(ctx context.Context, tx pgx.Tx, checksum uint32, mediaType string) (domain.Multimedia, error) {
+func (s *store) GetMultimediaByChecksumAndMediaType(ctx context.Context, tx pgx.Tx, checksum int64, mediaType string) (domain.Multimedia, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT id, checksum, media_type, url, created_at
 		FROM multimedia 

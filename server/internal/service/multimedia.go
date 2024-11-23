@@ -36,7 +36,7 @@ func (s *service) UploadMultimedia(ctx context.Context, file []byte, contentType
 	checksum := crc32.Checksum(file, crc32.MakeTable(crc32.Castagnoli))
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		multimedia, err = s.dataStore.GetMultimediaByChecksumAndMediaType(ctx, tx, checksum, contentType)
+		multimedia, err = s.dataStore.GetMultimediaByChecksumAndMediaType(ctx, tx, int64(checksum), contentType)
 		return err
 	})
 	if err != nil && !errors.Is(err, domain.ErrMultimediaNotFound) {
