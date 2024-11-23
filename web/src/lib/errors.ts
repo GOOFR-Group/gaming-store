@@ -61,6 +61,20 @@ export class Forbidden extends ApiError {
 }
 
 /**
+ * Represents an API Not Found error response.
+ */
+export class NotFound extends ApiError {
+  /**
+   * Constructs a NotFound with a given API code and API message.
+   * @param code API code.
+   * @param message API message.
+   */
+  constructor(code: string, message: string = "") {
+    super(404, code, message);
+  }
+}
+
+/**
  * Represents an API Conflict error response.
  */
 export class Conflict extends ApiError {
@@ -99,3 +113,13 @@ export class InternalServerError extends ApiError {
     super(500, "internal_server_error", "");
   }
 }
+
+/**
+ * Represents the error that the JWT is missing from the cookies of the browser.
+ */
+export class TokenMissing extends Error {}
+
+/**
+ * Represents the error that the JWT payload is missing from the JWT.
+ */
+export class PayloadMissing extends Error {}
