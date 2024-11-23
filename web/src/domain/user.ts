@@ -1,3 +1,5 @@
+import { Multimedia } from "./multimedia";
+
 /**
  * Represents a user of the store.
  */
@@ -11,7 +13,7 @@ export interface User {
   country: string;
   vatin: string;
   balance: number;
-  pictureMultimediaId: string | null;
+  pictureMultimedia: Multimedia | null;
   createdAt: string;
   modifiedAt: string;
 }

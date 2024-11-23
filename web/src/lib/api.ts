@@ -1,10 +1,12 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
+import { Multimedia } from "@/domain/multimedia";
 import { NewUser, UpdateUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
 import {
   Conflict,
+  ContentTooLarge,
   Forbidden,
   InternalServerError,
   NotFound,
@@ -161,4 +163,48 @@ export async function updateUser(id: string, details: UpdateUser) {
   const user = (await response.json()) as User;
 
   return user;
+}
+
+/**
+ * Uploads a multimedia file.
+ * @param file Multimedia file.
+ * @returns Multimedia.
+ * @throws {Unauthorized} Access token invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {ContentTooLarge} File is too large.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function uploadMultimedia(file: File) {
+  const token = getToken();
+
+  const formData = new FormData();
+  formData.set("file", file);
+
+  const response = await fetch("/multimedia", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+    body: formData,
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 413:
+        throw new ContentTooLarge(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const multimedia = (await response.json()) as Multimedia;
+
+  return multimedia;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,8 +14,10 @@ import { format } from "date-fns";
 import {
   CalendarIcon,
   Download,
+  FileUp,
   Gamepad2,
   LogOut,
+  Upload,
   User as UserIcon,
 } from "lucide-react";
 import { z } from "zod";
@@ -63,12 +65,12 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User } from "@/domain/user";
-import { useToast } from "@/hooks/use-toast";
-import { getUser, updateUser } from "@/lib/api";
+import { toast, useToast } from "@/hooks/use-toast";
+import { getUser, updateUser, uploadMultimedia } from "@/lib/api";
 import { clearToken, decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES, COUNTRIES_MAP } from "@/lib/constants";
-import { Conflict } from "@/lib/errors";
-import { cn, formatCurrency } from "@/lib/utils";
+import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { cn, formatCurrency, getInitials } from "@/lib/utils";
 import { accountDetailsSchema } from "@/lib/zod";
 
 const userQueryKey: QueryKey = ["user"];
@@ -120,13 +122,10 @@ function Component() {
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Avatar className="w-24 h-24">
-              <AvatarImage
-                alt="Gamer Avatar"
-                src="/placeholder.svg?height=96&width=96"
-              />
-              <AvatarFallback>GP</AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              displayName={user.displayName}
+              url={user.pictureMultimedia?.url}
+            />
             <div className="text-center sm:text-left">
               <CardTitle className="text-2xl">{user.displayName}</CardTitle>
               <CardDescription>{country}</CardDescription>
@@ -240,6 +239,62 @@ function AddFunds() {
   );
 }
 
+function UserAvatar(props: { id: string; displayName: string; url?: string }) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    async mutationFn(file: File) {
+      await uploadMultimedia(file);
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: userQueryKey });
+    },
+    onError(error) {
+      if (error) {
+        switch (error instanceof ContentTooLarge) {
+          case value:
+            break;
+        }
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  /**
+   * Handles file upload.
+   * @param event Input change event.
+   */
+  function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (!files) {
+      return;
+    }
+
+    mutation.mutate(files[0]);
+  }
+
+  return (
+    <Avatar asChild className="relative size-24 group cursor-pointer">
+      <label>
+        <AvatarImage alt="Gamer Avatar" src={props.url} />
+        <AvatarFallback>{getInitials(props.displayName)}</AvatarFallback>
+        <div className="absolute size-full bg-black opacity-0 group-hover:opacity-70 transition-opacity" />
+        <Upload className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <Input
+          accept="image/png, image/jpeg"
+          className="hidden"
+          type="file"
+          onChange={handleFileUpload}
+        />
+      </label>
+    </Avatar>
+  );
+}
+
 function SignOut() {
   /**
    * Signs out a user and reloads the current page.
@@ -284,8 +339,8 @@ function ViewAccountDetails(props: {
   onEdit: () => void;
 }) {
   return (
-    <>
-      <div className="flex justify-between items-center mb-4">
+    <div className="space-y-4">
+      <div className="flex h-10 justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Account Details</h3>
         <Button variant="secondary" onClick={props.onEdit}>
           Edit Profile
@@ -298,7 +353,7 @@ function ViewAccountDetails(props: {
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Email</p>
-          <p className="text-lg">{props.user.displayName}</p>
+          <p className="text-lg">{props.user.email}</p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Full Name</p>
@@ -317,11 +372,15 @@ function ViewAccountDetails(props: {
           <p className="text-lg">{props.country}</p>
         </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">Address</p>
-          <p className="text-lg">{props.user.address}</p>
+          <p className="text-sm font-medium text-muted-foreground">VAT</p>
+          <p className="text-lg">{props.user.vatin}</p>
         </div>
       </div>
-    </>
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">Address</p>
+        <p className="text-lg">{props.user.address}</p>
+      </div>
+    </div>
   );
 }
 
@@ -398,7 +457,7 @@ function EditAccountDetails(props: {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center h-10 mb-4">
         <h3 className="text-lg font-semibold">Account Details</h3>
       </div>
       <Form {...form}>

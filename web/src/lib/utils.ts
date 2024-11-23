@@ -22,3 +22,20 @@ export function formatCurrency(value: number) {
   });
   return currencyFormat.format(value);
 }
+
+/**
+ * Extracts the initials from a given name.
+ * @param name Full name from which to extract initials.
+ * @returns The initials derived from the name.
+ */
+export function getInitials(name: string) {
+  const words = name.split(" ");
+  if (words.length < 2) {
+    return words[0].charAt(0).toUpperCase();
+  }
+
+  return (
+    words[0].charAt(0).toUpperCase() +
+    words[words.length - 1].charAt(0).toUpperCase()
+  );
+}
