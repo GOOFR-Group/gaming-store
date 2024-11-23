@@ -241,7 +241,7 @@ function SignOut() {
 
   return (
     <Button variant="ghost" onClick={handleClick}>
-      <LogOut className="mr-2" /> Sign Out
+      <LogOut /> Sign Out
     </Button>
   );
 }
