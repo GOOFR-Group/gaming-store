@@ -60,6 +60,11 @@ func conflict(w http.ResponseWriter, code, message string) {
 	_ = fault(w, http.StatusConflict, code, &message)
 }
 
+// requestEntityTooLarge writes an error response and sets the header with the request entity too large status code.
+func requestEntityTooLarge(w http.ResponseWriter, code, message string) {
+	_ = fault(w, http.StatusRequestEntityTooLarge, code, &message)
+}
+
 // internalServerError sets the header with the internal server error status code.
 func internalServerError(w http.ResponseWriter) {
 	_ = fault(w, http.StatusInternalServerError, codeInternalServerError, nil)

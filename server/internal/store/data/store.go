@@ -1,4 +1,4 @@
-package store
+package data
 
 import (
 	"context"
@@ -13,25 +13,24 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/goofr-group/gaming-store/server/internal/config"
-	"github.com/goofr-group/gaming-store/server/internal/store/tx"
+	"github.com/goofr-group/gaming-store/server/internal/store/data/tx"
 )
 
 // Common failure descriptions.
 const (
-	descriptionFailedScanRow          = "store: failed to scan row"
-	descriptionFailedExec             = "store: failed to exec"
-	descriptionFailedParseLanguageTag = "store: failed to parse language tag"
+	descriptionFailedScanRow = "store: failed to scan row"
+	descriptionFailedExec    = "store: failed to exec"
 )
 
 // migrationsURL defines the source url of the migrations.
 const migrationsURL = "file://database/migrations"
 
-// store defines the store structure.
+// store defines the data store structure.
 type store struct {
 	database *pgxpool.Pool
 }
 
-// New returns a new store.
+// New returns a new data store.
 func New(ctx context.Context, config config.Database) (*store, error) {
 	// Initialize database connection pool.
 	database, err := pgxpool.New(ctx, config.URL)

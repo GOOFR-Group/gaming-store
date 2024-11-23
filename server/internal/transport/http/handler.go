@@ -32,6 +32,7 @@ const (
 // Request header const.
 const (
 	requestHeaderKeyAccept       = "Accept"
+	requestHeaderKeyContentType  = "Content-Type"
 	requestHeaderValueAcceptHTML = "text/html"
 )
 
@@ -46,6 +47,8 @@ type Service interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
+
+	UploadMultimedia(ctx context.Context, file []byte, contentType string) (domain.Multimedia, error)
 }
 
 // handler defines the http handler structure.

@@ -18,8 +18,12 @@ RUN CGO_ENABLED=0 go build -ldflags \
 # Build server application.
 FROM alpine:latest
 
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-key.json
+
 WORKDIR /app
 
+COPY --from=builder /app/gcp-key.json /app/gcp-key.json
+COPY --from=builder /app/api/swagger /app/api/swagger
 COPY --from=builder /app/api/swagger /app/api/swagger
 COPY --from=builder /app/database/migrations /app/database/migrations
 COPY --from=builder /app/deployments /app/deployments
