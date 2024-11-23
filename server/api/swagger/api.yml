@@ -407,8 +407,8 @@ components:
           $ref: "#/components/schemas/Vatin"
         balance:
           $ref: "#/components/schemas/UserBalance"
-        pictureMultimediaId:
-          $ref: "#/components/schemas/UUID"
+        pictureMultimedia:
+          $ref: "#/components/schemas/Multimedia"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:

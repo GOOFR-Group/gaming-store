@@ -48,9 +48,16 @@ type EditableUserPatch struct {
 
 // User defines the user structure.
 type User struct {
-	EditableUser
-	ID         uuid.UUID
-	Balance    float64
-	CreatedAt  time.Time
-	ModifiedAt time.Time
+	ID                uuid.UUID
+	Username          Username
+	Email             Email
+	DisplayName       Name
+	DateOfBirth       time.Time
+	Address           Address
+	Country           Country
+	Vatin             Vatin
+	Balance           float64
+	PictureMultimedia *Multimedia
+	CreatedAt         time.Time
+	ModifiedAt        time.Time
 }
