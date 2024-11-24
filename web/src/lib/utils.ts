@@ -29,11 +29,11 @@ export function formatCurrency(value: number) {
  * @returns The initials derived from the name.
  */
 export function getInitials(name: string) {
-  const words = name.split(" ");
-  if (!words.length) {
+  if (!name.length) {
     return "";
   }
 
+  const words = name.split(" ");
   if (words.length < 2) {
     return words[0].charAt(0).toUpperCase();
   }
