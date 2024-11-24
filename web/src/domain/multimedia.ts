@@ -3,7 +3,7 @@
  */
 export interface Multimedia {
   id: string;
-  checksum: string;
+  checksum: number;
   mediaType: string;
   url: string;
   createdAt: string;
