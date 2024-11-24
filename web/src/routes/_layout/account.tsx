@@ -19,7 +19,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES_MAP } from "@/lib/constants";
+import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
@@ -63,7 +63,7 @@ function Component() {
   const user = query.data;
   const country =
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? "-";
+      ?.name ?? MISSING_VALUE_SYMBOL;
 
   return (
     <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">

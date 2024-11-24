@@ -1,13 +1,13 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export function camelCaseToTitleCase(s: string) {
-  const result = s.replace(/([A-Z])/g, " $1");
-  return result.charAt(0).toUpperCase() + result.slice(1);
+/**
+ * Utility function to apply conditional styles using Tailwind CSS.
+ * @param classes Tailwind CSS classes to be merged.
+ * @returns Merged Tailwind CSS classes.
+ */
+export function cn(...classes: ClassValue[]) {
+  return twMerge(clsx(classes));
 }
 
 /**

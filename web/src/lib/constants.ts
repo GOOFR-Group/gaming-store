@@ -258,3 +258,24 @@ export const COUNTRIES_MAP = {
  * List of countries.
  */
 export const COUNTRIES = Object.values(COUNTRIES_MAP);
+
+/**
+ * Map where the key is the language code and the value is the language information.
+ * ISO 3166 Alpha-2 Format.
+ */
+export const LANGUAGES_MAP = {
+  EN: { code: "EN", name: "English" },
+  FR: { code: "FR", name: "French" },
+  ES: { code: "ES", name: "Spanish" },
+  PT: { code: "PT", name: "Portuguese" },
+};
+
+/**
+ * List of languages.
+ */
+export const LANGUAGES = Object.values(LANGUAGES_MAP);
+
+/**
+ * Symbol used when no value is displayed.
+ */
+export const MISSING_VALUE_SYMBOL = "-";

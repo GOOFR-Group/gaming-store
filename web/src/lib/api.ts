@@ -1,9 +1,12 @@
 import { ApiError } from "@/domain/error";
+import { Game, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
+import { PaginatedTags, TagFilters } from "@/domain/tag";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
+import { LANGUAGES_MAP } from "./constants";
 import {
   Conflict,
   ContentTooLarge,
@@ -206,4 +209,165 @@ export async function uploadMultimedia(file: File) {
   const multimedia = (await response.json()) as Multimedia;
 
   return multimedia;
+}
+
+/**
+ * Retrieves the games of a publisher.
+ * @param id Publisher ID.
+ * @returns Games of a publisher.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Publisher not found.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getPublisherGames(id: string) {
+  const games: PaginatedGames = {
+    total: 1,
+    games: [
+      {
+        id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
+        publisherId: id,
+        title: "Jump Master",
+        price: 0,
+        isActive: false,
+        releaseDate: "2017-07-21",
+        description: "string",
+        features: "string",
+        languages: [LANGUAGES_MAP.EN.code, LANGUAGES_MAP.PT.code],
+        requirements: {
+          minimum: "string",
+          recommended: "string",
+        },
+        previewMultimedia: {
+          id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
+          checksum: 0,
+          mediaType: "string",
+          url: "string",
+          createdAt: "2017-07-21T17:32:28Z",
+        },
+        downloadMultimedia: {
+          id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
+          checksum: 0,
+          mediaType: "string",
+          url: "string",
+          createdAt: "2017-07-21T17:32:28Z",
+        },
+        createdAt: "2017-07-21T17:32:28Z",
+        modifiedAt: "2017-07-21T17:32:28Z",
+      },
+    ],
+  };
+  const response = new Response(JSON.stringify(games), {
+    status: 200,
+  });
+  // const response = await fetch(`/api/publisher/${id}/games`, {
+  //   signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const paginatedGames = (await response.json()) as PaginatedGames;
+
+  return paginatedGames;
+}
+
+/**
+ * Retrieves a game from a publisher.
+ * @param publisherId Publisher ID.
+ * @returns Games of a publisher.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Game not found.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getPublisherGame(publisherId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publisher/${publisherId}/games/${gameId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const game = (await response.json()) as Game;
+
+  return game;
+}
+
+/**
+ * Retrieves the tags.
+ * @param filters Tags filters.
+ * @returns Tags.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getTags(filters: TagFilters) {
+  const searchParams = new URLSearchParams();
+
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters.order) {
+    searchParams.set("order", filters.order);
+  }
+
+  const response = await fetch(`/api/tags?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const paginatedTags = (await response.json()) as PaginatedTags;
+
+  return paginatedTags;
 }

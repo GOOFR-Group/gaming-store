@@ -23,3 +23,8 @@ export function gameQueryKey(id: string): QueryKey {
  * Query key used when fetching the cart information.
  */
 export const cartQueryKey: QueryKey = ["cart"];
+
+/**
+ * Query key used when fetching tags.
+ */
+export const tagsQueryKey: QueryKey = ["tags"];
