@@ -210,17 +210,15 @@ paths:
                 $ref: "#/components/schemas/Error"
         500:
           $ref: "#/components/responses/InternalServerError"
-  /publishers/{publisherIdWL}/games/{gameId}:
+  /publishers/{publisherId}/games/{gameId}:
     get:
       summary: Get a game by ID.
       operationId: getGameByID
       description: Returns the game with the specified identifier.
       tags:
         - Game
-      security:
-        - BearerAuth: [user, publisher]
       parameters:
-        - $ref: "#/components/parameters/PublisherIdWLPathParam"
+        - $ref: "#/components/parameters/PublisherIdPathParam"
         - $ref: "#/components/parameters/GameIdPathParam"
       responses:
         200:
@@ -247,7 +245,6 @@ paths:
                 $ref: "#/components/schemas/Error"
         500:
           $ref: "#/components/responses/InternalServerError"
-  /publishers/{publisherId}/games/{gameId}:
     patch:
       summary: Modify a game by ID.
       operationId: patchGameByID
@@ -304,8 +301,6 @@ paths:
       description: Returns the game tags with the specified filter.
       tags:
         - Game Tag
-      security:
-        - BearerAuth: [user, publisher]
       parameters:
         - $ref: "#/components/parameters/PublisherIdPathParam"
         - $ref: "#/components/parameters/GameIdPathParam"
@@ -420,8 +415,6 @@ paths:
       description: Returns the tags with the specified filter.
       tags:
         - Tag
-      security:
-        - BearerAuth: [user, publisher]
       parameters:
         - name: sort
           in: query
@@ -543,13 +536,6 @@ components:
       name: publisherId
       in: path
       description: Publisher identifier.
-      required: true
-      schema:
-        $ref: "#/components/schemas/UUID"
-    PublisherIdWLPathParam:
-      name: publisherIdWL
-      in: path
-      description: Publisher identifier white-listed. This allows any subject to request a resource with this identifier.
       required: true
       schema:
         $ref: "#/components/schemas/UUID"
