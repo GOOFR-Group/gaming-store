@@ -1,5 +1,7 @@
+import { Multimedia } from "./multimedia";
+
 /**
- * Represents a user of the store.
+ * Represents a user.
  */
 export interface User {
   id: string;
@@ -11,13 +13,13 @@ export interface User {
   country: string;
   vatin: string;
   balance: number;
-  pictureMultimediaId: string | null;
+  pictureMultimedia?: Multimedia;
   createdAt: string;
   modifiedAt: string;
 }
 
 /**
- * Represents a new user of the store.
+ * Represents a new user.
  */
 export interface NewUser {
   username: string;
@@ -28,6 +30,21 @@ export interface NewUser {
   address: string;
   country: string;
   vatin: string;
+}
+
+/**
+ * Represents an editable user.
+ */
+export interface EditableUser {
+  username?: string;
+  email?: string;
+  displayName?: string;
+  dateOfBirth?: string;
+  address?: string;
+  country?: string;
+  vatin?: string;
+  balance?: number;
+  pictureMultimediaId?: string;
 }
 
 /**
