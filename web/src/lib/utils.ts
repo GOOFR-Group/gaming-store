@@ -30,6 +30,10 @@ export function formatCurrency(value: number) {
  */
 export function getInitials(name: string) {
   const words = name.split(" ");
+  if (!words.length) {
+    return "";
+  }
+
   if (words.length < 2) {
     return words[0].charAt(0).toUpperCase();
   }
