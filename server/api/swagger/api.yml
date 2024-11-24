@@ -297,7 +297,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SignIn"
+              $ref: "#/components/schemas/SignInPublisher"
       responses:
         200:
           description: Successful operation.
@@ -463,6 +463,17 @@ components:
     UserBalance:
       type: number
       format: double
+
+    SignInPublisher:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        password:
+          $ref: "#/components/schemas/Password"
 
     SignIn:
       type: object
