@@ -38,7 +38,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { createUser } from "@/lib/api";
+import { createUser, signInUser } from "@/lib/api";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { COUNTRIES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
@@ -145,9 +146,17 @@ function Component() {
         vatin: data.vatin,
         password: data.password,
       });
+
+      const jwt = await signInUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      const payload = decodeTokenPayload(jwt.token);
+      storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
-      await navigate({ to: "/" });
+      await navigate({ to: "/account" });
     },
     onError(error) {
       if (error instanceof Conflict) {

@@ -10,7 +10,8 @@ export interface User {
   address: string;
   country: string;
   vatin: string;
-  pictureId: string;
+  balance: number;
+  pictureMultimediaId: string | null;
   createdAt: string;
   modifiedAt: string;
 }
@@ -27,4 +28,13 @@ export interface NewUser {
   address: string;
   country: string;
   vatin: string;
+}
+
+/**
+ * Represents the user credentials to sign in.
+ */
+export interface UserCredentials {
+  username?: string;
+  email?: string;
+  password: string;
 }
