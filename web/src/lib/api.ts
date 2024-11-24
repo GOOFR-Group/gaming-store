@@ -81,7 +81,7 @@ export async function signInUser(credentials: UserCredentials) {
 }
 
 /**
- * Retrieves a user given an user ID.
+ * Retrieves a user given a user ID.
  * @param id User ID.
  * @returns User.
  * @throws {Unauthorized} Access token is invalid.

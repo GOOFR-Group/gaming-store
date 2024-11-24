@@ -22,7 +22,7 @@ CREATE TABLE publishers (
     password                varchar(60)     NOT NULL,
     name                    varchar(100)    NOT NULL,
     address                 varchar(50)     NOT NULL,
-    country                 varchar(20)     NOT NULL, -- BCP 47 language tag.
+    country                 varchar(2)      NOT NULL, -- ISO 3166-1 alpha-2 code.
     vatin                   varchar(20)     NOT NULL,
     picture_multimedia_id   uuid,
     created_at              timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,

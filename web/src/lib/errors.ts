@@ -89,7 +89,7 @@ export class Conflict extends ApiError {
 }
 
 /**
- * Represents ann API Content Too Large error response.
+ * Represents an API Content Too Large error response.
  */
 export class ContentTooLarge extends ApiError {
   /**
