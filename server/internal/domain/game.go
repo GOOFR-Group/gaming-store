@@ -113,8 +113,8 @@ type EditableGame struct {
 	Features             GameFeatures
 	Languages            GameLanguages
 	Requirements         GameRequirements
-	previewMultimediaID  uuid.UUID
-	downloadMultimediaID uuid.UUID
+	PreviewMultimediaID  uuid.UUID
+	DownloadMultimediaID uuid.UUID
 }
 
 // EditableGamePatch defines the patchable game structure.
@@ -127,8 +127,8 @@ type EditableGamePatch struct {
 	Features             *GameFeatures
 	Languages            *GameLanguages
 	Requirements         *GameRequirements
-	previewMultimediaID  *uuid.UUID
-	downloadMultimediaID *uuid.UUID
+	PreviewMultimediaID  *uuid.UUID
+	DownloadMultimediaID *uuid.UUID
 }
 
 // Game defines the game structure.
@@ -143,8 +143,8 @@ type Game struct {
 	Features           GameFeatures
 	Languages          GameLanguages
 	Requirements       GameRequirements
-	previewMultimedia  Multimedia
-	downloadMultimedia Multimedia
+	PreviewMultimedia  Multimedia
+	DownloadMultimedia Multimedia
 	CreatedAt          time.Time
 	ModifiedAt         time.Time
 }
