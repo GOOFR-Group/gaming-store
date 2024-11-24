@@ -83,6 +83,7 @@ func (a Address) Valid() bool {
 }
 
 // Country defines the country type.
+// ISO 3166-1 alpha-2 code.
 type Country string
 
 // Valid returns true if the country is valid, false otherwise.

@@ -4,6 +4,7 @@ database:
   url: postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=disable
   migrations:
     apply: true
-    version: 5
+    version: 6
 cloudStorage:
+  enabled: true
   bucketMultimedia: multimedia_bucket
