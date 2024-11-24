@@ -3,6 +3,7 @@ version: "0.2"
 language: en
 useGitignore: true
 ignoreWords:
+  - Åland
   - Barthélemy
   - Bouvet
   - Burkina
@@ -11,6 +12,7 @@ ignoreWords:
   - Castagnoli93
   - cmdk
   - Côte
+  - Cunha
   - d'Ivoire
   - Eswatini
   - Eustatius
