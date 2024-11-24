@@ -13,5 +13,5 @@ WHERE name IN (
     'Fighting',
     'Racing',
     'Stealth',
-    'MMO',
+    'MMO'
 );
