@@ -27,5 +27,6 @@ type Database struct {
 
 // CloudStorage defines the cloud storage configuration structure.
 type CloudStorage struct {
+	Enabled          bool   `yaml:"enabled"`
 	BucketMultimedia string `yaml:"bucketMultimedia"`
 }

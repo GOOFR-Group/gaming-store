@@ -15,8 +15,8 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/config"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 	"github.com/goofr-group/gaming-store/server/internal/service"
-	dataStore "github.com/goofr-group/gaming-store/server/internal/store/data"
-	objectStore "github.com/goofr-group/gaming-store/server/internal/store/object"
+	idataStore "github.com/goofr-group/gaming-store/server/internal/store/data"
+	iobjectStore "github.com/goofr-group/gaming-store/server/internal/store/object"
 	ihttp "github.com/goofr-group/gaming-store/server/internal/transport/http"
 )
 
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// Set up data store.
-	dataStore, err := dataStore.New(ctx, serviceConfig.Database)
+	dataStore, err := idataStore.New(ctx, serviceConfig.Database)
 	if err != nil {
 		logging.Logger.ErrorContext(ctx, "main: failed to set up data store", logging.Error(err))
 		return
@@ -76,12 +76,20 @@ func main() {
 	defer dataStore.Close()
 
 	// Set up object store.
-	objectStore, err := objectStore.New(ctx, serviceConfig.CloudStorage)
-	if err != nil {
-		logging.Logger.ErrorContext(ctx, "main: failed to set up object store", logging.Error(err))
-		return
+	var objectStore service.ObjectStore
+
+	if serviceConfig.CloudStorage.Enabled {
+		store, err := iobjectStore.New(ctx, serviceConfig.CloudStorage)
+		if err != nil {
+			logging.Logger.ErrorContext(ctx, "main: failed to set up object store", logging.Error(err))
+			return
+		}
+		defer store.Close()
+
+		objectStore = store
+	} else {
+		objectStore = iobjectStore.NewNOOP()
 	}
-	defer objectStore.Close()
 
 	// Set up authentication service.
 	jwtSigningKey, ok := os.LookupEnv(envKeyJWTSigningKey)
