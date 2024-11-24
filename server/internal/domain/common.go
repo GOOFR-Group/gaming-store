@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
+
+	"golang.org/x/text/language"
 )
 
 // Field constraints.
@@ -16,10 +18,15 @@ const (
 	nameMinLength = 1
 	nameMaxLength = 100
 
+	descriptionMaxLength = 200
+
 	addressMinLength = 1
 	addressMaxLength = 100
 
 	countryLength = 2
+
+	languageMinLength = 1
+	languageMaxLength = 20
 
 	vatinMinLength = 1
 	vatinMaxLength = 20
@@ -74,6 +81,14 @@ func (n Name) Valid() bool {
 	return len(n) >= nameMinLength && len(n) <= nameMaxLength
 }
 
+// Description defines the description type.
+type Description string
+
+// Valid returns true if the description is valid, false otherwise.
+func (d Description) Valid() bool {
+	return len(d) <= descriptionMaxLength
+}
+
 // Address defines the address type.
 type Address string
 
@@ -89,6 +104,17 @@ type Country string
 // Valid returns true if the country is valid, false otherwise.
 func (c Country) Valid() bool {
 	return len(c) == countryLength
+}
+
+// Language defines the language type.
+type Language struct {
+	language.Tag
+}
+
+// Valid returns true if the language is valid, false otherwise.
+func (c Language) Valid() bool {
+	cString := c.String()
+	return len(cString) >= languageMinLength && len(cString) <= languageMaxLength
 }
 
 // Vatin defines the value-added tax identification number type.
