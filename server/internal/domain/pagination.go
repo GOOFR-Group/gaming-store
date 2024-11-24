@@ -10,12 +10,12 @@ const (
 	paginationOffsetMinValue = 0
 )
 
-// Returned when a filter contains an invalid value.
-type ErrFilterValueInvalid struct {
+// FilterValueInvalidError is returned when a filter contains an invalid value.
+type FilterValueInvalidError struct {
 	FilterName string
 }
 
-func (e *ErrFilterValueInvalid) Error() string {
+func (e *FilterValueInvalidError) Error() string {
 	return fmt.Sprintf("invalid filter value: %s", e.FilterName)
 }
 
