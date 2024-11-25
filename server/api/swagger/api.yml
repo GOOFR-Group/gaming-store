@@ -294,46 +294,6 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
-  /publishers/{publisherId}/games/{gameId}/tags:
-    get:
-      summary: List game tags.
-      operationId: listGameTags
-      description: Returns the game tags with the specified filter.
-      tags:
-        - Game Tag
-      parameters:
-        - $ref: "#/components/parameters/PublisherIdPathParam"
-        - $ref: "#/components/parameters/GameIdPathParam"
-        - name: sort
-          in: query
-          description: Name of the field to sort by.
-          schema:
-            type: string
-            enum:
-              - tagName
-            default: tagName
-        - $ref: "#/components/parameters/OrderQueryParam"
-        - $ref: "#/components/parameters/LimitQueryParam"
-        - $ref: "#/components/parameters/OffsetQueryParam"
-      responses:
-        200:
-          description: Successful operation.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TagsPaginated"
-        400:
-          description: Invalid parameters.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        401:
-          $ref: "#/components/responses/Unauthorized"
-        403:
-          $ref: "#/components/responses/Forbidden"
-        500:
-          $ref: "#/components/responses/InternalServerError"
   /publishers/{publisherId}/games/{gameId}/tags/{tagId}:
     post:
       summary: Create a game tag association.
@@ -798,6 +758,37 @@ components:
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
 
+    Publisher:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - address
+        - country
+        - vatin
+        - createdAt
+        - modifiedAt
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        email:
+          $ref: "#/components/schemas/Email"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimedia:
+          $ref: "#/components/schemas/Multimedia"
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+        modifiedAt:
+          $ref: "#/components/schemas/DateTime"
+
     GamePost:
       type: object
       required:
@@ -858,7 +849,7 @@ components:
       type: object
       required:
         - id
-        - publisherId
+        - publisher
         - title
         - price
         - isActive
@@ -868,13 +859,14 @@ components:
         - requirements
         - previewMultimedia
         - downloadMultimedia
+        - tags
         - createdAt
         - modifiedAt
       properties:
         id:
           $ref: "#/components/schemas/UUID"
-        publisherId:
-          $ref: "#/components/schemas/UUID"
+        publisher:
+          $ref: "#/components/schemas/Publisher"
         title:
           $ref: "#/components/schemas/GameTitle"
         price:
@@ -895,6 +887,10 @@ components:
           $ref: "#/components/schemas/Multimedia"
         downloadMultimedia:
           $ref: "#/components/schemas/Multimedia"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
