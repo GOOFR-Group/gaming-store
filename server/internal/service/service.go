@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/google/uuid"
@@ -29,8 +30,8 @@ type AuthenticationService interface {
 	NewJWT(subject string, subjectRoles []authn.SubjectRole) (string, error)
 }
 
-// Store defines the store interface.
-type Store interface {
+// DataStore defines the data store interface.
+type DataStore interface {
 	CreateUser(ctx context.Context, tx pgx.Tx, editableUser domain.EditableUserWithPassword) (uuid.UUID, error)
 	GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.User, error)
 	GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.User, error)
@@ -43,20 +44,32 @@ type Store interface {
 	GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignIn, error)
 	PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) error
 
+	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
+	GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Multimedia, error)
+	GetMultimediaByChecksumAndMediaType(ctx context.Context, tx pgx.Tx, checksum int64, mediaType string) (domain.Multimedia, error)
+
 	NewTx(ctx context.Context, isoLevel pgx.TxIsoLevel, accessMode pgx.TxAccessMode) (pgx.Tx, error)
+}
+
+// ObjectStore defines the object store interface.
+type ObjectStore interface {
+	CreateMultimediaObject(ctx context.Context, name string, reader io.Reader) error
+	GetMultimediaObject(ctx context.Context, name string) (domain.MultimediaObject, error)
 }
 
 // service defines the service structure.
 type service struct {
 	authnService AuthenticationService
-	store        Store
+	dataStore    DataStore
+	objectStore  ObjectStore
 }
 
 // New returns a new http handler.
-func New(authnService AuthenticationService, store Store) *service {
+func New(authnService AuthenticationService, dataStore DataStore, objectStore ObjectStore) *service {
 	return &service{
 		authnService: authnService,
-		store:        store,
+		dataStore:    dataStore,
+		objectStore:  objectStore,
 	}
 }
 
@@ -72,7 +85,7 @@ func rollbackFunc(ctx context.Context, tx pgx.Tx) func() {
 
 // readOnlyTx returns a read only transaction wrapper.
 func (s *service) readOnlyTx(ctx context.Context, f func(pgx.Tx) error) error {
-	tx, err := s.store.NewTx(ctx, pgx.ReadCommitted, pgx.ReadOnly)
+	tx, err := s.dataStore.NewTx(ctx, pgx.ReadCommitted, pgx.ReadOnly)
 	if err != nil {
 		return err
 	}
@@ -87,7 +100,7 @@ func (s *service) readOnlyTx(ctx context.Context, f func(pgx.Tx) error) error {
 
 // readWriteTx returns a read and write transaction wrapper.
 func (s *service) readWriteTx(ctx context.Context, f func(pgx.Tx) error) error {
-	tx, err := s.store.NewTx(ctx, pgx.RepeatableRead, pgx.ReadWrite)
+	tx, err := s.dataStore.NewTx(ctx, pgx.RepeatableRead, pgx.ReadWrite)
 	if err != nil {
 		return err
 	}

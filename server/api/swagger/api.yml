@@ -324,7 +324,7 @@ paths:
     put:
       summary: Upload multimedia.
       operationId: uploadMultimedia
-      description: Upload a multimedia file via streaming.
+      description: Uploads a multimedia file.
       tags:
         - Multimedia
       security:
@@ -433,9 +433,9 @@ components:
       maxLength: 100
     Country:
       type: string
-      description: BCP 47 language tag.
-      minLength: 1
-      maxLength: 20
+      description: ISO 3166-1 alpha-2 code.
+      minLength: 2
+      maxLength: 2
     Vatin:
       type: string
       minLength: 1
@@ -446,10 +446,10 @@ components:
       description: File size up to 2 MB.
       maxLength: 2097152
     Checksum:
-      type: string
+      type: integer
+      format: int64
       description: CRC32 checksum using the Castagnoli93 polynomial.
-      minLength: 8
-      maxLength: 8
+      minimum: 0
     MediaType:
       type: string
       description: MIME type.
@@ -579,8 +579,8 @@ components:
           $ref: "#/components/schemas/Vatin"
         balance:
           $ref: "#/components/schemas/UserBalance"
-        pictureMultimediaId:
-          $ref: "#/components/schemas/UUID"
+        pictureMultimedia:
+          $ref: "#/components/schemas/Multimedia"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:

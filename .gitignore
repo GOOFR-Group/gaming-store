@@ -17,3 +17,6 @@ npm-debug.log*
 
 # Editor directories
 .vscode
+
+# Secrets
+gcp-key.json

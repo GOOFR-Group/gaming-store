@@ -31,7 +31,7 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 		slog.String(logging.UserDisplayName, string(editableUser.DisplayName)),
 		slog.Time(logging.UserDateOfBirth, editableUser.DateOfBirth),
 		slog.String(logging.UserAddress, string(editableUser.Address)),
-		slog.String(logging.UserCountry, editableUser.Country.String()),
+		slog.String(logging.UserCountry, string(editableUser.Country)),
 		slog.String(logging.UserVatin, string(editableUser.Vatin)),
 	}
 
@@ -79,12 +79,12 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 	var user domain.User
 
 	err = s.readWriteTx(ctx, func(tx pgx.Tx) error {
-		id, err := s.store.CreateUser(ctx, tx, editableUser)
+		id, err := s.dataStore.CreateUser(ctx, tx, editableUser)
 		if err != nil {
 			return err
 		}
 
-		user, err = s.store.GetUserByID(ctx, tx, id)
+		user, err = s.dataStore.GetUserByID(ctx, tx, id)
 		if err != nil {
 			return err
 		}
@@ -119,7 +119,7 @@ func (s *service) GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, e
 	)
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		user, err = s.store.GetUserByID(ctx, tx, id)
+		user, err = s.dataStore.GetUserByID(ctx, tx, id)
 		return err
 	})
 	if err != nil {
@@ -192,12 +192,12 @@ func (s *service) PatchUser(ctx context.Context, id uuid.UUID, editableUser doma
 	)
 
 	err = s.readWriteTx(ctx, func(tx pgx.Tx) error {
-		err = s.store.PatchUser(ctx, tx, id, editableUser)
+		err = s.dataStore.PatchUser(ctx, tx, id, editableUser)
 		if err != nil {
 			return err
 		}
 
-		user, err = s.store.GetUserByID(ctx, tx, id)
+		user, err = s.dataStore.GetUserByID(ctx, tx, id)
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func (s *service) SignInUser(ctx context.Context, username domain.Username, emai
 	)
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		signIn, err = s.store.GetUserSignIn(ctx, tx, username, email)
+		signIn, err = s.dataStore.GetUserSignIn(ctx, tx, username, email)
 		return err
 	})
 	if err != nil {
@@ -261,7 +261,7 @@ func (s *service) SignInUser(ctx context.Context, username domain.Username, emai
 	var user domain.User
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		user, err = s.store.GetUserByEmail(ctx, tx, signIn.Email)
+		user, err = s.dataStore.GetUserByEmail(ctx, tx, signIn.Email)
 		return err
 	})
 	if err != nil {

@@ -5,11 +5,13 @@ const (
 	FieldParamUserID      = "userId"
 	FieldParamPublisherID = "publisherId"
 
+	FieldKeyFile = "file"
+
 	FieldUsername    = "username"
 	FieldEmail       = "email"
-	FieldName        = "name"
 	FieldPassword    = "password"
 	FieldDisplayName = "displayName"
+	FieldName        = "name"
 	FieldAddress     = "address"
 	FieldCountry     = "country"
 	FieldVatin       = "vatin"

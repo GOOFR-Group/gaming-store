@@ -15,7 +15,8 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/config"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 	"github.com/goofr-group/gaming-store/server/internal/service"
-	"github.com/goofr-group/gaming-store/server/internal/store"
+	dataStore "github.com/goofr-group/gaming-store/server/internal/store/data"
+	objectStore "github.com/goofr-group/gaming-store/server/internal/store/object"
 	ihttp "github.com/goofr-group/gaming-store/server/internal/transport/http"
 )
 
@@ -66,13 +67,21 @@ func main() {
 		return
 	}
 
-	// Set up store.
-	store, err := store.New(ctx, serviceConfig.Database)
+	// Set up data store.
+	dataStore, err := dataStore.New(ctx, serviceConfig.Database)
 	if err != nil {
-		logging.Logger.ErrorContext(ctx, "main: failed to set up store", logging.Error(err))
+		logging.Logger.ErrorContext(ctx, "main: failed to set up data store", logging.Error(err))
 		return
 	}
-	defer store.Close()
+	defer dataStore.Close()
+
+	// Set up object store.
+	objectStore, err := objectStore.New(ctx, serviceConfig.CloudStorage)
+	if err != nil {
+		logging.Logger.ErrorContext(ctx, "main: failed to set up object store", logging.Error(err))
+		return
+	}
+	defer objectStore.Close()
 
 	// Set up authentication service.
 	jwtSigningKey, ok := os.LookupEnv(envKeyJWTSigningKey)
@@ -86,7 +95,7 @@ func main() {
 	authzService := authz.New(ihttp.AuthzRoles, authnService)
 
 	// Set up service.
-	service := service.New(authnService, store)
+	service := service.New(authnService, dataStore, objectStore)
 
 	// Handle signals.
 	sigs := make(chan os.Signal, 1)
