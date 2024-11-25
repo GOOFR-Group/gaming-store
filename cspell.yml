@@ -49,7 +49,6 @@ ignoreWords:
   - testcontainers
   - Tokelau
   - tseslint
-  - Türkiye
   - vatin
   - Viet
 ignorePaths:
