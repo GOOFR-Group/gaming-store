@@ -10,10 +10,8 @@ import (
 // Publisher errors.
 var (
 	ErrPublisherEmailAlreadyExists = errors.New("email already exists") // Returned when a publisher already
-	//exists with the same email.
 	ErrPublisherVatinAlreadyExists = errors.New("vatin already exists") // Returned when a publisher already
-	// exists with the same vatin.
-	ErrPublisherNotFound = errors.New("publisher not found") // Returned when a publisher is not found.
+	ErrPublisherNotFound           = errors.New("publisher not found")  // Returned when a publisher is not found.
 )
 
 // EditablePublisher defines the editable publisher structure.
@@ -44,9 +42,13 @@ type EditablePublisherPatch struct {
 
 // Publisher defines the publisher structure.
 type Publisher struct {
-	EditablePublisher
-	ID uuid.UUID
-	//Balance    float64 ?????????????????????????????
-	CreatedAt  time.Time
-	ModifiedAt time.Time
+	ID                uuid.UUID
+	Email             Email
+	Name              Name
+	Address           Address
+	Country           Country
+	Vatin             Vatin
+	PictureMultimedia *Multimedia
+	CreatedAt         time.Time
+	ModifiedAt        time.Time
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
@@ -78,7 +77,7 @@ func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (
 // GetPublisherByEmail executes a query to return the publisher with the specified email.
 func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT id, email, name, address, country, vatin, balance, picture_multimedia_id, created_at, modified_at 
+		SELECT id, email, name, address, country, vatin, picture_multimedia_id, created_at, modified_at 
 		FROM publishers 
 		WHERE email = $1 
 	`,
@@ -179,17 +178,12 @@ func getPublisherFromRow(row pgx.Row) (domain.Publisher, error) {
 		&publisher.Address,
 		&country,
 		&publisher.Vatin,
-		&publisher.PictureMultimediaID,
+		&publisher.PictureMultimedia,
 		&publisher.CreatedAt,
 		&publisher.ModifiedAt,
 	)
 	if err != nil {
 		return domain.Publisher{}, err
-	}
-
-	publisher.Country.Tag, err = language.Parse(country)
-	if err != nil {
-		return domain.Publisher{}, fmt.Errorf("%s: %w", descriptionFailedParseLanguageTag, err)
 	}
 
 	return publisher, nil

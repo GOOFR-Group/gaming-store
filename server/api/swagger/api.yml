@@ -649,8 +649,8 @@ components:
           $ref: "#/components/schemas/Country"
         vatin:
           $ref: "#/components/schemas/Vatin"
-        pictureMultimediaId:
-          $ref: "#/components/schemas/UUID"
+        pictureMultimedia:
+          $ref: "#/components/schemas/Multimedia"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:

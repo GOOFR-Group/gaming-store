@@ -28,7 +28,7 @@ func (s *service) CreatePublisher(ctx context.Context, editablePublisher domain.
 		slog.String(logging.PublisherEmail, string(editablePublisher.Email)),
 		slog.String(logging.PublisherName, string(editablePublisher.Name)),
 		slog.String(logging.PublisherAddress, string(editablePublisher.Address)),
-		slog.String(logging.PublisherCountry, editablePublisher.Country.String()),
+		slog.String(logging.PublisherCountry, string(editablePublisher.Country)),
 		slog.String(logging.PublisherVatin, string(editablePublisher.Vatin)),
 	}
 
@@ -72,12 +72,12 @@ func (s *service) CreatePublisher(ctx context.Context, editablePublisher domain.
 	var publisher domain.Publisher
 
 	err = s.readWriteTx(ctx, func(tx pgx.Tx) error {
-		id, err := s.store.CreatePublisher(ctx, tx, editablePublisher)
+		id, err := s.dataStore.CreatePublisher(ctx, tx, editablePublisher)
 		if err != nil {
 			return err
 		}
 
-		publisher, err = s.store.GetPublisherByID(ctx, tx, id)
+		publisher, err = s.dataStore.GetPublisherByID(ctx, tx, id)
 		if err != nil {
 			return err
 		}
@@ -111,7 +111,7 @@ func (s *service) GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Pu
 	)
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		publisher, err = s.store.GetPublisherByID(ctx, tx, id)
+		publisher, err = s.dataStore.GetPublisherByID(ctx, tx, id)
 		return err
 	})
 	if err != nil {
@@ -120,6 +120,83 @@ func (s *service) GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Pu
 			return domain.Publisher{}, logInfoAndWrapError(ctx, err, descriptionFailedGetPublisherByID, logAttrs...)
 		default:
 			return domain.Publisher{}, logAndWrapError(ctx, err, descriptionFailedGetPublisherByID, logAttrs...)
+		}
+	}
+
+	return publisher, nil
+}
+
+// PatchUser modifies the user with the specified identifier.
+func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) (domain.Publisher, error) {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "PatchUser"),
+		slog.String(logging.UserID, id.String()),
+	}
+
+	if editablePublisher.Name != nil {
+		name := domain.Name(replaceSpacesWithHyphen(string(*editablePublisher.Name)))
+		name = domain.Name(strings.ToLower(string(name)))
+		editablePublisher.Name = &name
+	}
+
+	if editablePublisher.Email != nil {
+		email := domain.Email(strings.ToLower(string(*editablePublisher.Email)))
+		editablePublisher.Email = &email
+	}
+
+	if editablePublisher.Address != nil {
+		address := domain.Address(removeExtraSpaces(string(*editablePublisher.Address)))
+		editablePublisher.Address = &address
+	}
+
+	if editablePublisher.Name != nil && !editablePublisher.Name.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldUsername}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editablePublisher.Email != nil && !editablePublisher.Email.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldEmail}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editablePublisher.Address != nil && !editablePublisher.Address.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldAddress}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editablePublisher.Country != nil && !editablePublisher.Country.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldCountry}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editablePublisher.Vatin != nil && !editablePublisher.Vatin.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldVatin}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	var (
+		publisher domain.Publisher
+		err       error
+	)
+
+	err = s.readWriteTx(ctx, func(tx pgx.Tx) error {
+		err = s.dataStore.PatchPublisher(ctx, tx, id, editablePublisher)
+		if err != nil {
+			return err
+		}
+
+		publisher, err = s.dataStore.GetPublisherByID(ctx, tx, id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound),
+			errors.Is(err, domain.ErrUserUsernameAlreadyExists),
+			errors.Is(err, domain.ErrUserEmailAlreadyExists),
+			errors.Is(err, domain.ErrUserVatinAlreadyExists),
+			errors.Is(err, domain.ErrMultimediaNotFound):
+			return domain.Publisher{}, logInfoAndWrapError(ctx, err, descriptionFailedPatchUser, logAttrs...)
+		default:
+			return domain.Publisher{}, logAndWrapError(ctx, err, descriptionFailedPatchUser, logAttrs...)
 		}
 	}
 
@@ -141,7 +218,7 @@ func (s *service) SignInPublisher(ctx context.Context, email domain.Email, passw
 	)
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		signIn, err = s.store.GetPublisherSignIn(ctx, tx, email)
+		signIn, err = s.dataStore.GetPublisherSignIn(ctx, tx, email)
 		return err
 	})
 	if err != nil {
@@ -165,7 +242,7 @@ func (s *service) SignInPublisher(ctx context.Context, email domain.Email, passw
 	var publisher domain.Publisher
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		publisher, err = s.store.GetPublisherByEmail(ctx, tx, signIn.Email)
+		publisher, err = s.dataStore.GetPublisherByEmail(ctx, tx, signIn.Email)
 		return err
 	})
 	if err != nil {
