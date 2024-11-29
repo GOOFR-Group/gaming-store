@@ -18,6 +18,7 @@ const (
 	codeFieldValueInvalid          = "field_value_invalid"
 	codeCredentialsIncorrect       = "credentials_incorrect"
 	codeInternalServerError        = "internal_server_error"
+	codeAlreadyLoggedIn            = "already_logged_in"
 
 	errAuthorizationHeaderInvalid = "invalid authorization header"
 	errJWTInvalid                 = "invalid jwt"
@@ -27,6 +28,7 @@ const (
 	errRequestBodyInvalid         = "invalid request body"
 	errFieldValueInvalid          = "invalid field value"
 	errCredentialsIncorrect       = "incorrect credentials"
+	errAlreadyLoggedIn            = "already logged in"
 )
 
 // Common fault descriptions.
