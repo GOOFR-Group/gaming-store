@@ -19,8 +19,8 @@ var (
 
 // MultimediaObject defines the multimedia object structure.
 type MultimediaObject struct {
-	Checksum  uint32
-	MediaType string
+	Checksum  uint32 // CRC32 checksum using the Castagnoli93 polynomial.
+	MediaType string // MIME type.
 	URL       string
 }
 

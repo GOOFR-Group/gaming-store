@@ -6,4 +6,5 @@ database:
     apply: true
     version: 5
 cloudStorage:
+  enabled: true
   bucketMultimedia: multimedia_bucket
