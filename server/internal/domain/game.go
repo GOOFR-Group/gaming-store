@@ -17,6 +17,9 @@ const (
 	gameDescriptionMinLength = 1
 	gameDescriptionMaxLength = 500
 
+	gameAgeRatingMinLength = 1
+	gameAgeRatingMaxLength = 2
+
 	gameFeaturesMinLength = 1
 	gameFeaturesMaxLength = 250
 
@@ -53,6 +56,14 @@ type GameDescription string
 // Valid returns true if the game description is valid, false otherwise.
 func (d GameDescription) Valid() bool {
 	return len(d) >= gameDescriptionMinLength && len(d) <= gameDescriptionMaxLength
+}
+
+// GameAgeRating defines the game age rating type.
+type GameAgeRating string
+
+// Valid returns true if the game age rating is valid, false otherwise.
+func (d GameAgeRating) Valid() bool {
+	return len(d) >= gameAgeRatingMinLength && len(d) <= gameAgeRatingMaxLength
 }
 
 // GameFeatures defines the game features type.
@@ -110,6 +121,7 @@ type EditableGame struct {
 	IsActive             bool
 	ReleaseDate          *time.Time
 	Description          GameDescription
+	AgeRating            GameAgeRating
 	Features             GameFeatures
 	Languages            GameLanguages
 	Requirements         GameRequirements
@@ -124,6 +136,7 @@ type EditableGamePatch struct {
 	IsActive             *bool
 	ReleaseDate          *time.Time
 	Description          *GameDescription
+	AgeRating            *GameAgeRating
 	Features             *GameFeatures
 	Languages            *GameLanguages
 	Requirements         *GameRequirements
@@ -134,17 +147,20 @@ type EditableGamePatch struct {
 // Game defines the game structure.
 type Game struct {
 	ID                 uuid.UUID
-	PublisherID        uuid.UUID
+	Publisher          Publisher
 	Title              GameTitle
 	Price              GamePrice
 	IsActive           bool
 	ReleaseDate        *time.Time
 	Description        GameDescription
+	AgeRating          GameAgeRating
 	Features           GameFeatures
 	Languages          GameLanguages
 	Requirements       GameRequirements
 	PreviewMultimedia  Multimedia
 	DownloadMultimedia Multimedia
+	Multimedia         []Multimedia
+	Tags               []Tag
 	CreatedAt          time.Time
 	ModifiedAt         time.Time
 }
