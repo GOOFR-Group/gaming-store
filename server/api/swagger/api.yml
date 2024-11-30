@@ -706,6 +706,11 @@ components:
       type: string
       minLength: 1
       maxLength: 500
+    GameAgeRating:
+      type: string
+      minLength: 1
+      maxLength: 2
+      example: 18
     GameFeatures:
       type: string
       minLength: 1
@@ -889,6 +894,7 @@ components:
         - price
         - isActive
         - description
+        - ageRating
         - features
         - languages
         - requirements
@@ -905,6 +911,8 @@ components:
           $ref: "#/components/schemas/Date"
         description:
           $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
         features:
           $ref: "#/components/schemas/GameFeatures"
         languages:
@@ -928,6 +936,8 @@ components:
           $ref: "#/components/schemas/Date"
         description:
           $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
         features:
           $ref: "#/components/schemas/GameFeatures"
         languages:
@@ -947,6 +957,7 @@ components:
         - price
         - isActive
         - description
+        - ageRating
         - features
         - languages
         - requirements
@@ -971,6 +982,8 @@ components:
           $ref: "#/components/schemas/Date"
         description:
           $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
         features:
           $ref: "#/components/schemas/GameFeatures"
         languages:

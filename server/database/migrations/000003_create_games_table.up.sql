@@ -17,6 +17,7 @@ CREATE TABLE games (
     is_active               boolean         NOT NULL    DEFAULT FALSE,
     release_date            date,
     description             varchar(500)    NOT NULL,
+    age_rating              varchar(2)      NOT NULL, -- PEGI age classification.
     features                varchar(250)    NOT NULL,
     languages               varchar(20)[]   NOT NULL, -- BCP 47 language tags.
     requirements            json            NOT NULL,
