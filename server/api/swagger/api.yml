@@ -9,6 +9,8 @@ tags:
     description: Game operations
   - name: Game Tag
     description: Game tag operations
+  - name: Game Multimedia
+    description: Game multimedia operations
   - name: Tag
     description: Tag operations
   - name: Multimedia
@@ -203,7 +205,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         409:
-          description: Multimedia does not exist.
+          description: Publisher or multimedia does not exist.
           content:
             application/json:
               schema:
@@ -346,6 +348,86 @@ paths:
         - $ref: "#/components/parameters/PublisherIdPathParam"
         - $ref: "#/components/parameters/GameIdPathParam"
         - $ref: "#/components/parameters/TagIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        409:
+          description: Association does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /publishers/{publisherId}/games/{gameId}/multimedia/{multimediaId}:
+    post:
+      summary: Create a game multimedia association.
+      operationId: createGameMultimedia
+      description: Creates a game multimedia association.
+      tags:
+        - Game Multimedia
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/MultimediaIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameMultimediaPost"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Game or multimedia not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Association already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a game multimedia association.
+      operationId: deleteGameMultimedia
+      description: Deletes the game multimedia association.
+      tags:
+        - Game Multimedia
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/MultimediaIdPathParam"
       responses:
         204:
           description: Successful operation.
@@ -513,6 +595,13 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/UUID"
+    MultimediaIdPathParam:
+      name: multimediaId
+      in: path
+      description: Multimedia identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
 
   schemas:
     Error:
@@ -637,6 +726,10 @@ components:
           $ref: "#/components/schemas/Description"
         recommended:
           $ref: "#/components/schemas/Description"
+
+    GameMultimediaPosition:
+      type: integer
+      minimum: 0
 
     SignIn:
       type: object
@@ -859,6 +952,7 @@ components:
         - requirements
         - previewMultimedia
         - downloadMultimedia
+        - multimedia
         - tags
         - createdAt
         - modifiedAt
@@ -887,6 +981,10 @@ components:
           $ref: "#/components/schemas/Multimedia"
         downloadMultimedia:
           $ref: "#/components/schemas/Multimedia"
+        multimedia:
+          type: array
+          items:
+            $ref: "#/components/schemas/Multimedia"
         tags:
           type: array
           items:
@@ -895,6 +993,14 @@ components:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
+
+    GameMultimediaPost:
+      type: object
+      required:
+        - position
+      properties:
+        position:
+          $ref: "#/components/schemas/GameMultimediaPosition"
 
     Tag:
       type: object
