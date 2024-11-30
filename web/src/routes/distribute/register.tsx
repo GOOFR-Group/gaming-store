@@ -30,11 +30,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { createPublisher } from "@/lib/api";
+import { createPublisher, signInPublisher } from "@/lib/api";
+import { decodeTokenPayload,storeToken} from "@/lib/auth";
 import { Conflict } from "@/lib/errors";
+import { passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/distribute/register")({
-  component: Component,
+  component: Component
 });
 
 const formSchema = z
@@ -56,10 +58,15 @@ const formSchema = z
     }),
     picture: z.instanceof(File, {
       message: "Picture is required",
-    }),
-    password: z.string().min(8, {
-      message: "Password must be at least 8 characters long",
-    }),
+    }).optional(),
+    password: z.string()
+    .min(14, {
+      message: "Password must be at least 14 characters long",
+    })
+    .max(72, {
+      message: "Password must be shorter than 72 characters",
+    })
+    .superRefine(passwordRefinement),
     confirm: z.string().min(1, {
       message: "Passwords don't match",
     }),
@@ -99,20 +106,22 @@ function Component() {
         vatin: data.vat,
         password: data.password,
       });
+
+      const jwt = await signInPublisher({
+        email: data.email,
+        password: data.password,
+      });
+      const payload = decodeTokenPayload(jwt.token);
+      storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
       await navigate({ to: "/distribute/games" });
     },
-     onError(error) {
+    onError(error) {
       if (error instanceof Conflict) {
         switch (error.code) {
           case "publisher_name_already_exists":
             form.setError("name", { message: "Name already exists" });
-            break;
-
-          case "already_logged_in":
-            form.setError("root", { message: "Already logged in" });
-            //await navigate({ to: "/distribute/games" }); ??
             break;
 
           case "user_email_already_exists":

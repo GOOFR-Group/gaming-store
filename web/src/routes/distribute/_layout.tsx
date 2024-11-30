@@ -67,8 +67,12 @@ function Component() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <User className="mr-2 size-4" />
-                Account
+                
+                <Link className="flex w-full" to="/distribute/account" >
+                  <User className="mr-2 size-4" />
+                  Account
+                </Link>
+                
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
