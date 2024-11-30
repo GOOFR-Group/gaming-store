@@ -34,6 +34,7 @@ export function getInitials(name: string) {
   }
 
   const words = name.split(" ");
+
   if (words.length < 2) {
     return words[0].charAt(0).toUpperCase();
   }

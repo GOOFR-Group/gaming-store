@@ -1,5 +1,5 @@
 import { ApiError } from "@/domain/error";
-import { Game, PaginatedGames } from "@/domain/game";
+import { Game, GamesFilters, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
@@ -214,13 +214,40 @@ export async function uploadMultimedia(file: File) {
 /**
  * Retrieves the games of a publisher.
  * @param id Publisher ID.
+ * @param filters Filters.
  * @returns Games of a publisher.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Publisher not found.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getPublisherGames(id: string) {
+export async function getPublisherGames(id: string, filters: GamesFilters) {
+  const searchParams = new URLSearchParams();
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters.order) {
+    searchParams.set("order", filters.order);
+  }
+  if (filters.title?.trim()) {
+    searchParams.set("title", filters.title.trim());
+  }
+  if (filters.genres) {
+    searchParams.set("genres", filters.genres.join(","));
+  }
+
+  // const response = await fetch(`/api/publisher/${id}/games?${searchParams}`, {
+  //   signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // });
   const games: PaginatedGames = {
     total: 1,
     games: [
@@ -233,6 +260,15 @@ export async function getPublisherGames(id: string) {
         releaseDate: "2017-07-21",
         description: "string",
         features: "string",
+        tags: [
+          {
+            id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
+            name: "RPG",
+            description: "RPG",
+            createdAt: "2017-07-21T17:32:28Z",
+            modifiedAt: "2017-07-21T17:32:28Z",
+          },
+        ],
         languages: [LANGUAGES_MAP.EN.code, LANGUAGES_MAP.PT.code],
         requirements: {
           minimum: "string",
@@ -260,12 +296,6 @@ export async function getPublisherGames(id: string) {
   const response = new Response(JSON.stringify(games), {
     status: 200,
   });
-  // const response = await fetch(`/api/publisher/${id}/games`, {
-  //   signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
 
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;

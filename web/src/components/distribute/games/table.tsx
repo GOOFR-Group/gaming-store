@@ -5,6 +5,7 @@ import {
   ColumnFiltersState,
   createColumnHelper,
   getCoreRowModel,
+  OnChangeFn,
   PaginationState,
   SortingState,
   useReactTable,
@@ -15,60 +16,51 @@ import { ChevronRight } from "lucide-react";
 
 import { DataTable, DataTableColumnHeader } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Game } from "@/domain/game";
-import { LANGUAGES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 
+import { GamesColumns } from "./columns";
+import { Search } from "./search";
 import { GamesToolbar } from "./toolbar";
 
 const columnHelper = createColumnHelper<Game>();
 const columns = [
-  columnHelper.accessor("title", {
+  columnHelper.accessor(GamesColumns.title, {
     header({ column }) {
       return <DataTableColumnHeader column={column} />;
     },
     cell({ getValue }) {
-      return <div className="capitalize">{getValue()}</div>;
+      return getValue();
     },
     meta: {
       name: "Title",
     },
   }),
-  columnHelper.accessor("releaseDate", {
+  columnHelper.accessor(GamesColumns.releaseDate, {
     header({ column }) {
       return <DataTableColumnHeader column={column} />;
     },
     cell({ getValue }) {
-      return <div>{format(getValue(), "dd/MM/yyyy")}</div>;
+      return format(getValue(), "dd/MM/yyyy");
     },
     meta: {
       name: "Release Date",
     },
   }),
-  columnHelper.accessor("languages", {
+  columnHelper.accessor(GamesColumns.genres, {
     header({ column }) {
       return <DataTableColumnHeader column={column} />;
     },
     cell({ getValue }) {
-      const languages = getValue();
-      if (!languages.length) {
+      const tags = getValue();
+      if (!tags.length) {
         return MISSING_VALUE_SYMBOL;
       }
 
-      return (
-        <div>
-          {languages
-            .filter((language) => language in LANGUAGES_MAP)
-            .map(
-              (language) =>
-                LANGUAGES_MAP[language as keyof typeof LANGUAGES_MAP].name,
-            )
-            .join(", ")}
-        </div>
-      );
+      return tags.map((tag) => tag.name).join(", ");
     },
     meta: {
-      name: "Languages",
+      name: "Genres",
     },
   }),
   columnHelper.display({
@@ -93,14 +85,15 @@ export function GamesTable(props: {
   children: ReactNode;
   games: Game[];
   total: number;
+  loading: boolean;
+  sorting: SortingState;
+  columnFilters: ColumnFiltersState;
+  pagination: PaginationState;
+  onSortingChange: OnChangeFn<SortingState>;
+  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>;
+  onPaginationChange: OnChangeFn<PaginationState>;
 }) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const table = useReactTable({
     data: props.games,
@@ -109,32 +102,31 @@ export function GamesTable(props: {
     manualFiltering: true,
     manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    onColumnFiltersChange: props.onColumnFiltersChange,
+    onPaginationChange: props.onPaginationChange,
+    onSortingChange: props.onSortingChange,
     state: {
-      sorting,
-      columnFilters,
       columnVisibility,
-      pagination,
+      columnFilters: props.columnFilters,
+      pagination: props.pagination,
+      sorting: props.sorting,
     },
   });
+
+  const titleColumn = table.getColumn(GamesColumns.title);
 
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <Input
-          className="max-w-sm"
-          placeholder="Search"
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
+        <Search
+          value={(titleColumn?.getFilterValue() as string) ?? ""}
+          onChange={(value) => titleColumn?.setFilterValue(value)}
         />
         {props.children}
       </div>
       <DataTable
+        loading={props.loading}
         table={table}
         toolbar={<GamesToolbar table={table} />}
         totalRows={props.total}

@@ -1,4 +1,5 @@
 import { Multimedia } from "./multimedia";
+import { Tag } from "./tag";
 
 export interface Game {
   id: string;
@@ -9,6 +10,7 @@ export interface Game {
   releaseDate: string;
   description: string;
   features: string;
+  tags: Tag[];
   languages: string[];
   requirements: {
     minimum: string;
@@ -23,4 +25,13 @@ export interface Game {
 export interface PaginatedGames {
   games: Game[];
   total: number;
+}
+
+export interface GamesFilters {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  order?: string;
+  title?: string;
+  genres?: number[];
 }

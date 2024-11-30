@@ -1,5 +1,7 @@
 import { QueryKey } from "@tanstack/react-query";
 
+import { GamesFilters } from "@/domain/game";
+
 /**
  * Query key used when fetching a user information.
  */
@@ -7,8 +9,12 @@ export const userQueryKey: QueryKey = ["user"];
 
 /**
  * Query key used when fetching games.
+ * @param [filters] Filters.
+ * @returns Games query key.
  */
-export const gamesQueryKey: QueryKey = ["games"];
+export function gamesQueryKey(filters?: GamesFilters): QueryKey {
+  return ["games", filters];
+}
 
 /**
  * Query key used when fetching a game.
