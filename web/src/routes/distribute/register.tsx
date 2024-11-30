@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { createPublisher } from "@/lib/api";
+import { Conflict } from "@/lib/errors";
 
 export const Route = createFileRoute("/distribute/register")({
   component: Component,
@@ -65,6 +69,9 @@ const formSchema = z
     path: ["confirm"],
   });
 
+
+  type RegisterSchemaType = z.infer<typeof formSchema>;
+
 function Component() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,7 +87,56 @@ function Component() {
     },
   });
 
-  function onSubmit() {}
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    async mutationFn(data: RegisterSchemaType) {
+      await createPublisher({
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        address: data.address,
+        vatin: data.vat,
+        password: data.password,
+      });
+    },
+    async onSuccess() {
+      await navigate({ to: "/distribute/games" });
+    },
+     onError(error) {
+      if (error instanceof Conflict) {
+        switch (error.code) {
+          case "publisher_name_already_exists":
+            form.setError("name", { message: "Name already exists" });
+            break;
+
+          case "already_logged_in":
+            form.setError("root", { message: "Already logged in" });
+            //await navigate({ to: "/distribute/games" }); ??
+            break;
+
+          case "user_email_already_exists":
+            form.setError("email", { message: "Email already exists" });
+            break;
+
+          case "publisher_vatin_already_exists":
+            form.setError("vat", { message: "VAT already exists" });
+            break;
+        }
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  function onSubmit(data: RegisterSchemaType) {
+    mutation.mutate(data);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
