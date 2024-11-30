@@ -26,13 +26,6 @@ const (
 func (h *handler) CreatePublisher(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// to prevent the user from spamming register requests
-	existingCookie, _ := r.Cookie("publisher_token")
-	if existingCookie != nil {
-		badRequest(w, codeAlreadyLoggedIn, errAlreadyLoggedIn)
-		return
-	}
-
 	requestBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		badRequest(w, codeRequestBodyInvalid, errRequestBodyInvalid)
@@ -68,22 +61,6 @@ func (h *handler) CreatePublisher(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	token, err := h.service.SignInPublisher(ctx, domainEditablePublisher.Email, domainEditablePublisher.Password)
-	if err != nil {
-		switch {
-		case errors.Is(err, domain.ErrCredentialsIncorrect):
-			unauthorized(w, codeCredentialsIncorrect, errCredentialsIncorrect)
-		default:
-			internalServerError(w)
-		}
-
-		return
-	}
-
-	jwt := jwtFromJWTToken(token)
-	cookie := http.Cookie{Name: "publisher_token", Value: jwt.Token}
-	http.SetCookie(w, &cookie)
 
 	publisher := publisherFromDomain(domainPublisher)
 
@@ -186,12 +163,6 @@ func (h *handler) PatchPublisherByID(w http.ResponseWriter, r *http.Request, pub
 func (h *handler) SignInPublisher(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	existingCookie, _ := r.Cookie("publisher_token")
-	if existingCookie != nil {
-		badRequest(w, codeAlreadyLoggedIn, errAlreadyLoggedIn)
-		return
-	}
-
 	requestBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		badRequest(w, codeRequestBodyInvalid, errRequestBodyInvalid)
@@ -218,12 +189,17 @@ func (h *handler) SignInPublisher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set cookie and return 200
 	jwt := jwtFromJWTToken(token)
-	cookie := http.Cookie{Name: "publisher_token", Value: jwt.Token}
 
-	http.SetCookie(w, &cookie)
-	w.WriteHeader(200)
+	responseBody, err := json.Marshal(jwt)
+	if err != nil {
+		logging.Logger.ErrorContext(ctx, descriptionFailedToMarshalResponseBody, logging.Error(err))
+		internalServerError(w)
+
+		return
+	}
+
+	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
 // publisherPostToDomain returns a domain editable publisher with password based on the standardized publisher post.
