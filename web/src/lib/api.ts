@@ -83,67 +83,6 @@ export async function signInUser(credentials: UserCredentials) {
   return jwt;
 }
 
-/**
- * Creates a new publisher.
- * @param newPublisher User to be created.
- * @returns a NewPublisher instance.
- * @throws {Conflict} Username, email or vatin already exist.
- * @throws {InternalServerError} Server internal error.
- */
-export async function createPublisher(newPublisher: NewPublisher) {
-  const response = await fetch("/api/publishers", {
-    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newPublisher),
-  });
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 409:
-        throw new Conflict(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-
-  const user = (await response.json()) as User;
-
-  return user;
-}
-
-/**
- * Signs in a user with their credentials.
- * @param credentials User credentials.
- * @returns JWT.
- * @throws {Unauthorized} Incorrect credentials.
- * @throws {InternalServerError} Server internal error.
- */
-export async function signInPublisher(credentials: PublisherCredentials) {
-  const response = await fetch("/api/users/signin", {
-    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-    method: "POST",
-    credentials: 'include',
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(credentials),
-  });
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-}
-
 
 /**
  * Retrieves a user given a user ID.
@@ -218,6 +157,100 @@ export async function updateUser(id: string, details: EditableUser) {
         throw new NotFound(error.code, error.message);
       case 409:
         throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const user = (await response.json()) as User;
+
+  return user;
+}
+
+/**
+ * Creates a new publisher.
+ * @param newPublisher User to be created.
+ * @returns a NewPublisher instance.
+ * @throws {Conflict} Username, email or vatin already exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createPublisher(newPublisher: NewPublisher) {
+  const response = await fetch("/api/publishers", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newPublisher),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const user = (await response.json()) as User;
+
+  return user;
+}
+
+/**
+ * Signs in a user with their credentials.
+ * @param credentials User credentials.
+ * @returns JWT.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function signInPublisher(credentials: PublisherCredentials) {
+  const response = await fetch("/api/publishers/signin", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const jwt = (await response.json()) as Jwt;
+
+  return jwt;
+}
+
+export async function getPublisher(id: string) {
+  const token = getToken(true);
+
+  const response = await fetch(`/api/publishers/${id}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
       default:
         throw new InternalServerError();
     }
