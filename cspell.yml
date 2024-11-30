@@ -24,6 +24,7 @@ ignoreWords:
   - GOOFR
   - healthcheck
   - ihttp
+  - iobjectStore
   - isready
   - Kitts
   - ldflags
