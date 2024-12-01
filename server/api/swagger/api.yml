@@ -204,6 +204,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
         404:
           description: Publisher not found.
           content:
@@ -485,10 +489,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        401:
-          $ref: "#/components/responses/Unauthorized"
-        403:
-          $ref: "#/components/responses/Forbidden"
         500:
           $ref: "#/components/responses/InternalServerError"
 
