@@ -38,6 +38,10 @@ type DataStore interface {
 	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignIn, error)
 	PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error
 
+	CreateGame(ctx context.Context, tx pgx.Tx, publisherID uuid.UUID, editableGame domain.EditableGame) (uuid.UUID, error)
+	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
+	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
+
 	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
 	GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Multimedia, error)
 	GetMultimediaByChecksumAndMediaType(ctx context.Context, tx pgx.Tx, checksum int64, mediaType string) (domain.Multimedia, error)
