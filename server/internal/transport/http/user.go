@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
-
-	"golang.org/x/text/language"
 
 	"github.com/goofr-group/gaming-store/server/api"
 	"github.com/goofr-group/gaming-store/server/internal/domain"
@@ -247,9 +244,9 @@ func (h *handler) SignInUser(w http.ResponseWriter, r *http.Request) {
 
 // userPostToDomain returns a domain editable user with password based on the standardized user post.
 func userPostToDomain(userPost api.UserPost) (domain.EditableUserWithPassword, error) {
-	country, err := language.ParseRegion(userPost.Country)
+	country, err := countryToDomain(userPost.Country)
 	if err != nil {
-		return domain.EditableUserWithPassword{}, &domain.FieldValueInvalidError{FieldName: domain.FieldCountry}
+		return domain.EditableUserWithPassword{}, err
 	}
 
 	return domain.EditableUserWithPassword{
@@ -259,7 +256,7 @@ func userPostToDomain(userPost api.UserPost) (domain.EditableUserWithPassword, e
 			DisplayName:         domain.Name(userPost.DisplayName),
 			DateOfBirth:         userPost.DateOfBirth.Time,
 			Address:             domain.Address(userPost.Address),
-			Country:             domain.Country{Region: country},
+			Country:             country,
 			Vatin:               domain.Vatin(userPost.Vatin),
 			PictureMultimediaID: userPost.PictureMultimediaId,
 		},
@@ -269,29 +266,22 @@ func userPostToDomain(userPost api.UserPost) (domain.EditableUserWithPassword, e
 
 // userPatchToDomain returns a domain patchable user based on the standardized user patch.
 func userPatchToDomain(userPatch api.UserPatch) (domain.EditableUserPatch, error) {
-	var dateOfBirth *time.Time
-
-	if userPatch.DateOfBirth != nil {
-		temp := userPatch.DateOfBirth.Time
-		dateOfBirth = &temp
-	}
-
 	var country *domain.Country
 
 	if userPatch.Country != nil {
-		temp, err := language.ParseRegion(*userPatch.Country)
+		temp, err := countryToDomain(*userPatch.Country)
 		if err != nil {
-			return domain.EditableUserPatch{}, &domain.FieldValueInvalidError{FieldName: domain.FieldCountry}
+			return domain.EditableUserPatch{}, err
 		}
 
-		country = &domain.Country{Region: temp}
+		country = &temp
 	}
 
 	return domain.EditableUserPatch{
 		Username:            (*domain.Username)(userPatch.Username),
 		Email:               (*domain.Email)(userPatch.Email),
 		DisplayName:         (*domain.Name)(userPatch.DisplayName),
-		DateOfBirth:         dateOfBirth,
+		DateOfBirth:         optionalDateToOptionalTime(userPatch.DateOfBirth),
 		Address:             (*domain.Address)(userPatch.Address),
 		Country:             country,
 		Vatin:               (*domain.Vatin)(userPatch.Vatin),
@@ -302,13 +292,6 @@ func userPatchToDomain(userPatch api.UserPatch) (domain.EditableUserPatch, error
 
 // userFromDomain returns a standardized user based on the domain model.
 func userFromDomain(user domain.User) api.User {
-	var pictureMultimedia *api.Multimedia
-
-	if user.PictureMultimedia != nil {
-		multimedia := multimediaFromDomain(*user.PictureMultimedia)
-		pictureMultimedia = &multimedia
-	}
-
 	return api.User{
 		Id:                user.ID,
 		Username:          string(user.Username),
@@ -319,7 +302,7 @@ func userFromDomain(user domain.User) api.User {
 		Country:           user.Country.String(),
 		Vatin:             string(user.Vatin),
 		Balance:           user.Balance,
-		PictureMultimedia: pictureMultimedia,
+		PictureMultimedia: optionalMultimediaFromDomain(user.PictureMultimedia),
 		CreatedAt:         user.CreatedAt,
 		ModifiedAt:        user.ModifiedAt,
 	}

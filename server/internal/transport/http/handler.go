@@ -48,6 +48,10 @@ type Service interface {
 	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
 
+	CreateGame(ctx context.Context, publisherID uuid.UUID, editableGame domain.EditableGame) (domain.Game, error)
+	GetGameByID(ctx context.Context, id uuid.UUID) (domain.Game, error)
+	PatchGame(ctx context.Context, id uuid.UUID, editableGame domain.EditableGamePatch) (domain.Game, error)
+
 	UploadMultimedia(ctx context.Context, file []byte, contentType string) (domain.Multimedia, error)
 }
 
