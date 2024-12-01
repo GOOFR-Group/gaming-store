@@ -154,7 +154,7 @@ function Component() {
                 className="w-full text-primary-foreground font-semibold"
                 variant="secondary"
               >
-                <Link to="/register">Register</Link>
+                <Link to="/distribute/register">Register</Link>
               </Button>
             </CardFooter>
           </form>
