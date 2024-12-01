@@ -10,6 +10,11 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
+const (
+	paginationLimitDefaultValue  = 100
+	paginationOffsetDefaultValue = 0
+)
+
 // dateFromTime returns a standardized date based on the time model.
 func dateFromTime(time time.Time) oapitypes.Date {
 	return oapitypes.Date{
@@ -81,5 +86,49 @@ func languagesToDomain(s []string) ([]domain.Language, error) {
 func jwtFromJWTToken(token string) api.JWT {
 	return api.JWT{
 		Token: token,
+	}
+}
+
+// orderToDomain returns a domain order based on the standardized query parameter model.
+func orderToDomain(order *api.OrderQueryParam) domain.PaginationOrder {
+	if order == nil {
+		return domain.PaginationOrderAsc
+	}
+
+	switch *order {
+	case api.OrderQueryParamAsc:
+		return domain.PaginationOrderAsc
+	case api.OrderQueryParamDesc:
+		return domain.PaginationOrderDesc
+	default:
+		return domain.PaginationOrder(*order)
+	}
+}
+
+// limitToDomain returns a domain pagination limit based on the standardized query parameter model.
+func limitToDomain(limit *api.LimitQueryParam) domain.PaginationLimit {
+	if limit == nil {
+		return domain.PaginationLimit(paginationLimitDefaultValue)
+	}
+
+	return domain.PaginationLimit(*limit)
+}
+
+// offsetToDomain returns a domain pagination offset based on the standardized query parameter model.
+func offsetToDomain(offset *api.OffsetQueryParam) domain.PaginationOffset {
+	if offset == nil {
+		return domain.PaginationOffset(paginationOffsetDefaultValue)
+	}
+
+	return domain.PaginationOffset(*offset)
+}
+
+// paginatedRequestToDomain returns a domain paginated request based on the standardized query parameter models.
+func paginatedRequestToDomain[T any](sort domain.PaginationSort[T], order *api.OrderQueryParam, limit *api.LimitQueryParam, offset *api.OffsetQueryParam) domain.PaginatedRequest[T] {
+	return domain.PaginatedRequest[T]{
+		Sort:   sort,
+		Order:  orderToDomain(order),
+		Limit:  limitToDomain(limit),
+		Offset: offsetToDomain(offset),
 	}
 }
