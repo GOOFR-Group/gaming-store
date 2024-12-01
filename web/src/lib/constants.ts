@@ -299,3 +299,8 @@ export const TOAST_MESSAGES = {
     description: "Please try again later or contact the support team.",
   },
 } as const;
+
+/**
+ * Minimum age at which the user can be registered on the platform.
+ */
+export const MINIMUM_USER_AGE = 16;

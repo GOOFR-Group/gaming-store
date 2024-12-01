@@ -38,7 +38,9 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
-  const [date, setDate] = React.useState<Date>(new Date());
+  const [date, setDate] = React.useState<Date>(
+    props.defaultMonth ?? new Date(),
+  );
 
   const currentDate = new Date().getFullYear();
   const yearOptions = Array.from(

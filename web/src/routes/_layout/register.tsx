@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { format, subYears } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as z from "zod";
 
@@ -40,7 +40,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
-import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import { COUNTRIES, MINIMUM_USER_AGE, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { accountDetailsSchema, passwordRefinement } from "@/lib/zod";
@@ -228,9 +228,15 @@ function Component() {
                         <PopoverContent align="start" className="w-auto p-0">
                           <Calendar
                             initialFocus
-                            disabled={(date) => date > new Date()}
                             mode="single"
                             selected={field.value}
+                            defaultMonth={subYears(
+                              new Date(),
+                              MINIMUM_USER_AGE,
+                            )}
+                            disabled={(date) =>
+                              date > subYears(new Date(), MINIMUM_USER_AGE)
+                            }
                             onSelect={field.onChange}
                           />
                         </PopoverContent>
