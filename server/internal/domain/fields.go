@@ -23,4 +23,9 @@ const (
 	FieldLanguages            = "languages"
 	FieldRequirements         = "requirements"
 	FieldDownloadMultimediaID = "downloadMultimediaId"
+
+	FieldFilterSort   = "sort"
+	FieldFilterOrder  = "order"
+	FieldFilterLimit  = "limit"
+	FieldFilterOffset = "offset"
 )

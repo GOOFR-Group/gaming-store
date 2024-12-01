@@ -16,6 +16,7 @@ import (
 
 const (
 	descriptionInvalidFieldValue       = "service: invalid field value"
+	descriptionInvalidFilterValue      = "service: invalid filter value"
 	descriptionFailedHashPassword      = "service: failed to hash password"
 	descriptionFailedCheckPasswordHash = "service: failed to check password hash"
 	descriptionFailedCreateJWT         = "service: failed to create jwt"
@@ -47,6 +48,8 @@ type DataStore interface {
 
 	CreateGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID, editableGameMultimedia domain.EditableGameMultimedia) error
 	DeleteGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID) error
+
+	ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPaginatedFilter) (domain.PaginatedResponse[domain.Tag], error)
 
 	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
 	GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Multimedia, error)

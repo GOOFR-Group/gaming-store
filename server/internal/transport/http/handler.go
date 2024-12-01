@@ -58,6 +58,8 @@ type Service interface {
 	CreateGameMultimedia(ctx context.Context, gameID, multimediaID uuid.UUID, editableGameMultimedia domain.EditableGameMultimedia) error
 	DeleteGameMultimedia(ctx context.Context, gameID, multimediaID uuid.UUID) error
 
+	ListTags(ctx context.Context, filter domain.TagsPaginatedFilter) (domain.PaginatedResponse[domain.Tag], error)
+
 	UploadMultimedia(ctx context.Context, file []byte, contentType string) (domain.Multimedia, error)
 }
 
