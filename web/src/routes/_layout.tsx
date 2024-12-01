@@ -90,7 +90,7 @@ function Component() {
                 </li>
                 <li>
                   <Link className="hover:underline" href="#">
-                    Deals
+                    Upcoming Releases
                   </Link>
                 </li>
                 <li>

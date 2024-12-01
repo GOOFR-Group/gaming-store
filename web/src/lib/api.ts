@@ -253,13 +253,31 @@ export async function getPublisherGames(id: string, filters: GamesFilters) {
     games: [
       {
         id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
-        publisherId: id,
+        publisher: {
+          id: id,
+          email: "john-doe@email.com",
+          name: "John Doe",
+          address: "string",
+          country: "st",
+          vatin: "string",
+          pictureMultimedia: {
+            id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
+            checksum: 0,
+            mediaType: "string",
+            url: "string",
+            createdAt: "2017-07-21T17:32:28Z",
+          },
+          createdAt: "2017-07-21T17:32:28Z",
+          modifiedAt: "2017-07-21T17:32:28Z",
+        },
         title: "Jump Master",
         price: 0,
         isActive: false,
         releaseDate: "2017-07-21",
         description: "string",
         features: "string",
+        ageRating: "0",
+        multimedia: [],
         tags: [
           {
             id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
@@ -319,7 +337,7 @@ export async function getPublisherGames(id: string, filters: GamesFilters) {
 /**
  * Retrieves a game from a publisher.
  * @param publisherId Publisher ID.
- * @returns Games of a publisher.
+ * @returns Game of a publisher.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game not found.
@@ -329,7 +347,7 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
   const token = getToken();
 
   const response = await fetch(
-    `/api/publisher/${publisherId}/games/${gameId}`,
+    `/api/publishers/${publisherId}/games/${gameId}`,
     {
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
       headers: {

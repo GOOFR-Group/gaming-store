@@ -77,37 +77,40 @@ function Component() {
 
         <Section href="/" id="recommended" title="Featured & Recommended">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 
-        <Section href="/" title="Deals">
+        <Section href="/" title="Upcoming Releases">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 
         <Section href="/" title="Best Sellers">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 

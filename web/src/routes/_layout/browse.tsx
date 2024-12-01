@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Game } from "@/components/game";
 import { Input } from "@/components/ui/input";
@@ -115,13 +115,14 @@ function Component() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.map((game) => (
-              <Game
-                key={game.title}
-                image={game.image}
-                price={game.price}
-                publisher={game.publisher}
-                title={game.title}
-              />
+              <Link key={game.title} href="/games/1">
+                <Game
+                  image={game.image}
+                  price={game.price}
+                  publisher={game.publisher}
+                  title={game.title}
+                />
+              </Link>
             ))}
           </div>
 

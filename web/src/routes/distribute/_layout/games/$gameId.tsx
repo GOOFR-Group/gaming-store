@@ -1,8 +1,15 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useParams,
+} from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Edit } from "lucide-react";
+import { Download, Edit } from "lucide-react";
 
+import { ErrorPage } from "@/components/distribute/error";
+import { GamePreview } from "@/components/distribute/games/game-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,39 +19,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { getPublisherGame } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { NotFound, TokenMissing, Unauthorized } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
+import { formatCurrency, getLanguageName } from "@/lib/utils";
 
-function gameQueryOptions(gameId: string) {
+/**
+ * Query options for retrieving a game of the signed in publisher.
+ * @param gameId Game ID.
+ * @returns Query options.
+ */
+function publisherGameQueryOptions(gameId: string) {
   return queryOptions({
     queryKey: gameQueryKey(gameId),
-    queryFn() {
-      return {
-        id: gameId,
-        title: "Epic Adventure",
-        publisher: "Stellar Games",
-        genres: ["Action", "RPG"],
-        releaseDate: new Date("2023-12-01"),
-        isActive: false,
-        about:
-          "Epic Adventure is an immersive action RPG that takes you on a journey through a vast, open world filled with danger and excitement.",
-        features:
-          "- Expansive open world\n- Deep character customization\n- Epic boss battles\n- Multiplayer co-op mode",
-        languages: ["English", "Spanish", "French", "German"],
-        systemRequirements: {
-          minimum:
-            "OS: Windows 10 64-bit\nProcessor: Intel Core i5-6600K or AMD Ryzen 5 1600\nMemory: 8 GB RAM\nGraphics: NVIDIA GeForce GTX 1060 or AMD Radeon RX 580",
-          recommended:
-            "OS: Windows 10 64-bit\nProcessor: Intel Core i7-8700K or AMD Ryzen 7 3700X\nMemory: 16 GB RAM\nGraphics: NVIDIA GeForce RTX 2070 SUPER or AMD Radeon RX 5700 XT",
-        },
-        screenshots: [
-          "/images/game.jpg",
-          "/images/game.jpg",
-          "/images/game.jpg",
-          "/images/game.jpg",
-        ],
-        ageRating: 16,
-        price: 59.99,
-      };
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const publisherId = payload.sub;
+
+      const game = await getPublisherGame(publisherId, gameId);
+
+      return game;
     },
   });
 }
@@ -53,33 +55,76 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
   component: Component,
   loader(opts) {
     return opts.context.queryClient.ensureQueryData(
-      gameQueryOptions(opts.params.gameId),
+      publisherGameQueryOptions(opts.params.gameId),
     );
+  },
+  onError(error) {
+    if (error instanceof TokenMissing || error instanceof Unauthorized) {
+      redirect({
+        to: "/distribute/signin",
+        replace: true,
+        throw: true,
+      });
+    }
+  },
+  errorComponent(errorProps) {
+    if (errorProps.error instanceof NotFound) {
+      return (
+        <ErrorPage
+          showBack
+          description="The game you are looking for does not exist."
+          title="Game Not Found"
+        />
+      );
+    }
   },
 });
 
 function Component() {
   const params = useParams({ from: "/distribute/_layout/games/$gameId" });
-  const { data } = useSuspenseQuery(gameQueryOptions(params.gameId));
+  const query = useSuspenseQuery(publisherGameQueryOptions(params.gameId));
+
+  const game = query.data;
+  const languages = game.languages.map(getLanguageName).filter(Boolean);
+  const isAnnounced = "releaseDate" in game;
 
   return (
     <Card className="flex flex-col min-h-full">
       <CardHeader className="flex flex-wrap flex-row gap-2 justify-between">
-        <div>
-          <CardTitle>{data.title}</CardTitle>
-          <div className="flex flex-col">
-            <CardDescription>{data.publisher}</CardDescription>
-            <p>€{data.price}</p>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-4">
+            <CardTitle>{game.title}</CardTitle>
             <Badge
-              className="w-fit mt-2"
-              variant={data.isActive ? "default" : "destructive"}
+              className="w-fit"
+              variant={game.isActive ? "default" : "destructive"}
             >
-              {data.isActive ? "Active" : "Inactive"}
+              {game.isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
+          <CardDescription>{game.publisher.name}</CardDescription>
         </div>
-        <div className="flex-1 flex gap-2">
-          <Button asChild className="ml-auto">
+        <div className="flex-1 flex gap-2 first:*:ml-auto">
+          {isAnnounced ? (
+            <Button asChild variant="secondary">
+              <a download href={game.downloadMultimedia.url}>
+                <Download />
+              </a>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger className="size-fit">
+                <Button asChild disabled variant="secondary">
+                  <span>
+                    <Download />
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Upload game files to enable downloading</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <Button asChild>
             <Link params={params} to="/distribute/games/$gameId/edit">
               <Edit />
               Edit
@@ -90,12 +135,29 @@ function Component() {
       <CardContent className="flex-1 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h3 className="font-semibold mb-1">Release Date</h3>
-            <p>{format(data.releaseDate, "dd/MM/yyyy")}</p>
+            <h3 className="font-semibold mb-1">Price</h3>
+            <p>{formatCurrency(game.price)}</p>
           </div>
           <div>
-            <h3 className="font-semibold mb-1">Age rating</h3>
-            <p>{data.ageRating}+</p>
+            <h3 className="font-semibold mb-1">Release Date</h3>
+            <p>
+              {isAnnounced
+                ? format(game.releaseDate, "dd/MM/yyyy")
+                : "To be announced"}
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-1">Age Rating</h3>
+            <p>{game.ageRating}+</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-1">Preview</h3>
+            <GamePreview
+              previewMultimediaUrl={game.previewMultimedia.url}
+              price={game.price}
+              publisherName={game.publisher.name}
+              title={game.title}
+            />
           </div>
         </div>
 
@@ -103,33 +165,41 @@ function Component() {
           <div>
             <h3 className="font-semibold mb-1">Genres</h3>
             <div className="flex flex-wrap gap-2">
-              {data.genres.map((genre) => (
-                <Badge key={genre} variant="secondary">
-                  {genre}
-                </Badge>
-              ))}
+              {game.tags.length
+                ? game.tags.map((tag) => {
+                    return (
+                      <Badge key={tag.id} variant="secondary">
+                        {tag.name}
+                      </Badge>
+                    );
+                  })
+                : MISSING_VALUE_SYMBOL}
             </div>
           </div>
           <div>
             <h3 className="font-semibold mb-1">Languages Supported</h3>
             <div className="flex flex-wrap gap-2">
-              {data.languages.map((language) => (
-                <Badge key={language} variant="secondary">
-                  {language}
-                </Badge>
-              ))}
+              {languages.length
+                ? languages.map((language) => {
+                    return (
+                      <Badge key={language} variant="secondary">
+                        {language}
+                      </Badge>
+                    );
+                  })
+                : MISSING_VALUE_SYMBOL}
             </div>
           </div>
         </div>
 
         <div>
           <h3 className="text-lg font-semibold mb-2">About the Game</h3>
-          <p>{data.about}</p>
+          <p>{game.description}</p>
         </div>
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Game Features</h3>
-          <p className="whitespace-pre-wrap">{data.features}</p>
+          <p className="whitespace-pre-wrap">{game.features}</p>
         </div>
 
         <div>
@@ -138,13 +208,13 @@ function Component() {
             <div>
               <h4 className="font-semibold mb-1">Minimum</h4>
               <p className="whitespace-pre-wrap bg-muted p-4 rounded-md text-sm">
-                {data.systemRequirements.minimum}
+                {game.requirements.minimum}
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-1">Recommended</h4>
               <p className="whitespace-pre-wrap bg-muted p-4 rounded-md text-sm">
-                {data.systemRequirements.recommended}
+                {game.requirements.recommended}
               </p>
             </div>
           </div>
@@ -152,13 +222,13 @@ function Component() {
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Screenshots</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,24rem))] gap-4">
-            {data.screenshots.map((screenshot, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(0,32rem))] justify-center gap-4">
+            {game.multimedia.map((multimedia, index) => (
               <img
-                key={index}
+                key={multimedia.id}
                 alt={`Screenshot ${index + 1}`}
-                className="h-auto rounded-md"
-                src={screenshot}
+                className="w-full object-cover aspect-video rounded-md"
+                src={multimedia.url}
               />
             ))}
           </div>

@@ -1,15 +1,17 @@
 import { Multimedia } from "./multimedia";
+import { Publisher } from "./publisher";
 import { Tag } from "./tag";
 
-export interface Game {
+interface ToBeAnnouncedGame {
   id: string;
-  publisherId: string;
+  publisher: Publisher;
   title: string;
   price: number;
   isActive: boolean;
-  releaseDate: string;
   description: string;
   features: string;
+  ageRating: string;
+  multimedia: Multimedia[];
   tags: Tag[];
   languages: string[];
   requirements: {
@@ -17,10 +19,16 @@ export interface Game {
     recommended: string;
   };
   previewMultimedia: Multimedia;
-  downloadMultimedia: Multimedia;
   createdAt: string;
   modifiedAt: string;
 }
+
+interface AnnouncedGame extends ToBeAnnouncedGame {
+  releaseDate: string;
+  downloadMultimedia: Multimedia;
+}
+
+export type Game = AnnouncedGame | ToBeAnnouncedGame;
 
 export interface PaginatedGames {
   games: Game[];
