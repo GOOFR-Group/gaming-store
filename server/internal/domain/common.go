@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"net/mail"
@@ -99,11 +100,39 @@ func (a Address) Valid() bool {
 
 // Country defines the country type.
 // ISO 3166-1 alpha-2 code.
-type Country string
+type Country struct {
+	language.Region
+}
 
 // Valid returns true if the country is valid, false otherwise.
 func (c Country) Valid() bool {
-	return len(c) == countryLength
+	return len(c.String()) == countryLength
+}
+
+// Scan implements sql.Scanner so Country can be read from databases transparently.
+func (c *Country) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case nil:
+		return nil
+
+	case string:
+		region, err := language.ParseRegion(src)
+		if err != nil {
+			return fmt.Errorf("Scan: %w", err)
+		}
+
+		c.Region = region
+
+	default:
+		return fmt.Errorf("Scan: unable to scan type %T into Country", src)
+	}
+
+	return nil
+}
+
+// Value implements sql.Valuer so that Country can be written to databases transparently.
+func (c Country) Value() (driver.Value, error) {
+	return c.String(), nil
 }
 
 // Language defines the language type.
@@ -112,9 +141,35 @@ type Language struct {
 }
 
 // Valid returns true if the language is valid, false otherwise.
-func (c Language) Valid() bool {
-	cString := c.String()
+func (l Language) Valid() bool {
+	cString := l.String()
 	return len(cString) >= languageMinLength && len(cString) <= languageMaxLength
+}
+
+// Scan implements sql.Scanner so Language can be read from databases transparently.
+func (l *Language) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case nil:
+		return nil
+
+	case string:
+		tag, err := language.Parse(src)
+		if err != nil {
+			return fmt.Errorf("Scan: %w", err)
+		}
+
+		l.Tag = tag
+
+	default:
+		return fmt.Errorf("Scan: unable to scan type %T into Language", src)
+	}
+
+	return nil
+}
+
+// Value implements sql.Valuer so that Language can be written to databases transparently.
+func (l Language) Value() (driver.Value, error) {
+	return l.String(), nil
 }
 
 // Vatin defines the value-added tax identification number type.

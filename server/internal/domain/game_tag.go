@@ -1,5 +1,13 @@
 package domain
 
+import "errors"
+
+// Game tag errors.
+var (
+	ErrGameTagAlreadyExists = errors.New("game tag already exists") // Returned when a game tag association already exists.
+	ErrGameTagNotFound      = errors.New("game tag not found")      // Returned when a game tag association is not found.
+)
+
 // GameTagPaginatedSort defines the field of the game tag to sort.
 type GameTagPaginatedSort string
 

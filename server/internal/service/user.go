@@ -31,7 +31,7 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 		slog.String(logging.UserDisplayName, string(editableUser.DisplayName)),
 		slog.Time(logging.UserDateOfBirth, editableUser.DateOfBirth),
 		slog.String(logging.UserAddress, string(editableUser.Address)),
-		slog.String(logging.UserCountry, string(editableUser.Country)),
+		slog.String(logging.UserCountry, editableUser.Country.String()),
 		slog.String(logging.UserVatin, string(editableUser.Vatin)),
 	}
 
