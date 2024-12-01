@@ -29,7 +29,7 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 		slog.String(logging.UserUsername, string(editableUser.Username)),
 		slog.String(logging.UserEmail, string(editableUser.Email)),
 		slog.String(logging.UserDisplayName, string(editableUser.DisplayName)),
-		slog.Time(logging.UserDateOfBirth, editableUser.DateOfBirth),
+		slog.Time(logging.UserDateOfBirth, editableUser.DateOfBirth.Time()),
 		slog.String(logging.UserAddress, string(editableUser.Address)),
 		slog.String(logging.UserCountry, editableUser.Country.String()),
 		slog.String(logging.UserVatin, string(editableUser.Vatin)),
@@ -55,6 +55,10 @@ func (s *service) CreateUser(ctx context.Context, editableUser domain.EditableUs
 
 	if !editableUser.DisplayName.Valid() {
 		return domain.User{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldDisplayName}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if !editableUser.DateOfBirth.Valid() {
+		return domain.User{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldDateOfBirth}, descriptionInvalidFieldValue, logAttrs...)
 	}
 
 	if !editableUser.Address.Valid() {
@@ -172,6 +176,10 @@ func (s *service) PatchUser(ctx context.Context, id uuid.UUID, editableUser doma
 
 	if editableUser.DisplayName != nil && !editableUser.DisplayName.Valid() {
 		return domain.User{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldDisplayName}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editableUser.DateOfBirth != nil && !editableUser.DateOfBirth.Valid() {
+		return domain.User{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldDateOfBirth}, descriptionInvalidFieldValue, logAttrs...)
 	}
 
 	if editableUser.Address != nil && !editableUser.Address.Valid() {

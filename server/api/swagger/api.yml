@@ -690,6 +690,11 @@ components:
       minLength: 1
       maxLength: 2048
 
+    UserDateOfBirth:
+      type: string
+      format: date
+      description: A user must be at least 16 years old.
+      example: "2000-07-21"
     UserBalance:
       type: number
       format: double
@@ -790,7 +795,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
@@ -809,7 +814,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
@@ -844,7 +849,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
