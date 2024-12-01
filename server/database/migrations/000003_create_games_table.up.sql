@@ -47,11 +47,11 @@ CREATE TABLE games_multimedia (
     position        int         NOT NULL    DEFAULT 0,
     created_at      timestamp   NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     modified_at     timestamp   NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT games_multimedia_pkey                                PRIMARY KEY (game_id, multimedia_id),
-    CONSTRAINT games_multimedia_game_id_fkey                        FOREIGN KEY (game_id)                       REFERENCES games (id)       ON DELETE CASCADE,
-    CONSTRAINT games_multimedia_multimedia_id_fkey                  FOREIGN KEY (multimedia_id)                 REFERENCES multimedia (id),
-    CONSTRAINT games_multimedia_game_id_multimedia_id_position_key  UNIQUE (game_id, multimedia_id, position),
-    CONSTRAINT games_multimedia_position_positive_check             CHECK (position >= 0)
+    CONSTRAINT games_multimedia_pkey                    PRIMARY KEY (game_id, multimedia_id),
+    CONSTRAINT games_multimedia_game_id_fkey            FOREIGN KEY (game_id)                   REFERENCES games (id)       ON DELETE CASCADE,
+    CONSTRAINT games_multimedia_multimedia_id_fkey      FOREIGN KEY (multimedia_id)             REFERENCES multimedia (id),
+    CONSTRAINT games_multimedia_game_id_position_key    UNIQUE (game_id, position),
+    CONSTRAINT games_multimedia_position_positive_check CHECK (position >= 0)
 );
 
 -- Triggers.
