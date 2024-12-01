@@ -264,7 +264,7 @@ func gameFromDomain(game domain.Game) api.Game {
 		PreviewMultimedia:  multimediaFromDomain(game.PreviewMultimedia),
 		DownloadMultimedia: optionalMultimediaFromDomain(game.DownloadMultimedia),
 		Multimedia:         multimediaSliceFromDomain(game.Multimedia),
-		Tags:               tagSliceFromDomain(game.Tags),
+		Tags:               tagsFromDomain(game.Tags),
 		CreatedAt:          game.CreatedAt,
 		ModifiedAt:         game.ModifiedAt,
 	}
