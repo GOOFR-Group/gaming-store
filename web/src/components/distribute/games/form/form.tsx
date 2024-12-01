@@ -1,7 +1,9 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import * as z from "zod";
 
@@ -42,109 +44,248 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { NewGame } from "@/domain/game";
+import { Multimedia } from "@/domain/multimedia";
+import { useTags } from "@/hooks/use-tags";
+import { useToast } from "@/hooks/use-toast";
+import {
+  createGame,
+  createGameMultimedia,
+  createGameTag,
+  uploadMultimedia,
+} from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const genres = [
-  { label: "Action", value: "action" },
-  { label: "Adventure", value: "adventure" },
-  { label: "RPG", value: "rpg" },
-  { label: "Strategy", value: "strategy" },
-  { label: "Simulation", value: "simulation" },
-  { label: "Sports", value: "sports" },
-  { label: "Puzzle", value: "puzzle" },
-  { label: "Shooter", value: "shooter" },
-  { label: "Racing", value: "racing" },
-];
-
-const languages = [
-  { label: "English", value: "en" },
-  { label: "Spanish", value: "es" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Italian", value: "it" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese (Simplified)", value: "zh-CN" },
-  { label: "Russian", value: "ru" },
-  { label: "Portuguese", value: "pt" },
-];
-
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters",
-  }),
-  genres: z.array(z.string()).min(1, {
-    message: "At least one genre must be selected",
-  }),
-  releaseDate: z.date({
-    required_error: "A release date is required",
-  }),
-  about: z.string().min(10, {
-    message: "About must be at least 10 characters",
-  }),
-  features: z.string().min(10, {
-    message: "Features must be at least 10 characters",
-  }),
-  languages: z.array(z.string()).min(1, {
-    message: "At least one language must be selected",
-  }),
-  systemRequirements: z.object({
-    minimum: z.string().min(10, {
-      message: "Minimum requirements must be at least 10 characters",
+const formSchema = z
+  .object({
+    title: z.string().min(1, {
+      message: "Title is required",
     }),
-    recommended: z.string().min(10, {
-      message: "Recommended requirements must be at least 10 characters",
+    tags: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          description: z.string(),
+          createdAt: z.string(),
+          modifiedAt: z.string(),
+        }),
+      )
+      .min(1, {
+        message: "At least one genre must be selected",
+      }),
+    releaseDate: z.date().optional(),
+    description: z
+      .string()
+      .min(1, {
+        message: "About the game is required",
+      })
+      .max(500, {
+        message: "About the game must be shorter than 500 characters",
+      }),
+    features: z
+      .string()
+      .min(1, {
+        message: "Game features are required",
+      })
+      .max(200, {
+        message: "Game features must be shorter than 200 characters",
+      }),
+    languages: z
+      .array(z.string())
+      .min(1, {
+        message: "At least one language must be selected",
+      })
+      .max(20, {
+        message: "Languages exceed the maximum value of 20 languages",
+      }),
+    requirements: z.object({
+      minimum: z
+        .string()
+        .min(1, {
+          message: "Minimum requirements are required",
+        })
+        .max(200, {
+          message: "Minimum requirements must be shorter than 200 characters",
+        }),
+      recommended: z
+        .string()
+        .min(1, {
+          message: "Recommended requirements are required",
+        })
+        .max(200, {
+          message:
+            "Recommended requirements must be shorter than 200 characters",
+        }),
     }),
-  }),
-  screenshots: z.array(z.instanceof(File)).min(1, {
-    message: "At least one screenshot must be uploaded",
-  }),
-  ageRating: z.number().min(0, {
-    message: "An age rating is required",
-  }),
-  price: z.number().min(0, {
-    message: "Price must be a positive number",
-  }),
-  isActive: z.boolean(),
-});
+    previewMultimedia: z.instanceof(File, {
+      message: "Image preview is required",
+    }),
+    downloadMultimedia: z
+      .instanceof(File, {
+        message: "Game files are required",
+      })
+      .optional(),
+    multimedia: z.array(z.instanceof(File)).min(1, {
+      message: "At least one screenshot must be uploaded",
+    }),
+    ageRating: z.string({
+      message: "Age rating is required",
+    }),
+    price: z.preprocess(
+      (price) => (String(price).length ? Number(String(price)) : Number.NaN),
+      z
+        .number({ message: "Price is required" })
+        .min(0, { message: "Price must be a non negative number" })
+        .multipleOf(0.01, {
+          message: "Price should have a maximum of 2 decimal cases",
+        }),
+    ),
+    isActive: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.releaseDate && !data.downloadMultimedia) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["downloadMultimedia"],
+        message: "Game files are required when a release date is set",
+      });
 
-export function GameForm({
-  mode,
-  defaultValues,
-  onSave,
-}: {
+      return z.NEVER;
+    }
+  });
+
+type GameFormSchemaType = z.infer<typeof formSchema>;
+
+export function GameForm(props: {
   mode: "add" | "edit";
-  defaultValues?: z.infer<typeof formSchema>;
+  defaultValues?: GameFormSchemaType;
   onSave: () => void;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<GameFormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues ?? {
+    defaultValues: props.defaultValues ?? {
       title: "",
-      genres: [],
-      releaseDate: new Date(),
-      about: "",
+      tags: [],
+      releaseDate: undefined,
+      description: "",
       features: "",
       languages: [],
-      systemRequirements: {
+      requirements: {
         minimum: "",
         recommended: "",
       },
-      screenshots: [],
-      ageRating: 3,
-      price: 0,
+      downloadMultimedia: undefined,
+      previewMultimedia: undefined,
+      multimedia: [],
+      ageRating: undefined,
+      price: undefined,
       isActive: false,
     },
   });
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  function onSubmit() {
-    onSave();
+  const mutation = useMutation({
+    async mutationFn(data: GameFormSchemaType) {
+      if (props.mode === "add") {
+        const token = getToken();
+        const payload = decodeTokenPayload(token);
+        const publisherId = payload.sub;
+
+        const previewMultimedia = await uploadMultimedia(
+          data.previewMultimedia,
+        );
+
+        let downloadMultimedia: Multimedia | undefined;
+        if (data.downloadMultimedia) {
+          downloadMultimedia = await uploadMultimedia(data.downloadMultimedia);
+        }
+
+        const newGame: NewGame = {
+          title: data.title,
+          price: data.price,
+          isActive: data.isActive,
+          description: data.description,
+          ageRating: data.ageRating,
+          features: data.features,
+          languages: data.languages,
+          requirements: data.requirements,
+          previewMultimediaId: previewMultimedia.id,
+        };
+
+        if (data.releaseDate) {
+          newGame.releaseDate = format(data.releaseDate, "yyyy-MM-dd");
+        }
+
+        if (downloadMultimedia) {
+          newGame.downloadMultimediaId = downloadMultimedia.id;
+        }
+
+        const createdGame = await createGame(publisherId, newGame);
+
+        // Upload multimedia files.
+        const multimediaResults = await Promise.allSettled(
+          data.multimedia.map(uploadMultimedia),
+        );
+
+        // Retrieve uploaded multimedia.
+        const uploadedMultimedia: Multimedia[] = [];
+        multimediaResults.forEach((result) => {
+          if (result.status === "fulfilled") {
+            uploadedMultimedia.push(result.value);
+          }
+        });
+
+        // Create game multimedia association.
+        await Promise.allSettled(
+          uploadedMultimedia.map((multimedia, idx) =>
+            createGameMultimedia(publisherId, createdGame.id, multimedia.id, {
+              position: idx,
+            }),
+          ),
+        );
+
+        // Create game tag association.
+        await Promise.allSettled(
+          data.tags.map((tag) =>
+            createGameTag(publisherId, createdGame.id, tag.id),
+          ),
+        );
+      }
+    },
+    onSuccess() {
+      toast({
+        title: "Game added successfully",
+      });
+      props.onSave();
+    },
+    onError() {
+      // TODO: Handle errors.
+      toast(TOAST_MESSAGES.unexpectedError);
+    },
+  });
+
+  const tagsQuery = useTags();
+  const tags = tagsQuery.data ?? [];
+
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
+  function onSubmit(data: GameFormSchemaType) {
+    mutation.mutate(data);
   }
 
   return (
     <Form {...form}>
-      <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        noValidate
+        className="space-y-8"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -168,12 +309,12 @@ export function GameForm({
                 <FormLabel>Price</FormLabel>
                 <FormControl>
                   <Input
+                    {...field}
                     min={0}
                     placeholder="Enter price"
                     step={0.01}
                     type="number"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -186,7 +327,7 @@ export function GameForm({
             name="releaseDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Release Date</FormLabel>
+                <FormLabel optional>Release Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -198,7 +339,7 @@ export function GameForm({
                         )}
                       >
                         {field.value ? (
-                          field.value.toLocaleDateString()
+                          format(field.value, "dd/MM/yyyy")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -228,7 +369,7 @@ export function GameForm({
               <FormItem>
                 <FormLabel>Age Rating</FormLabel>
                 <Select
-                  defaultValue={`${field.value}`}
+                  defaultValue={field.value}
                   onValueChange={field.onChange}
                 >
                   <FormControl>
@@ -251,7 +392,7 @@ export function GameForm({
 
           <FormField
             control={form.control}
-            name="genres"
+            name="tags"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Genres</FormLabel>
@@ -280,39 +421,41 @@ export function GameForm({
                         <CommandList>
                           <CommandEmpty>No genre found.</CommandEmpty>
                           <CommandGroup>
-                            {genres.map((genre) => (
-                              <CommandItem
-                                key={genre.value}
-                                value={genre.label}
-                                onSelect={() => {
-                                  const newValue = field.value.includes(
-                                    genre.value,
-                                  )
-                                    ? field.value.filter(
-                                        (item) => item !== genre.value,
-                                      )
-                                    : [...field.value, genre.value];
-                                  form.setValue("genres", newValue);
-                                }}
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(genre.value)}
-                                />
-                                {genre.label}
-                              </CommandItem>
-                            ))}
+                            {tags.map((tag) => {
+                              const isChecked = field.value.some(
+                                (v) => v.id === tag.id,
+                              );
+
+                              return (
+                                <CommandItem
+                                  key={tag.id}
+                                  value={tag.name}
+                                  onSelect={() => {
+                                    const newValue = isChecked
+                                      ? field.value.filter(
+                                          (item) => item.id !== tag.id,
+                                        )
+                                      : [...field.value, tag];
+                                    form.setValue("tags", newValue);
+                                  }}
+                                >
+                                  <Checkbox checked={isChecked} />
+                                  {tag.name}
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </FormControl>
-                <FormDescription>
+                <FormDescription asChild>
                   {field.value.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {field.value.map((genre) => (
-                        <Badge key={genre} variant="secondary">
-                          {genres.find((g) => g.value === genre)?.label}
+                      {field.value.map((tag) => (
+                        <Badge key={tag.id} variant="secondary">
+                          {tag.name}
                         </Badge>
                       ))}
                     </div>
@@ -354,39 +497,41 @@ export function GameForm({
                         <CommandList>
                           <CommandEmpty>No language found.</CommandEmpty>
                           <CommandGroup>
-                            {languages.map((language) => (
-                              <CommandItem
-                                key={language.value}
-                                value={language.label}
-                                onSelect={() => {
-                                  const newValue = field.value.includes(
-                                    language.value,
-                                  )
-                                    ? field.value.filter(
-                                        (item) => item !== language.value,
-                                      )
-                                    : [...field.value, language.value];
-                                  form.setValue("languages", newValue);
-                                }}
-                              >
-                                <Checkbox
-                                  checked={field.value.includes(language.value)}
-                                />
-                                {language.label}
-                              </CommandItem>
-                            ))}
+                            {LANGUAGES.map((language) => {
+                              const isChecked = field.value.includes(
+                                language.code,
+                              );
+
+                              return (
+                                <CommandItem
+                                  key={language.code}
+                                  value={language.name}
+                                  onSelect={() => {
+                                    const newValue = isChecked
+                                      ? field.value.filter(
+                                          (item) => item !== language.code,
+                                        )
+                                      : [...field.value, language.code];
+                                    form.setValue("languages", newValue);
+                                  }}
+                                >
+                                  <Checkbox checked={isChecked} />
+                                  {language.name}
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                 </FormControl>
-                <FormDescription>
+                <FormDescription asChild>
                   {field.value.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {field.value.map((lang) => (
                         <Badge key={lang} variant="secondary">
-                          {languages.find((l) => l.value === lang)?.label}
+                          {LANGUAGES.find((l) => l.code === lang)?.name}
                         </Badge>
                       ))}
                     </div>
@@ -399,24 +544,77 @@ export function GameForm({
 
           <FormField
             control={form.control}
-            name="screenshots"
-            render={() => (
+            name="previewMultimedia"
+            render={({ field: { ref, name, onBlur, disabled } }) => (
+              <FormItem>
+                <FormLabel>Image Preview</FormLabel>
+                <FormControl>
+                  <Input
+                    ref={ref}
+                    accept="image/*"
+                    disabled={disabled}
+                    name={name}
+                    type="file"
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      const file = Array.from(e.target.files ?? [])[0];
+                      form.setValue("previewMultimedia", file);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="downloadMultimedia"
+            render={({ field: { ref, name, onBlur, disabled } }) => (
+              <FormItem>
+                <FormLabel optional={!form.getValues().releaseDate}>
+                  Game Files
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    ref={ref}
+                    accept="application/zip"
+                    disabled={disabled}
+                    name={name}
+                    type="file"
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      const file = Array.from(e.target.files ?? [])[0];
+                      form.setValue("downloadMultimedia", file);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="multimedia"
+            render={({ field: { ref, name, onBlur, disabled } }) => (
               <FormItem>
                 <FormLabel>Screenshots</FormLabel>
                 <FormControl>
                   <Input
+                    ref={ref}
                     multiple
                     accept="image/*"
+                    disabled={disabled}
+                    name={name}
                     type="file"
+                    onBlur={onBlur}
                     onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      form.setValue("screenshots", files);
+                      const files = Array.from(e.target.files ?? []);
+                      form.setValue("multimedia", files);
                     }}
                   />
                 </FormControl>
-                <FormDescription>
-                  Upload at least one screenshot of the game
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -446,13 +644,12 @@ export function GameForm({
 
         <FormField
           control={form.control}
-          name="about"
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>About the Game</FormLabel>
               <FormControl>
                 <Textarea
-                  className="resize-none"
                   placeholder="Enter a description of the game"
                   {...field}
                 />
@@ -470,7 +667,6 @@ export function GameForm({
               <FormLabel>Game Features</FormLabel>
               <FormControl>
                 <Textarea
-                  className="resize-none"
                   placeholder="Enter key features of the game"
                   {...field}
                 />
@@ -486,13 +682,12 @@ export function GameForm({
 
         <FormField
           control={form.control}
-          name="systemRequirements.minimum"
+          name="requirements.minimum"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Minimum</FormLabel>
               <FormControl>
                 <Textarea
-                  className="resize-none"
                   placeholder="Enter minimum system requirements"
                   {...field}
                 />
@@ -504,13 +699,12 @@ export function GameForm({
 
         <FormField
           control={form.control}
-          name="systemRequirements.recommended"
+          name="requirements.recommended"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Recommended</FormLabel>
               <FormControl>
                 <Textarea
-                  className="resize-none"
                   placeholder="Enter recommended system requirements"
                   {...field}
                 />
@@ -526,7 +720,7 @@ export function GameForm({
             onClick={() =>
               navigate({
                 to:
-                  mode === "add"
+                  props.mode === "add"
                     ? "/distribute/games"
                     : "/distribute/games/$gameId",
               })
@@ -534,8 +728,8 @@ export function GameForm({
           >
             Cancel
           </Button>
-          <Button type="submit">
-            {mode === "add" ? "Add Game" : "Edit Game"}
+          <Button disabled={mutation.isPending} type="submit">
+            {props.mode === "add" ? "Add Game" : "Edit Game"}
           </Button>
         </div>
       </form>

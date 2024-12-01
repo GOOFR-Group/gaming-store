@@ -1,5 +1,6 @@
 import { ApiError } from "@/domain/error";
-import { Game, GamesFilters, PaginatedGames } from "@/domain/game";
+import { Game, GamesFilters, NewGame, PaginatedGames } from "@/domain/game";
+import { CreateGameMultimedia } from "@/domain/game-multimedia";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
@@ -373,6 +374,146 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
   const game = (await response.json()) as Game;
 
   return game;
+}
+
+/**
+ * Creates a new game from a publisher.
+ * @param publisherId Publisher ID.
+ * @param newGame New game.
+ * @returns Game created.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Publisher not found.
+ * @throws {Conflict} Multimedia does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createGame(publisherId: string, newGame: NewGame) {
+  const token = getToken();
+
+  const response = await fetch(`/api/publishers/${publisherId}/games`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newGame),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const game = (await response.json()) as Game;
+
+  return game;
+}
+
+/**
+ * Creates a game multimedia association.
+ * @param publisherId Publisher ID.
+ * @param gameId Game ID.
+ * @param multimediaId Multimedia ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Game or multimedia not found.
+ * @throws {Conflict} Association or position already exists.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createGameMultimedia(
+  publisherId: string,
+  gameId: string,
+  multimediaId: string,
+  data: CreateGameMultimedia,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}/multimedia/${multimediaId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Creates a game tag association.
+ * @param publisherId Publisher ID.
+ * @param gameId Game ID.
+ * @param tagId Tag ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Game or tag not found.
+ * @throws {Conflict} Association already exists.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createGameTag(
+  publisherId: string,
+  gameId: string,
+  tagId: string,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}/tags/${tagId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
 }
 
 /**

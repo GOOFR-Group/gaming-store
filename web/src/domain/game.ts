@@ -43,3 +43,20 @@ export interface GamesFilters {
   title?: string;
   genres?: number[];
 }
+
+export interface NewGame {
+  title: string;
+  price: number;
+  isActive: boolean;
+  releaseDate?: string;
+  description: string;
+  ageRating: string;
+  features: string;
+  languages: string[];
+  requirements: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId: string;
+  downloadMultimediaId?: string;
+}
