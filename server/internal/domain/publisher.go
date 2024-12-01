@@ -1,9 +1,15 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+)
+
+// Publisher errors.
+var (
+	ErrPublisherNotFound = errors.New("publisher not found") // Returned when a publisher is not found.
 )
 
 // Publisher defines the publisher structure.
