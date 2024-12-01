@@ -86,7 +86,6 @@ function Component() {
 
   const game = query.data;
   const languages = game.languages.map(getLanguageName).filter(Boolean);
-  const isAnnounced = "releaseDate" in game;
 
   return (
     <Card className="flex flex-col min-h-full">
@@ -104,7 +103,7 @@ function Component() {
           <CardDescription>{game.publisher.name}</CardDescription>
         </div>
         <div className="flex-1 flex gap-2 first:*:ml-auto">
-          {isAnnounced ? (
+          {"downloadMultimedia" in game ? (
             <Button asChild variant="secondary">
               <a download href={game.downloadMultimedia.url}>
                 <Download />
@@ -141,7 +140,7 @@ function Component() {
           <div>
             <h3 className="font-semibold mb-1">Release Date</h3>
             <p>
-              {isAnnounced
+              {"releaseDate" in game
                 ? format(game.releaseDate, "dd/MM/yyyy")
                 : "To be announced"}
             </p>
