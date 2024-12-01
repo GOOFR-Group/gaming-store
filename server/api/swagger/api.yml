@@ -902,7 +902,6 @@ components:
         - languages
         - requirements
         - previewMultimediaId
-        - downloadMultimediaId
       properties:
         title:
           $ref: "#/components/schemas/GameTitle"
@@ -965,7 +964,6 @@ components:
         - languages
         - requirements
         - previewMultimedia
-        - downloadMultimedia
         - multimedia
         - tags
         - createdAt

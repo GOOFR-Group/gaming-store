@@ -73,7 +73,7 @@ func (s *store) GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domai
 			ON pm.id = p.picture_multimedia_id
 		INNER JOIN multimedia gpm
 			ON gpm.id = g.preview_multimedia_id
-		INNER JOIN multimedia gdm
+		LEFT JOIN multimedia gdm
 			ON gdm.id = g.download_multimedia_id
 		WHERE g.id = $1
 	`,
@@ -160,6 +160,12 @@ func getGameFromRow(row pgx.Row) (domain.Game, error) {
 		publisherPictureMultimediaMediaType *string
 		publisherPictureMultimediaURL       *string
 		publisherPictureMultimediaCreatedAt *time.Time
+
+		gameDownloadMultimediaID        *uuid.UUID
+		gameDownloadMultimediaChecksum  *uint32
+		gameDownloadMultimediaMediaType *string
+		gameDownloadMultimediaURL       *string
+		gameDownloadMultimediaCreatedAt *time.Time
 	)
 
 	err := row.Scan(
@@ -197,11 +203,11 @@ func getGameFromRow(row pgx.Row) (domain.Game, error) {
 		&game.PreviewMultimedia.URL,
 		&game.PreviewMultimedia.CreatedAt,
 
-		&game.DownloadMultimedia.ID,
-		&game.DownloadMultimedia.Checksum,
-		&game.DownloadMultimedia.MediaType,
-		&game.DownloadMultimedia.URL,
-		&game.DownloadMultimedia.CreatedAt,
+		&gameDownloadMultimediaID,
+		&gameDownloadMultimediaChecksum,
+		&gameDownloadMultimediaMediaType,
+		&gameDownloadMultimediaURL,
+		&gameDownloadMultimediaCreatedAt,
 	)
 	if err != nil {
 		return domain.Game{}, err
@@ -216,6 +222,18 @@ func getGameFromRow(row pgx.Row) (domain.Game, error) {
 			},
 			ID:        *publisherPictureMultimediaID,
 			CreatedAt: *publisherPictureMultimediaCreatedAt,
+		}
+	}
+
+	if gameDownloadMultimediaID != nil {
+		game.DownloadMultimedia = &domain.Multimedia{
+			MultimediaObject: domain.MultimediaObject{
+				Checksum:  *gameDownloadMultimediaChecksum,
+				MediaType: *gameDownloadMultimediaMediaType,
+				URL:       *gameDownloadMultimediaURL,
+			},
+			ID:        *gameDownloadMultimediaID,
+			CreatedAt: *gameDownloadMultimediaCreatedAt,
 		}
 	}
 

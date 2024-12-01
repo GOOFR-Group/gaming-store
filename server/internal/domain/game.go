@@ -126,7 +126,7 @@ type EditableGame struct {
 	Languages            GameLanguages
 	Requirements         GameRequirements
 	PreviewMultimediaID  uuid.UUID
-	DownloadMultimediaID uuid.UUID
+	DownloadMultimediaID *uuid.UUID
 }
 
 // EditableGamePatch defines the patchable game structure.
@@ -158,7 +158,7 @@ type Game struct {
 	Languages          GameLanguages
 	Requirements       GameRequirements
 	PreviewMultimedia  Multimedia
-	DownloadMultimedia Multimedia
+	DownloadMultimedia *Multimedia
 	Multimedia         []Multimedia
 	Tags               []Tag
 	CreatedAt          time.Time

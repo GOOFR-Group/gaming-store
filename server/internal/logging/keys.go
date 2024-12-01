@@ -17,13 +17,12 @@ const (
 	UserCountry     = "user.country"
 	UserVatin       = "user.vatin"
 
-	GameID                   = "game.id"
-	GameTitle                = "game.title"
-	GamePrice                = "game.price"
-	GameIsActive             = "game.isActive"
-	GameAgeRating            = "game.ageRating"
-	GamePreviewMultimediaID  = "game.previewMultimediaID"
-	GameDownloadMultimediaID = "game.downloadMultimediaID"
+	GameID                  = "game.id"
+	GameTitle               = "game.title"
+	GamePrice               = "game.price"
+	GameIsActive            = "game.isActive"
+	GameAgeRating           = "game.ageRating"
+	GamePreviewMultimediaID = "game.previewMultimediaID"
 
 	TagID = "tag.id"
 

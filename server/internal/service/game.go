@@ -27,7 +27,6 @@ func (s *service) CreateGame(ctx context.Context, publisherID uuid.UUID, editabl
 		slog.Bool(logging.GameIsActive, editableGame.IsActive),
 		slog.String(logging.GameAgeRating, string(editableGame.AgeRating)),
 		slog.String(logging.GamePreviewMultimediaID, editableGame.PreviewMultimediaID.String()),
-		slog.String(logging.GameDownloadMultimediaID, editableGame.DownloadMultimediaID.String()),
 	}
 
 	if !editableGame.Title.Valid() {
@@ -56,6 +55,10 @@ func (s *service) CreateGame(ctx context.Context, publisherID uuid.UUID, editabl
 
 	if !editableGame.Requirements.Valid() {
 		return domain.Game{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldRequirements}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editableGame.ReleaseDate != nil && editableGame.DownloadMultimediaID == nil {
+		return domain.Game{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldDownloadMultimediaID}, descriptionInvalidFieldValue, logAttrs...)
 	}
 
 	var game domain.Game
@@ -166,14 +169,22 @@ func (s *service) PatchGame(ctx context.Context, id uuid.UUID, editableGame doma
 			return err
 		}
 
+		if game.ReleaseDate != nil && game.DownloadMultimedia == nil {
+			return &domain.FieldValueInvalidError{FieldName: domain.FieldDownloadMultimediaID}
+		}
+
 		return nil
 	})
 	if err != nil {
+		var fieldValueInvalidError *domain.FieldValueInvalidError
+
 		switch {
 		case errors.Is(err, domain.ErrGameNotFound),
 			errors.Is(err, domain.ErrGamePreviewMultimediaNotFound),
 			errors.Is(err, domain.ErrGameDownloadMultimediaNotFound):
 			return domain.Game{}, logInfoAndWrapError(ctx, err, descriptionFailedPatchGame, logAttrs...)
+		case errors.As(err, &fieldValueInvalidError):
+			return domain.Game{}, logInfoAndWrapError(ctx, err, descriptionInvalidFieldValue, logAttrs...)
 		default:
 			return domain.Game{}, logAndWrapError(ctx, err, descriptionFailedPatchGame, logAttrs...)
 		}

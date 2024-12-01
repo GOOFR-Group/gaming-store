@@ -262,7 +262,7 @@ func gameFromDomain(game domain.Game) api.Game {
 			Recommended: string(game.Requirements.Recommended),
 		},
 		PreviewMultimedia:  multimediaFromDomain(game.PreviewMultimedia),
-		DownloadMultimedia: multimediaFromDomain(game.DownloadMultimedia),
+		DownloadMultimedia: optionalMultimediaFromDomain(game.DownloadMultimedia),
 		Multimedia:         multimediaSliceFromDomain(game.Multimedia),
 		Tags:               tagSliceFromDomain(game.Tags),
 		CreatedAt:          game.CreatedAt,

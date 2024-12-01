@@ -22,7 +22,7 @@ CREATE TABLE games (
     languages               varchar(20)[]   NOT NULL, -- BCP 47 language tags.
     requirements            json            NOT NULL,
     preview_multimedia_id   uuid            NOT NULL,
-    download_multimedia_id  uuid            NOT NULL,
+    download_multimedia_id  uuid,
     created_at              timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     modified_at             timestamp       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT games_pkey                           PRIMARY KEY (id),
