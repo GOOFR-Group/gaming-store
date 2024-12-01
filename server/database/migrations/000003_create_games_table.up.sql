@@ -51,7 +51,7 @@ CREATE TABLE games_multimedia (
     CONSTRAINT games_multimedia_game_id_fkey            FOREIGN KEY (game_id)                   REFERENCES games (id)       ON DELETE CASCADE,
     CONSTRAINT games_multimedia_multimedia_id_fkey      FOREIGN KEY (multimedia_id)             REFERENCES multimedia (id),
     CONSTRAINT games_multimedia_game_id_position_key    UNIQUE (game_id, position),
-    CONSTRAINT games_multimedia_position_positive_check CHECK (position >= 0)
+    CONSTRAINT games_multimedia_position_check          CHECK (position >= 0 AND position <= 20)
 );
 
 -- Triggers.
