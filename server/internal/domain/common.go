@@ -141,9 +141,35 @@ type Language struct {
 }
 
 // Valid returns true if the language is valid, false otherwise.
-func (c Language) Valid() bool {
-	cString := c.String()
+func (l Language) Valid() bool {
+	cString := l.String()
 	return len(cString) >= languageMinLength && len(cString) <= languageMaxLength
+}
+
+// Scan implements sql.Scanner so Language can be read from databases transparently.
+func (l *Language) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case nil:
+		return nil
+
+	case string:
+		tag, err := language.Parse(src)
+		if err != nil {
+			return fmt.Errorf("Scan: %w", err)
+		}
+
+		l.Tag = tag
+
+	default:
+		return fmt.Errorf("Scan: unable to scan type %T into Language", src)
+	}
+
+	return nil
+}
+
+// Value implements sql.Valuer so that Language can be written to databases transparently.
+func (l Language) Value() (driver.Value, error) {
+	return l.String(), nil
 }
 
 // Vatin defines the value-added tax identification number type.
