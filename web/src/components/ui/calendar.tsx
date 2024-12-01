@@ -34,10 +34,19 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 function Calendar({
   className,
   classNames,
+  onMonthChange,
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
   const [date, setDate] = React.useState<Date>(new Date());
+
+  const currentDate = new Date().getFullYear();
+  const yearOptions = Array.from(
+    { length: currentDate },
+    (_, i) => currentDate - i,
+  );
+  const selectedYear =
+    yearOptions.find((year) => year === date.getFullYear()) ?? yearOptions[0];
 
   return (
     <>
@@ -62,7 +71,7 @@ function Calendar({
           </SelectContent>
         </Select>
         <Select
-          value={new Date(date).getFullYear().toString()}
+          value={String(selectedYear)}
           onValueChange={(value) => {
             setDate(new Date(date.setFullYear(parseInt(value))));
           }}
@@ -71,7 +80,7 @@ function Calendar({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {[...(new Array(new Date().getFullYear()) as number[])]
+            {yearOptions
               .map((_, index) => {
                 return (
                   <SelectItem key={index + 1} value={(index + 1).toString()}>
@@ -127,6 +136,10 @@ function Calendar({
         components={{
           IconLeft: () => <ChevronLeft className="h-4 w-4" />,
           IconRight: () => <ChevronRight className="h-4 w-4" />,
+        }}
+        onMonthChange={(month) => {
+          setDate(month);
+          onMonthChange?.(month);
         }}
         {...props}
       />
