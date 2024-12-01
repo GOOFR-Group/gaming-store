@@ -650,6 +650,7 @@ components:
       example: John Doe
     Description:
       type: string
+      minLength: 1
       maxLength: 200
     Address:
       type: string
