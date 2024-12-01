@@ -672,8 +672,8 @@ components:
     File:
       type: string
       format: binary
-      description: File size up to 2 MB.
-      maxLength: 2097152
+      description: File size up to 20 MB.
+      maxLength: 20971520
     Checksum:
       type: integer
       format: int64
