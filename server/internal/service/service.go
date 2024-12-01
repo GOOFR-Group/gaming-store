@@ -42,6 +42,12 @@ type DataStore interface {
 	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
 
+	CreateGameTag(ctx context.Context, tx pgx.Tx, gameID, tagID uuid.UUID) error
+	DeleteGameTag(ctx context.Context, tx pgx.Tx, gameID, tagID uuid.UUID) error
+
+	CreateGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID, editableGameMultimedia domain.EditableGameMultimedia) error
+	DeleteGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID) error
+
 	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
 	GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Multimedia, error)
 	GetMultimediaByChecksumAndMediaType(ctx context.Context, tx pgx.Tx, checksum int64, mediaType string) (domain.Multimedia, error)

@@ -52,6 +52,12 @@ type Service interface {
 	GetGameByID(ctx context.Context, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, id uuid.UUID, editableGame domain.EditableGamePatch) (domain.Game, error)
 
+	CreateGameTag(ctx context.Context, gameID, tagID uuid.UUID) error
+	DeleteGameTag(ctx context.Context, gameID, tagID uuid.UUID) error
+
+	CreateGameMultimedia(ctx context.Context, gameID, multimediaID uuid.UUID, editableGameMultimedia domain.EditableGameMultimedia) error
+	DeleteGameMultimedia(ctx context.Context, gameID, multimediaID uuid.UUID) error
+
 	UploadMultimedia(ctx context.Context, file []byte, contentType string) (domain.Multimedia, error)
 }
 

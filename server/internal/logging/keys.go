@@ -24,4 +24,8 @@ const (
 	GameAgeRating            = "game.ageRating"
 	GamePreviewMultimediaID  = "game.previewMultimediaID"
 	GameDownloadMultimediaID = "game.downloadMultimediaID"
+
+	TagID = "tag.id"
+
+	MultimediaID = "multimedia.id"
 )

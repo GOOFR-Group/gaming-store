@@ -7,6 +7,12 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
+const (
+	codeTagNotFound = "tag_not_found"
+
+	errTagNotFound = "tag not found"
+)
+
 // ListTags handles the http request to list tags.
 func (h *handler) ListTags(w http.ResponseWriter, r *http.Request, params api.ListTagsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
