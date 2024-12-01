@@ -62,7 +62,7 @@ func (h *handler) CreateGame(w http.ResponseWriter, r *http.Request, publisherID
 		case errors.As(err, &domainFieldValueInvalidError):
 			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
 		case errors.Is(err, domain.ErrPublisherNotFound):
-			conflict(w, codePublisherNotFound, errPublisherNotFound)
+			notFound(w, codePublisherNotFound, errPublisherNotFound)
 		case errors.Is(err, domain.ErrGamePreviewMultimediaNotFound):
 			conflict(w, codeGamePreviewMultimediaNotFound, errGamePreviewMultimediaNotFound)
 		case errors.Is(err, domain.ErrGameDownloadMultimediaNotFound):

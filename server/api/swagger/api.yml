@@ -204,8 +204,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         409:
-          description: Publisher or multimedia does not exist.
+          description: Multimedia does not exist.
           content:
             application/json:
               schema:
