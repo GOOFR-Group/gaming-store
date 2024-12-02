@@ -53,6 +53,7 @@ const AppRoutes: React.FC = () => {
       element: isAuthenticated ? <Layout /> : <Navigate to="/signin" replace />,
       children: [
         { index: true, element: <Home /> },
+        
         // Other authenticated routes
       ],
     },
