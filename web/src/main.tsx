@@ -1,11 +1,15 @@
 import "./styles.css";
 
 import { createRoot } from "react-dom/client";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 import { routeTree } from "./routeTree.gen";
+import { AuthProvider } from './lib/auth';
 
 export const queryClient = new QueryClient();
 
@@ -31,8 +35,10 @@ const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
   );
 }

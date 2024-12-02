@@ -1,7 +1,9 @@
 package authn
 
 import (
+	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -26,6 +28,12 @@ const (
 type Claims struct {
 	jwt.RegisteredClaims
 	Roles []SubjectRole `json:"roles,omitempty"`
+}
+
+type service struct {
+	jwtSigningKey     []byte
+	blacklistedTokens map[string]int64
+	mutex             sync.RWMutex
 }
 
 // NewJWT returns a new signed JSON Web Token with an expiration time of 24 hours and the specified claims.
@@ -63,4 +71,36 @@ func (s *service) ParseJWT(tokenString string) (Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func (s *service) BlacklistToken(ctx context.Context, tokenString string) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	claims, err := s.ParseJWT(tokenString)
+	if err != nil {
+		return err
+	}
+
+	s.blacklistedTokens[tokenString] = claims.ExpiresAt.Unix()
+	return nil
+}
+
+func (s *service) IsTokenBlacklisted(tokenString string) bool {
+	s.mutex.RLock()
+	exp, exists := s.blacklistedTokens[tokenString]
+	s.mutex.RUnlock()
+
+	if !exists {
+		return false
+	}
+
+	if time.Now().Unix() > exp {
+		s.mutex.Lock()
+		delete(s.blacklistedTokens, tokenString)
+		s.mutex.Unlock()
+		return false
+	}
+
+	return true
 }
