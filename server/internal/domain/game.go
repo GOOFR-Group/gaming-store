@@ -25,6 +25,9 @@ const (
 
 	gameLanguagesMinLength = 1
 	gameLanguagesMaxLength = 200
+
+	gameRequirementMinLength = 1
+	gameRequirementMaxLength = 500
 )
 
 // Game errors.
@@ -103,13 +106,21 @@ func (l GameLanguages) Valid() bool {
 	return true
 }
 
-// GameRequirements defines the game requirements type.
-type GameRequirements struct {
-	Minimum     Description
-	Recommended Description
+// GameRequirement defines the game requirement type.
+type GameRequirement string
+
+// Valid returns true if the game requirement is valid, false otherwise.
+func (d GameRequirement) Valid() bool {
+	return len(d) >= gameRequirementMinLength && len(d) <= gameRequirementMaxLength
 }
 
-// Valid returns true if the game requirements is valid, false otherwise.
+// GameRequirements defines the game requirements type.
+type GameRequirements struct {
+	Minimum     GameRequirement
+	Recommended GameRequirement
+}
+
+// Valid returns true if the game requirements are valid, false otherwise.
 func (r GameRequirements) Valid() bool {
 	return r.Minimum.Valid() && r.Recommended.Valid()
 }
