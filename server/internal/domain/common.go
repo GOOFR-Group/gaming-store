@@ -19,9 +19,6 @@ const (
 	nameMinLength = 1
 	nameMaxLength = 100
 
-	descriptionMinLength = 1
-	descriptionMaxLength = 200
-
 	addressMinLength = 1
 	addressMaxLength = 100
 
@@ -81,14 +78,6 @@ type Name string
 // Valid returns true if the name is valid, false otherwise.
 func (n Name) Valid() bool {
 	return len(n) >= nameMinLength && len(n) <= nameMaxLength
-}
-
-// Description defines the description type.
-type Description string
-
-// Valid returns true if the description is valid, false otherwise.
-func (d Description) Valid() bool {
-	return len(d) >= descriptionMinLength && len(d) <= descriptionMaxLength
 }
 
 // Address defines the address type.
