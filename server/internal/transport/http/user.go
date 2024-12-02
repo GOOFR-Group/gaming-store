@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/goofr-group/gaming-store/server/api"
@@ -23,6 +24,16 @@ const (
 	errUserUsernameAlreadyExists = "username already exists"
 	errUserEmailAlreadyExists    = "email already exists"
 	errUserVatinAlreadyExists    = "vatin already exists"
+
+	// Error codes and messages for authorization errors
+	codeAuthorizationHeaderInvalid = "authorization_header_invalid"
+	errAuthorizationHeaderInvalid  = "authorization header is invalid"
+
+	codeTokenRevoked = "token_revoked"
+	errTokenRevoked  = "token has been revoked"
+
+	codeTokenInvalid = "token_invalid"
+	errTokenInvalid  = "token is invalid"
 )
 
 // CreateUser handles the http request to create a user.
@@ -217,6 +228,39 @@ func (h *handler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeResponseJSON(w, http.StatusOK, responseBody)
+}
+
+// Logout handles the HTTP request to log out a user.
+func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	tokenString := extractTokenFromHeader(r)
+	if tokenString == "" {
+		unauthorized(w, codeAuthorizationHeaderInvalid, errAuthorizationHeaderInvalid)
+		return
+	}
+
+	err := h.authnService.BlacklistToken(ctx, tokenString)
+	if err != nil {
+		logging.From(ctx).Errorf("Failed to blacklist token: %v", err)
+		internalServerError(w)
+		return
+	}
+
+	responseBody, _ := json.Marshal(map[string]string{"message": "Logged out successfully"})
+	writeResponseJSON(w, http.StatusOK, responseBody)
+}
+
+func extractTokenFromHeader(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return ""
+	}
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return ""
+	}
+	return parts[1]
 }
 
 // userPostToDomain returns a domain editable user with password based on the standardized user post.
