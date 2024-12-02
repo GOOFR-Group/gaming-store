@@ -1,11 +1,12 @@
-// Include necessary imports at the top of the file
+package http
+
 import (
 	"context"
 	"net/http"
-	"strings"
+
+	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
-// Define your authMiddleware function
 func (h *handler) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

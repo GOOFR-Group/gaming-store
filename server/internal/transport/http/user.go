@@ -230,6 +230,7 @@ func (h *handler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
+// Logout handles the HTTP request to log out a user.
 func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -241,6 +242,7 @@ func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	err := h.authnService.BlacklistToken(ctx, tokenString)
 	if err != nil {
+		logging.From(ctx).Errorf("Failed to blacklist token: %v", err)
 		internalServerError(w)
 		return
 	}
