@@ -648,10 +648,6 @@ components:
       minLength: 1
       maxLength: 100
       example: John Doe
-    Description:
-      type: string
-      minLength: 1
-      maxLength: 200
     Address:
       type: string
       minLength: 1
@@ -736,14 +732,23 @@ components:
         - recommended
       properties:
         minimum:
-          $ref: "#/components/schemas/Description"
+          type: string
+          minLength: 1
+          maxLength: 500
         recommended:
-          $ref: "#/components/schemas/Description"
+          type: string
+          minLength: 1
+          maxLength: 500
 
     GameMultimediaPosition:
       type: integer
       minimum: 0
       maximum: 20
+
+    TagDescription:
+      type: string
+      minLength: 1
+      maxLength: 200
 
     SignIn:
       type: object
@@ -1035,7 +1040,7 @@ components:
         name:
           $ref: "#/components/schemas/Name"
         description:
-          $ref: "#/components/schemas/Description"
+          $ref: "#/components/schemas/TagDescription"
         createdAt:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
