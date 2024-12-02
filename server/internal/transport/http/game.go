@@ -198,8 +198,8 @@ func gamePostToDomain(gamePost api.GamePost) (domain.EditableGame, error) {
 		Features:    domain.GameFeatures(gamePost.Features),
 		Languages:   languages,
 		Requirements: domain.GameRequirements{
-			Minimum:     domain.Description(gamePost.Requirements.Minimum),
-			Recommended: domain.Description(gamePost.Requirements.Recommended),
+			Minimum:     domain.GameRequirement(gamePost.Requirements.Minimum),
+			Recommended: domain.GameRequirement(gamePost.Requirements.Recommended),
 		},
 		PreviewMultimediaID:  gamePost.PreviewMultimediaId,
 		DownloadMultimediaID: gamePost.DownloadMultimediaId,
@@ -223,8 +223,8 @@ func gamePatchToDomain(gamePatch api.GamePatch) (domain.EditableGamePatch, error
 
 	if gamePatch.Requirements != nil {
 		temp := domain.GameRequirements{
-			Minimum:     domain.Description(gamePatch.Requirements.Minimum),
-			Recommended: domain.Description(gamePatch.Requirements.Recommended),
+			Minimum:     domain.GameRequirement(gamePatch.Requirements.Minimum),
+			Recommended: domain.GameRequirement(gamePatch.Requirements.Recommended),
 		}
 		requirements = &temp
 	}

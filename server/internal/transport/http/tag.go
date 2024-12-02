@@ -80,7 +80,7 @@ func tagFromDomain(tag domain.Tag) api.Tag {
 	return api.Tag{
 		Id:          tag.ID,
 		Name:        string(tag.Name),
-		Description: (*string)(tag.Description),
+		Description: tag.Description,
 		CreatedAt:   tag.CreatedAt,
 		ModifiedAt:  tag.ModifiedAt,
 	}

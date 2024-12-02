@@ -16,7 +16,7 @@ var (
 type Tag struct {
 	ID          uuid.UUID
 	Name        Name
-	Description *Description
+	Description *string
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
 }
