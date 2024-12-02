@@ -31,12 +31,12 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { createPublisher, signInPublisher } from "@/lib/api";
-import { decodeTokenPayload,storeToken} from "@/lib/auth";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { Conflict } from "@/lib/errors";
 import { passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/distribute/register")({
-  component: Component
+  component: Component,
 });
 
 const formSchema = z
@@ -56,17 +56,20 @@ const formSchema = z
     vat: z.string().min(1, {
       message: "VAT is required",
     }),
-    picture: z.instanceof(File, {
-      message: "Picture is required",
-    }).optional(),
-    password: z.string()
-    .min(14, {
-      message: "Password must be at least 14 characters long",
-    })
-    .max(72, {
-      message: "Password must be shorter than 72 characters",
-    })
-    .superRefine(passwordRefinement),
+    picture: z
+      .instanceof(File, {
+        message: "Picture is required",
+      })
+      .optional(),
+    password: z
+      .string()
+      .min(14, {
+        message: "Password must be at least 14 characters long",
+      })
+      .max(72, {
+        message: "Password must be shorter than 72 characters",
+      })
+      .superRefine(passwordRefinement),
     confirm: z.string().min(1, {
       message: "Passwords don't match",
     }),
@@ -76,8 +79,7 @@ const formSchema = z
     path: ["confirm"],
   });
 
-
-  type RegisterSchemaType = z.infer<typeof formSchema>;
+type RegisterSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
   const form = useForm<z.infer<typeof formSchema>>({

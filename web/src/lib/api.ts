@@ -1,7 +1,7 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
-import { NewPublisher,PublisherCredentials } from "@/domain/publisher";
+import { NewPublisher, PublisherCredentials } from "@/domain/publisher";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -82,7 +82,6 @@ export async function signInUser(credentials: UserCredentials) {
 
   return jwt;
 }
-
 
 /**
  * Retrieves a user given a user ID.
@@ -210,7 +209,7 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const response = await fetch("/api/publishers/signin", {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
-    credentials: 'include',
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
