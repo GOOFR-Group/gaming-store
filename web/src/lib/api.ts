@@ -1,6 +1,12 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
+import {
+  EditablePublisher,
+  NewPublisher,
+  Publisher,
+  PublisherCredentials,
+} from "@/domain/publisher";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -163,6 +169,145 @@ export async function updateUser(id: string, details: EditableUser) {
   const user = (await response.json()) as User;
 
   return user;
+}
+
+/**
+ * Creates a new publisher.
+ * @param newPublisher User to be created.
+ * @returns a NewPublisher instance.
+ * @throws {Conflict} Username, email or vatin already exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createPublisher(newPublisher: NewPublisher) {
+  const response = await fetch("/api/publishers", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newPublisher),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const user = (await response.json()) as User;
+
+  return user;
+}
+
+/**
+ * Signs in a user with their credentials.
+ * @param credentials User credentials.
+ * @returns JWT.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function signInPublisher(credentials: PublisherCredentials) {
+  const response = await fetch("/api/publishers/signin", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const jwt = (await response.json()) as Jwt;
+
+  return jwt;
+}
+
+export async function getPublisher(id: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/publishers/${id}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const user = (await response.json()) as Publisher;
+
+  return user;
+}
+
+/**
+ * Updates a user.
+ * @param id User ID.
+ * @param details User details.
+ * @returns Updated user.
+ * @throws {Unauthorized} Access token invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User not found.
+ * @throws {Conflict} Username, email or vatin already exists. Or multimedia does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function updatePublisher(id: string, details: EditablePublisher) {
+  const token = getToken();
+
+  const response = await fetch(`/api/publishers/${id}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(details),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const publisher = (await response.json()) as Publisher;
+
+  return publisher;
 }
 
 /**

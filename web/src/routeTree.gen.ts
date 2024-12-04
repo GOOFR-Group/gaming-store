@@ -26,6 +26,7 @@ import { Route as LayoutAccountImport } from "./routes/_layout/account";
 import { Route as DistributeLayoutIndexImport } from "./routes/distribute/_layout/index";
 import { Route as LayoutGamesGameIdImport } from "./routes/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesIndexImport } from "./routes/distribute/_layout/games/index";
+import { Route as DistributeLayoutAccountIndexImport } from "./routes/distribute/_layout/account/index";
 import { Route as DistributeLayoutGamesAddImport } from "./routes/distribute/_layout/games/add";
 import { Route as DistributeLayoutGamesGameIdImport } from "./routes/distribute/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesGameIdEditImport } from "./routes/distribute/_layout/games_/$gameId/edit";
@@ -107,6 +108,12 @@ const DistributeLayoutGamesIndexRoute = DistributeLayoutGamesIndexImport.update(
     getParentRoute: () => DistributeLayoutRoute,
   } as any,
 );
+
+const DistributeLayoutAccountIndexRoute =
+  DistributeLayoutAccountIndexImport.update({
+    path: "/account/",
+    getParentRoute: () => DistributeLayoutRoute,
+  } as any);
 
 const DistributeLayoutGamesAddRoute = DistributeLayoutGamesAddImport.update({
   path: "/games/add",
@@ -234,6 +241,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DistributeLayoutGamesAddImport;
       parentRoute: typeof DistributeLayoutImport;
     };
+    "/distribute/_layout/account/": {
+      id: "/distribute/_layout/account/";
+      path: "/account";
+      fullPath: "/distribute/account";
+      preLoaderRoute: typeof DistributeLayoutAccountIndexImport;
+      parentRoute: typeof DistributeLayoutImport;
+    };
     "/distribute/_layout/games/": {
       id: "/distribute/_layout/games/";
       path: "/games";
@@ -280,6 +294,7 @@ interface DistributeLayoutRouteChildren {
   DistributeLayoutIndexRoute: typeof DistributeLayoutIndexRoute;
   DistributeLayoutGamesGameIdRoute: typeof DistributeLayoutGamesGameIdRoute;
   DistributeLayoutGamesAddRoute: typeof DistributeLayoutGamesAddRoute;
+  DistributeLayoutAccountIndexRoute: typeof DistributeLayoutAccountIndexRoute;
   DistributeLayoutGamesIndexRoute: typeof DistributeLayoutGamesIndexRoute;
   DistributeLayoutGamesGameIdEditRoute: typeof DistributeLayoutGamesGameIdEditRoute;
 }
@@ -288,6 +303,7 @@ const DistributeLayoutRouteChildren: DistributeLayoutRouteChildren = {
   DistributeLayoutIndexRoute: DistributeLayoutIndexRoute,
   DistributeLayoutGamesGameIdRoute: DistributeLayoutGamesGameIdRoute,
   DistributeLayoutGamesAddRoute: DistributeLayoutGamesAddRoute,
+  DistributeLayoutAccountIndexRoute: DistributeLayoutAccountIndexRoute,
   DistributeLayoutGamesIndexRoute: DistributeLayoutGamesIndexRoute,
   DistributeLayoutGamesGameIdEditRoute: DistributeLayoutGamesGameIdEditRoute,
 };
@@ -326,6 +342,7 @@ export interface FileRoutesByFullPath {
   "/distribute/": typeof DistributeLayoutIndexRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
+  "/distribute/account": typeof DistributeLayoutAccountIndexRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
   "/distribute/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
@@ -343,6 +360,7 @@ export interface FileRoutesByTo {
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
+  "/distribute/account": typeof DistributeLayoutAccountIndexRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
   "/distribute/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
@@ -364,6 +382,7 @@ export interface FileRoutesById {
   "/distribute/_layout/": typeof DistributeLayoutIndexRoute;
   "/distribute/_layout/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/_layout/games/add": typeof DistributeLayoutGamesAddRoute;
+  "/distribute/_layout/account/": typeof DistributeLayoutAccountIndexRoute;
   "/distribute/_layout/games/": typeof DistributeLayoutGamesIndexRoute;
   "/distribute/_layout/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
@@ -385,6 +404,7 @@ export interface FileRouteTypes {
     | "/distribute/"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
+    | "/distribute/account"
     | "/distribute/games"
     | "/distribute/games/$gameId/edit";
   fileRoutesByTo: FileRoutesByTo;
@@ -401,6 +421,7 @@ export interface FileRouteTypes {
     | "/games/$gameId"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
+    | "/distribute/account"
     | "/distribute/games"
     | "/distribute/games/$gameId/edit";
   id:
@@ -420,6 +441,7 @@ export interface FileRouteTypes {
     | "/distribute/_layout/"
     | "/distribute/_layout/games/$gameId"
     | "/distribute/_layout/games/add"
+    | "/distribute/_layout/account/"
     | "/distribute/_layout/games/"
     | "/distribute/_layout/games/$gameId/edit";
   fileRoutesById: FileRoutesById;
@@ -498,6 +520,7 @@ export const routeTree = rootRoute
         "/distribute/_layout/",
         "/distribute/_layout/games/$gameId",
         "/distribute/_layout/games/add",
+        "/distribute/_layout/account/",
         "/distribute/_layout/games/",
         "/distribute/_layout/games/$gameId/edit"
       ]
@@ -528,6 +551,10 @@ export const routeTree = rootRoute
     },
     "/distribute/_layout/games/add": {
       "filePath": "distribute/_layout/games/add.tsx",
+      "parent": "/distribute/_layout"
+    },
+    "/distribute/_layout/account/": {
+      "filePath": "distribute/_layout/account/index.tsx",
       "parent": "/distribute/_layout"
     },
     "/distribute/_layout/games/": {
