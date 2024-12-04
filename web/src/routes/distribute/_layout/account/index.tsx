@@ -403,7 +403,7 @@ function EditAccountDetails(props: {
                         return (
                           <SelectItem key={country.code} value={country.code}>
                             {country.name}
-                     </SelectItem>
+                          </SelectItem>
                         );
                       })}
                     </SelectContent>

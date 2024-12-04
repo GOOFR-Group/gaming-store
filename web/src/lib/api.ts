@@ -1,7 +1,12 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
-import { EditablePublisher, NewPublisher,Publisher,PublisherCredentials } from "@/domain/publisher";
+import {
+  EditablePublisher,
+  NewPublisher,
+  Publisher,
+  PublisherCredentials,
+} from "@/domain/publisher";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -82,7 +87,6 @@ export async function signInUser(credentials: UserCredentials) {
 
   return jwt;
 }
-
 
 /**
  * Retrieves a user given a user ID.
@@ -210,7 +214,7 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const response = await fetch("/api/publishers/signin", {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
-    credentials: 'include',
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -305,7 +309,6 @@ export async function updatePublisher(id: string, details: EditablePublisher) {
 
   return publisher;
 }
-
 
 /**
  * Uploads a multimedia file.

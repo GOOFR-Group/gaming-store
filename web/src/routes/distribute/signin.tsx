@@ -1,18 +1,18 @@
-import { useForm } from 'react-hook-form'
+import { useForm } from "react-hook-form";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import * as z from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import * as z from "zod";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -20,80 +20,80 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { useToast } from '@/hooks/use-toast'
-import { signInPublisher } from '@/lib/api'
-import { decodeTokenPayload, storeToken } from '@/lib/auth'
-import { Unauthorized } from '@/lib/errors'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { signInPublisher } from "@/lib/api";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { Unauthorized } from "@/lib/errors";
 
-export const Route = createFileRoute('/distribute/signin')({
+export const Route = createFileRoute("/distribute/signin")({
   component: Component,
-})
+});
 
 const formSchema = z.object({
   emailOrUsername: z.string().min(1, {
-    message: 'Email or Username is required',
+    message: "Email or Username is required",
   }),
   password: z.string().min(1, {
-    message: 'Password is required',
+    message: "Password is required",
   }),
-})
+});
 
-type SignInSchemaType = z.infer<typeof formSchema>
+type SignInSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailOrUsername: '',
-      password: '',
+      emailOrUsername: "",
+      password: "",
     },
-  })
-  const { toast } = useToast()
-  const navigate = useNavigate()
+  });
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const mutation = useMutation({
     async mutationFn(data: SignInSchemaType) {
       const jwt = await signInPublisher({
         email: data.emailOrUsername,
         password: data.password,
-      })
-      const payload = decodeTokenPayload(jwt.token)
+      });
+      const payload = decodeTokenPayload(jwt.token);
 
-      storeToken(jwt.token, payload.exp)
+      storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
-      await navigate({ to: '/distribute/games' })
+      await navigate({ to: "/distribute/games" });
     },
     onError(error) {
       if (error instanceof Unauthorized) {
         switch (error.code) {
-          case 'credentials_incorrect':
-            form.setError('emailOrUsername', {
-              message: '',
-            })
-            form.setError('password', {
-              message: 'Credentials are incorrect',
-            })
-            break
+          case "credentials_incorrect":
+            form.setError("emailOrUsername", {
+              message: "",
+            });
+            form.setError("password", {
+              message: "Credentials are incorrect",
+            });
+            break;
         }
-        return
+        return;
       }
 
       toast({
-        variant: 'destructive',
-        title: 'Oops! An unexpected error occurred',
-        description: 'Please try again later or contact the support team.',
-      })
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
     },
-  })
+  });
 
   /**
    * Handles form submission.
    * @param data Form data.
    */
   function onSubmit(data: SignInSchemaType) {
-    mutation.mutate(data)
+    mutation.mutate(data);
   }
 
   return (
@@ -161,5 +161,5 @@ function Component() {
         </Form>
       </Card>
     </div>
-  )
+  );
 }
