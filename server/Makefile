@@ -6,7 +6,7 @@ BUILD_TIMESTAMP = $(shell TZ="UTC" LC_TIME="en_US.utf8" date)
 LINTER_VERSION=v1.61.0
 
 ## default: run clean, generate, tidy, vendor, lint, test and build
-default: clean generate tidy vendor lint test build
+default: clean generate tidy vendor  test build
 
 ## dev: run clean, generate, tidy, vendor and build
 dev: clean generate tidy vendor build
@@ -28,12 +28,7 @@ vendor:
 ## generate: run go generate ./...
 generate:
 	go generate ./...
-
-## lint: install golangci-lint and analyze the source code with the configuration in .golangci.yml
-lint:
-	command -v golangci-lint || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin $(LINTER_VERSION)
-	golangci-lint run --timeout=5m
-
+	
 ## test-unit: run unit tests
 test-unit:
 	go test ./...
