@@ -25,11 +25,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { clearToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/distribute/_layout")({
   component: Component,
 });
+
+function SignOut() {
+  /**
+   * Signs out a user and reloads the current page.
+   */
+  function handleClick() {
+    clearToken();
+    window.location.reload();
+  }
+
+  return (
+    <Button variant="ghost" onClick={handleClick}>
+      <LogOut /> Sign Out
+    </Button>
+  );
+}
 
 function Component() {
   const location = useLocation();
@@ -74,8 +91,7 @@ function Component() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogOut className="mr-2 size-4" />
-                Logout
+                <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
