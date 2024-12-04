@@ -22,7 +22,7 @@ const (
 func (s *store) CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublisher domain.EditablePublisherWithPassword) (uuid.UUID, error) {
 	row := tx.QueryRow(ctx, `
 		INSERT INTO publishers (email, password, name, address, country, vatin, picture_multimedia_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id
 	`,
 		editablePublisher.Email,
@@ -57,11 +57,11 @@ func (s *store) CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublishe
 func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
-			m.id, m.checksum, m.media_type, m.url, m.created_at  
-		FROM publishers p 
+			m.id, m.checksum, m.media_type, m.url, m.created_at
+		FROM publishers p
 		LEFT JOIN multimedia m
 			ON m.id = p.picture_multimedia_id
-		WHERE p.id = $1 
+		WHERE p.id = $1
 	`,
 		id,
 	)
@@ -82,11 +82,11 @@ func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (
 func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
-			m.id, m.checksum, m.media_type, m.url, m.created_at  
-		FROM publishers p 
+			m.id, m.checksum, m.media_type, m.url, m.created_at
+		FROM publishers p
 		LEFT JOIN multimedia m
 			ON m.id = p.picture_multimedia_id
-		WHERE P.email = $1 
+		WHERE p.email = $1
 	`,
 		email,
 	)
@@ -106,8 +106,8 @@ func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain
 // GetPublisherSignIn executes a query to return the sign-in of the publisher with the specified email.
 func (s *store) GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignIn, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT email, password 
-		FROM publishers 
+		SELECT email, password
+		FROM publishers
 		WHERE email = $1
 		LIMIT 1
 	`,
@@ -191,14 +191,12 @@ func getPublisherFromRow(row pgx.Row) (domain.Publisher, error) {
 		&publisher.Vatin,
 		&publisher.CreatedAt,
 		&publisher.ModifiedAt,
-
 		&pictureMultimediaID,
 		&pictureMultimediaChecksum,
 		&pictureMultimediaMediaType,
 		&pictureMultimediaURL,
 		&pictureMultimediaCreatedAt,
 	)
-
 	if err != nil {
 		return domain.Publisher{}, err
 	}
