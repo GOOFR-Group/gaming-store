@@ -16,4 +16,11 @@ const (
 	UserAddress     = "user.address"
 	UserCountry     = "user.country"
 	UserVatin       = "user.vatin"
+
+	PublisherID      = "publisher.id"
+	PublisherEmail   = "publisher.email"
+	PublisherName    = "publisher.name"
+	PublisherAddress = "publisher.address"
+	PublisherCountry = "publisher.country"
+	PublisherVatin   = "publisher.vatin"
 )
