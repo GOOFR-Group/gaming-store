@@ -12,10 +12,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { gameQueryKey } from "@/lib/query-keys";
 
 function gameQueryOptions(gameId: string) {
   return queryOptions({
-    queryKey: [gameId],
+    queryKey: gameQueryKey(gameId),
     queryFn() {
       return {
         id: gameId,

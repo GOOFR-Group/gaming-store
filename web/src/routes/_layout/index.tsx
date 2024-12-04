@@ -6,10 +6,11 @@ import { ChevronRight } from "lucide-react";
 
 import { Game } from "@/components/game";
 import { Button } from "@/components/ui/button";
+import { gamesQueryKey } from "@/lib/query-keys";
 
 function gamesQueryOptions() {
   return queryOptions({
-    queryKey: ["games"],
+    queryKey: gamesQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {
