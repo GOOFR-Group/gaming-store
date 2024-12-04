@@ -275,7 +275,7 @@ export async function getPublisher(id: string) {
 export async function updatePublisher(id: string, details: EditablePublisher) {
   const token = getToken();
 
-  const response = await fetch(`/api/publisher/${id}`, {
+  const response = await fetch(`/api/publishers/${id}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "PATCH",
     headers: {

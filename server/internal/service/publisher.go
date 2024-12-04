@@ -19,6 +19,7 @@ const (
 	descriptionFailedGetPublisherByID    = "service: failed to get publisher by id"
 	descriptionFailedGetPublisherByEmail = "service: failed to get publisher by email"
 	descriptionFailedGetPublisherSignIn  = "service: failed to get publisher sign-in"
+	descriptionFailedPatchPublisher      = "service: failed to patch publisher"
 )
 
 // CreatePublisher creates a new publisher with the specified data.
@@ -126,11 +127,11 @@ func (s *service) GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Pu
 	return publisher, nil
 }
 
-// PatchUser modifies the user with the specified identifier.
+// PatchPublisher modifies the publisher with the specified identifier.
 func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) (domain.Publisher, error) {
 	logAttrs := []any{
-		slog.String(logging.ServiceMethod, "PatchUser"),
-		slog.String(logging.UserID, id.String()),
+		slog.String(logging.ServiceMethod, "PatchPublisher"),
+		slog.String(logging.PublisherID, id.String()),
 	}
 
 	if editablePublisher.Name != nil {
@@ -150,7 +151,7 @@ func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePubl
 	}
 
 	if editablePublisher.Name != nil && !editablePublisher.Name.Valid() {
-		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldUsername}, descriptionInvalidFieldValue, logAttrs...)
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldName}, descriptionInvalidFieldValue, logAttrs...)
 	}
 
 	if editablePublisher.Email != nil && !editablePublisher.Email.Valid() {
@@ -189,14 +190,13 @@ func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePubl
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, domain.ErrUserNotFound),
-			errors.Is(err, domain.ErrUserUsernameAlreadyExists),
-			errors.Is(err, domain.ErrUserEmailAlreadyExists),
-			errors.Is(err, domain.ErrUserVatinAlreadyExists),
+		case errors.Is(err, domain.ErrPublisherNotFound),
+			errors.Is(err, domain.ErrPublisherEmailAlreadyExists),
+			errors.Is(err, domain.ErrPublisherVatinAlreadyExists),
 			errors.Is(err, domain.ErrMultimediaNotFound):
-			return domain.Publisher{}, logInfoAndWrapError(ctx, err, descriptionFailedPatchUser, logAttrs...)
+			return domain.Publisher{}, logInfoAndWrapError(ctx, err, descriptionFailedPatchPublisher, logAttrs...)
 		default:
-			return domain.Publisher{}, logAndWrapError(ctx, err, descriptionFailedPatchUser, logAttrs...)
+			return domain.Publisher{}, logAndWrapError(ctx, err, descriptionFailedPatchPublisher, logAttrs...)
 		}
 	}
 

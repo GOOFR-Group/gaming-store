@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -55,9 +56,12 @@ func (s *store) CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublishe
 // GetPublisherByID executes a query to return the publisher with the specified identifier.
 func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT id, email, name, address, country, vatin, picture_multimedia_id, created_at, modified_at 
-		FROM publishers 
-		WHERE id = $1 
+		SELECT p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
+			m.id, m.checksum, m.media_type, m.url, m.created_at  
+		FROM publishers p 
+		LEFT JOIN multimedia m
+			ON m.id = p.picture_multimedia_id
+		WHERE p.id = $1 
 	`,
 		id,
 	)
@@ -77,9 +81,12 @@ func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (
 // GetPublisherByEmail executes a query to return the publisher with the specified email.
 func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
-		SELECT id, email, name, address, country, vatin, picture_multimedia_id, created_at, modified_at 
-		FROM publishers 
-		WHERE email = $1 
+		SELECT p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
+			m.id, m.checksum, m.media_type, m.url, m.created_at  
+		FROM publishers p 
+		LEFT JOIN multimedia m
+			ON m.id = p.picture_multimedia_id
+		WHERE P.email = $1 
 	`,
 		email,
 	)
@@ -167,8 +174,12 @@ func (s *store) PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, edi
 // getPublisherFromRow returns the publisher by scanning the given row.
 func getPublisherFromRow(row pgx.Row) (domain.Publisher, error) {
 	var (
-		publisher domain.Publisher
-		country   string
+		publisher                  domain.Publisher
+		pictureMultimediaID        *uuid.UUID
+		pictureMultimediaChecksum  *uint32
+		pictureMultimediaMediaType *string
+		pictureMultimediaURL       *string
+		pictureMultimediaCreatedAt *time.Time
 	)
 
 	err := row.Scan(
@@ -176,14 +187,32 @@ func getPublisherFromRow(row pgx.Row) (domain.Publisher, error) {
 		&publisher.Email,
 		&publisher.Name,
 		&publisher.Address,
-		&country,
+		&publisher.Country,
 		&publisher.Vatin,
-		&publisher.PictureMultimedia,
 		&publisher.CreatedAt,
 		&publisher.ModifiedAt,
+
+		&pictureMultimediaID,
+		&pictureMultimediaChecksum,
+		&pictureMultimediaMediaType,
+		&pictureMultimediaURL,
+		&pictureMultimediaCreatedAt,
 	)
+
 	if err != nil {
 		return domain.Publisher{}, err
+	}
+
+	if pictureMultimediaID != nil {
+		publisher.PictureMultimedia = &domain.Multimedia{
+			MultimediaObject: domain.MultimediaObject{
+				Checksum:  *pictureMultimediaChecksum,
+				MediaType: *pictureMultimediaMediaType,
+				URL:       *pictureMultimediaURL,
+			},
+			ID:        *pictureMultimediaID,
+			CreatedAt: *pictureMultimediaCreatedAt,
+		}
 	}
 
 	return publisher, nil
