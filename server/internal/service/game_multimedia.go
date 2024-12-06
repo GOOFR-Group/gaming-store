@@ -32,7 +32,8 @@ func (s *service) CreateGameMultimedia(ctx context.Context, gameID, multimediaID
 		switch {
 		case errors.Is(err, domain.ErrGameMultimediaAlreadyExists),
 			errors.Is(err, domain.ErrGameNotFound),
-			errors.Is(err, domain.ErrMultimediaNotFound):
+			errors.Is(err, domain.ErrMultimediaNotFound),
+			errors.Is(err, domain.ErrGameMultimediaPositionAlreadyExists):
 			return logInfoAndWrapError(ctx, err, descriptionFailedCreateGameMultimedia, logAttrs...)
 		default:
 			return logAndWrapError(ctx, err, descriptionFailedCreateGameMultimedia, logAttrs...)
