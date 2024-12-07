@@ -22,6 +22,16 @@ const (
 	errGameDownloadMultimediaNotFound = "game download multimedia not found"
 )
 
+// ListGames handles the http request to list games.
+func (h *handler) ListGames(w http.ResponseWriter, r *http.Request, params api.ListGamesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListRecommendedGames handles the http request to list recommended games.
+func (h *handler) ListRecommendedGames(w http.ResponseWriter, r *http.Request, params api.ListRecommendedGamesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // CreateGame handles the http request to create a game.
 func (h *handler) CreateGame(w http.ResponseWriter, r *http.Request, publisherID api.PublisherIdPathParam) {
 	ctx := r.Context()
