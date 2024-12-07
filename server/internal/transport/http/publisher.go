@@ -169,7 +169,7 @@ func (h *handler) SignInPublisher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var signIn api.SignInPublisher
+	var signIn api.PublisherSignIn
 
 	err = json.Unmarshal(requestBody, &signIn)
 	if err != nil {
