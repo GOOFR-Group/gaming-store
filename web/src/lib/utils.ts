@@ -56,7 +56,7 @@ export function getInitials(name: string) {
 export function getCountryName(code: string) {
   const codeUpperCase = code.toUpperCase();
 
-  if (codeUpperCase in LANGUAGES_MAP) {
+  if (codeUpperCase in COUNTRIES_MAP) {
     return COUNTRIES_MAP[codeUpperCase as keyof typeof COUNTRIES_MAP].name;
   }
 
