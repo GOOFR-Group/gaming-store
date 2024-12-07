@@ -16,6 +16,7 @@ const (
 	codeParamInvalidFormat         = "param_invalid_format"
 	codeRequestBodyInvalid         = "request_body_invalid"
 	codeFieldValueInvalid          = "field_value_invalid"
+	codeFilterValueInvalid         = "filter_value_invalid"
 	codeCredentialsIncorrect       = "credentials_incorrect"
 	codeInternalServerError        = "internal_server_error"
 
@@ -26,6 +27,7 @@ const (
 	errParamInvalidFormat         = "invalid parameter format"
 	errRequestBodyInvalid         = "invalid request body"
 	errFieldValueInvalid          = "invalid field value"
+	errFilterValueInvalid         = "invalid filter value"
 	errCredentialsIncorrect       = "incorrect credentials"
 )
 
