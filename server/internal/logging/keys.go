@@ -17,6 +17,13 @@ const (
 	UserCountry     = "user.country"
 	UserVatin       = "user.vatin"
 
+	PublisherID      = "publisher.id"
+	PublisherEmail   = "publisher.email"
+	PublisherName    = "publisher.name"
+	PublisherAddress = "publisher.address"
+	PublisherCountry = "publisher.country"
+	PublisherVatin   = "publisher.vatin"
+
 	GameID                  = "game.id"
 	GameTitle               = "game.title"
 	GamePrice               = "game.price"

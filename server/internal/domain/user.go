@@ -59,6 +59,13 @@ func (d UserDateOfBirth) Value() (driver.Value, error) {
 	return d.Time(), nil
 }
 
+// SignInUser defines the sign-in user structure.
+type SignInUser struct {
+	Username Username
+	Email    Email
+	Password Password
+}
+
 // EditableUser defines the editable user structure.
 type EditableUser struct {
 	Username            Username
