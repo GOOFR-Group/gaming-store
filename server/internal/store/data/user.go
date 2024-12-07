@@ -109,7 +109,7 @@ func (s *store) GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Emai
 }
 
 // GetUserSignIn executes a query to return the sign-in of the user with the specified username or email.
-func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignIn, error) {
+func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignInUser, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT username, email, password 
 		FROM users 
@@ -120,7 +120,7 @@ func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Us
 		email,
 	)
 
-	var signIn domain.SignIn
+	var signIn domain.SignInUser
 
 	err := row.Scan(
 		&signIn.Username,
@@ -129,10 +129,10 @@ func (s *store) GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Us
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrUserNotFound)
+			return domain.SignInUser{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrUserNotFound)
 		}
 
-		return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+		return domain.SignInUser{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
 	}
 
 	return signIn, nil
