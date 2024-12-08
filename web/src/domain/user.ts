@@ -4,6 +4,7 @@ import { Multimedia } from "./multimedia";
  * Represents a user.
  */
 export interface User {
+  library: any;
   id: string;
   username: string;
   email: string;

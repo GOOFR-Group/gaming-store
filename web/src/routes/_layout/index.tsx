@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Component() {
-  const [publisherConfig, setPublisherConfig] = useState(null);
+  const [publisherConfig, setPublisherConfig] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
@@ -168,6 +168,6 @@ function Section(props: {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {props.children}
       </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }

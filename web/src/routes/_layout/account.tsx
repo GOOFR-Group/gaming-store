@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
@@ -65,7 +65,7 @@ function Component() {
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
 
-  const [publisherConfig, setPublisherConfig] = useState(null);
+  const [publisherConfig, setPublisherConfig] = useState<{ name: string } | null>(null);
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
     setPublisherConfig(config ? JSON.parse(config) : null);
@@ -116,9 +116,9 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {user.library.map((item) => (
+                {user.library?.map((item: { id: Key | null | undefined; image: string | undefined; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined; publisher: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }) => (
                   <div key={item.id} className="flex flex-col items-center">
-                    <img src={item.image} alt={item.title} className="w-full h-auto" />
+                    <img src={item.image} alt={typeof item.title === 'string' ? item.title : undefined} className="w-full h-auto" />
                     <div className="mt-2 text-center">
                       <p className="text-lg font-semibold">{item.title}</p>
                       <p className="text-sm text-gray-500">{item.publisher}</p>
