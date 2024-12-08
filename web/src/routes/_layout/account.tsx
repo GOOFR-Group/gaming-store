@@ -23,21 +23,38 @@ import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
-/**
- * Query options for retrieving the signed in user.
- * @returns Query options.
- */
+// Adjust the User interface as appropriate for your project.
+interface PublisherConfig {
+  name: string;
+}
+
+interface User {
+  library: string[];
+  id: string;
+  username: string;
+  email: string;
+  displayName: string;
+  dateOfBirth: string;
+  address: string;
+  country: string;
+  vatin: string;
+  balance: number;
+  pictureMultimedia?: {
+    url?: string;
+  };
+  createdAt: string;
+  modifiedAt: string;
+}
+
 function userQueryOptions() {
-  return queryOptions({
+  return queryOptions<User>({
     queryKey: userQueryKey,
     async queryFn() {
       const token = getToken();
       const payload = decodeTokenPayload(token);
-
       const userId = payload.sub;
       const user = await getUser(userId);
-
-      return user;
+      return user as User;
     },
   });
 }
@@ -57,18 +74,18 @@ export const Route = createFileRoute("/_layout/account")({
 });
 
 function Component() {
-  const [activeTab, setActiveTab] = useState("library");
+  const [activeTab, setActiveTab] = useState<"library" | "account">("library");
   const query = useSuspenseQuery(userQueryOptions());
-
   const user = query.data;
+
   const country =
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
 
-  const [publisherConfig, setPublisherConfig] = useState<{ name: string } | null>(null);
+  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
-    setPublisherConfig(config ? JSON.parse(config) : null);
+    setPublisherConfig(config ? (JSON.parse(config) as PublisherConfig) : null);
   }, []);
 
   return (
@@ -99,11 +116,7 @@ function Component() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs
-            className="w-full"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
+          <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
@@ -115,13 +128,26 @@ function Component() {
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {user.library?.map((item: { id: Key | null | undefined; image: string | undefined; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined; publisher: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }) => (
-                  <div key={item.id} className="flex flex-col items-center">
-                    <img src={item.image} alt={typeof item.title === 'string' ? item.title : undefined} className="w-full h-auto" />
-                    <div className="mt-2 text-center">
-                      <p className="text-lg font-semibold">{item.title}</p>
-                      <p className="text-sm text-gray-500">{item.publisher}</p>
+              <h3 className="text-lg font-semibold mb-2">My Games</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {["Game 1", "Game 2", "Game 3", "Game 4", "Game 5", "Game 6"].map((game) => (
+                  <div key={game}>
+                    <Link href="/games/1">
+                      <img
+                        alt="Game cover"
+                        className="object-cover h-[400px] rounded-lg w-full"
+                        src="/images/game.jpg"
+                      />
+                    </Link>
+                    <div className="p-4 flex items-center justify-between flex-wrap">
+                      <div>
+                        <p className="text-sm text-gray-400">Stellar Games</p>
+                        <h3 className="text-xl font-semibold">{game}</h3>
+                      </div>
+                      <Button size="icon" variant="secondary">
+                        <Download className="size-5" />
+                        <span className="sr-only">Download</span>
+                      </Button>
                     </div>
                   </div>
                 ))}
