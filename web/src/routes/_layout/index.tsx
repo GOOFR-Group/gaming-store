@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -32,11 +32,19 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Component() {
+  const [publisherConfig, setPublisherConfig] = useState(null);
+
+  useEffect(() => {
+    const config = localStorage.getItem("publisherConfig");
+    setPublisherConfig(config ? JSON.parse(config) : null);
+  }, []);
+
   const { data } = useSuspenseQuery(gamesQueryOptions());
 
   return (
     <div className="flex flex-col items-center min-h-screen">
       <main className="container flex-1">
+        {publisherConfig && <div className="mb-4 text-sm">Publisher: {publisherConfig.name}</div>}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -75,7 +83,7 @@ function Component() {
           </div>
         </section>
 
-        <Section href="/" id="recommended" title="Featured & Recommended">
+        <Section href="/" id="recommended" title="New Releases">
           {data.map((game) => (
             <Game
               key={game.title}

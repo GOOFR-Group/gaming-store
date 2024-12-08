@@ -9,9 +9,16 @@ export function SignOut() {
    */
   function handleClick() {
     clearToken();
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    localStorage.removeItem("publisherConfig");
     window.location.reload();
   }
-
+  
+ 
   return (
     <Button variant="ghost" onClick={handleClick}>
       <LogOut /> Sign Out

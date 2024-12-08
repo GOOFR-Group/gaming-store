@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
@@ -65,6 +65,12 @@ function Component() {
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
 
+  const [publisherConfig, setPublisherConfig] = useState(null);
+  useEffect(() => {
+    const config = localStorage.getItem("publisherConfig");
+    setPublisherConfig(config ? JSON.parse(config) : null);
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
       <Card className="w-full max-w-4xl mx-auto">
@@ -78,6 +84,9 @@ function Component() {
             <div className="text-center sm:text-left">
               <CardTitle className="text-2xl">{user.displayName}</CardTitle>
               <CardDescription>{country}</CardDescription>
+              {publisherConfig && (
+                <p className="text-sm text-gray-500">Publisher: {publisherConfig.name}</p>
+              )}
             </div>
           </div>
           <div className="text-center sm:text-right">
@@ -106,33 +115,13 @@ function Component() {
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
-              <h3 className="text-lg font-semibold mb-2">My Games</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  "Game 1",
-                  "Game 2",
-                  "Game 3",
-                  "Game 4",
-                  "Game 5",
-                  "Game 6",
-                ].map((game) => (
-                  <div key={game}>
-                    <Link href="/games/1">
-                      <img
-                        alt="Game cover"
-                        className="object-cover h-[400px] rounded-lg w-full"
-                        src="/images/game.jpg"
-                      />
-                    </Link>
-                    <div className="p-4 flex items-center justify-between flex-wrap">
-                      <div>
-                        <p className="text-sm text-gray-400">Stellar Games</p>
-                        <h3 className="text-xl font-semibold">{game}</h3>
-                      </div>
-                      <Button size="icon" variant="secondary">
-                        <Download className="size-5" />
-                        <span className="sr-only">Download</span>
-                      </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {user.library.map((item) => (
+                  <div key={item.id} className="flex flex-col items-center">
+                    <img src={item.image} alt={item.title} className="w-full h-auto" />
+                    <div className="mt-2 text-center">
+                      <p className="text-lg font-semibold">{item.title}</p>
+                      <p className="text-sm text-gray-500">{item.publisher}</p>
                     </div>
                   </div>
                 ))}
