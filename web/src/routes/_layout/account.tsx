@@ -65,10 +65,10 @@ function Component() {
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
 
-  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
+      const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
-    setPublisherConfig(config ? (JSON.parse(config) as PublisherConfig) : null);
+    setPublisherConfig(config ? JSON.parse(config) : null);
   }, []);
 
   return (
