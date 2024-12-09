@@ -21,15 +21,13 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
-import { User } from "@/domain/user"; // Import the User type
+import { User } from "@/domain/user"; 
 
-// Remove local User interface definition
 
 interface PublisherConfig {
   name: string;
 }
 
-// Remove local User interface definition
 
 function userQueryOptions() {
   return queryOptions<User>({

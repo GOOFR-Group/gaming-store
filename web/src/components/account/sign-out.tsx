@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { clearToken } from "@/lib/auth";
 
 export function SignOut() {
-  /**
-   * Signs out a user and reloads the current page.
-   */
+
   function handleClick() {
     clearToken();
     document.cookie.split(";").forEach((c) => {
