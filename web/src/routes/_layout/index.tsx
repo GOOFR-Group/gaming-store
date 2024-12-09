@@ -32,6 +32,7 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Component() {
+  // Ensure the correct type is used here
   const [publisherConfig, setPublisherConfig] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
@@ -54,8 +55,7 @@ function Component() {
                     Your Gateway to Epic Gaming Adventures
                   </h1>
                   <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Discover, download, and dominate with our vast collection of
-                    games for all platforms.
+                    Discover, download, and dominate with our vast collection of games for all platforms.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -168,6 +168,6 @@ function Section(props: {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {props.children}
       </div>
-      </section>
-    );
-  }
+    </section>
+  );
+}

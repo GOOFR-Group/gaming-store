@@ -62,12 +62,12 @@ function Component() {
   const user = query.data;
 
   const country =
-    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? "-";
+    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]?.name ?? "-";
 
-      const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
+  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
+    // Unnecessary type assertion used previously. Just use JSON.parse(config) directly.
     setPublisherConfig(config ? JSON.parse(config) : null);
   }, []);
 
