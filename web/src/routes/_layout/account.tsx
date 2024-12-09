@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Download, Gamepad2, UserIcon } from "lucide-react";
@@ -21,23 +21,26 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
-import { User } from "@/domain/user"; 
+import { User } from "@/domain/user";
 
 
 interface PublisherConfig {
   name: string;
 }
 
-
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
 function userQueryOptions() {
-  return queryOptions<User>({
+  return queryOptions<User>({ 
     queryKey: userQueryKey,
     async queryFn() {
       const token = getToken();
       const payload = decodeTokenPayload(token);
       const userId = payload.sub;
       const user = await getUser(userId);
-      return user as User;
+      return user as User; 
     },
   });
 }
@@ -57,17 +60,18 @@ export const Route = createFileRoute("/_layout/account")({
 });
 
 function Component() {
-  const [activeTab, setActiveTab] = useState<string>("library");
+  const [activeTab, setActiveTab] = useState("library");
   const query = useSuspenseQuery(userQueryOptions());
-  const user = query.data;
 
+  const user = query.data;
   const country =
-    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]?.name ?? "-";
+    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
+      ?.name ?? "-";
+
 
   const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
-    // Unnecessary type assertion used previously. Just use JSON.parse(config) directly.
     setPublisherConfig(config ? JSON.parse(config) : null);
   }, []);
 
@@ -99,7 +103,11 @@ function Component() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
+          <Tabs
+            className="w-full"
+            value={activeTab}
+            onValueChange={setActiveTab}
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
@@ -113,7 +121,14 @@ function Component() {
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {["Game 1", "Game 2", "Game 3", "Game 4", "Game 5", "Game 6"].map((game) => (
+                {[
+                  "Game 1",
+                  "Game 2",
+                  "Game 3",
+                  "Game 4",
+                  "Game 5",
+                  "Game 6",
+                ].map((game) => (
                   <div key={game}>
                     <Link href="/games/1">
                       <img

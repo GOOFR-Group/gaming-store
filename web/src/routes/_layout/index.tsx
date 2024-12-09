@@ -8,8 +8,19 @@ import { Game } from "@/components/game";
 import { Button } from "@/components/ui/button";
 import { gamesQueryKey } from "@/lib/query-keys";
 
+interface PublisherConfig {
+  name: string;
+}
+
+interface GameData {
+  title: string;
+  image: string;
+  publisher: string;
+  price: number;
+}
+
 function gamesQueryOptions() {
-  return queryOptions({
+  return queryOptions<GameData[]>({
     queryKey: gamesQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
@@ -32,8 +43,7 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Component() {
-  // Ensure the correct type is used here
-  const [publisherConfig, setPublisherConfig] = useState<{ name: string } | null>(null);
+  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
 
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
@@ -55,7 +65,8 @@ function Component() {
                     Your Gateway to Epic Gaming Adventures
                   </h1>
                   <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Discover, download, and dominate with our vast collection of games for all platforms.
+                    Discover, download, and dominate with our vast collection of games for all
+                    platforms.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -120,28 +131,19 @@ function Component() {
         </Section>
 
         <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8">
-            Browse by Genre
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tighter mb-8">Browse by Genre</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              "Action",
-              "Adventure",
-              "RPG",
-              "Strategy",
-              "Sports",
-              "Simulation",
-              "Puzzle",
-              "Indie",
-            ].map((genre) => (
-              <Button
-                key={genre}
-                className="h-20 text-lg font-semibold"
-                variant="outline"
-              >
-                {genre}
-              </Button>
-            ))}
+            {["Action", "Adventure", "RPG", "Strategy", "Sports", "Simulation", "Puzzle", "Indie"].map(
+              (genre) => (
+                <Button
+                  key={genre}
+                  className="h-20 text-lg font-semibold"
+                  variant="outline"
+                >
+                  {genre}
+                </Button>
+              )
+            )}
           </div>
         </section>
       </main>
@@ -164,7 +166,6 @@ function Section(props: {
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
       </Link>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {props.children}
       </div>
