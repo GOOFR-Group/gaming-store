@@ -1,5 +1,4 @@
-import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
-
+import { useState, useEffect } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Download, Gamepad2, UserIcon } from "lucide-react";
@@ -22,29 +21,15 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
+import { User } from "@/domain/user"; // Import the User type
 
-// Adjust the User interface as appropriate for your project.
+// Remove local User interface definition
+
 interface PublisherConfig {
   name: string;
 }
 
-interface User {
-  library: string[];
-  id: string;
-  username: string;
-  email: string;
-  displayName: string;
-  dateOfBirth: string;
-  address: string;
-  country: string;
-  vatin: string;
-  balance: number;
-  pictureMultimedia?: {
-    url?: string;
-  };
-  createdAt: string;
-  modifiedAt: string;
-}
+// Remove local User interface definition
 
 function userQueryOptions() {
   return queryOptions<User>({
@@ -74,7 +59,7 @@ export const Route = createFileRoute("/_layout/account")({
 });
 
 function Component() {
-  const [activeTab, setActiveTab] = useState<"library" | "account">("library");
+  const [activeTab, setActiveTab] = useState<string>("library");
   const query = useSuspenseQuery(userQueryOptions());
   const user = query.data;
 
