@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react"; 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Download, Gamepad2, UserIcon } from "lucide-react";
@@ -22,22 +21,26 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
+import { User } from "@/domain/user";
+
+
+interface PublisherConfig {
+  name: string;
+}
 
 /**
  * Query options for retrieving the signed in user.
  * @returns Query options.
  */
 function userQueryOptions() {
-  return queryOptions({
+  return queryOptions<User>({ 
     queryKey: userQueryKey,
     async queryFn() {
       const token = getToken();
       const payload = decodeTokenPayload(token);
-
       const userId = payload.sub;
       const user = await getUser(userId);
-
-      return user;
+      return user as User; 
     },
   });
 }
@@ -65,6 +68,13 @@ function Component() {
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
 
+
+  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
+  useEffect(() => {
+    const config = localStorage.getItem("publisherConfig");
+    setPublisherConfig(config ? JSON.parse(config) : null);
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
       <Card className="w-full max-w-4xl mx-auto">
@@ -78,6 +88,9 @@ function Component() {
             <div className="text-center sm:text-left">
               <CardTitle className="text-2xl">{user.displayName}</CardTitle>
               <CardDescription>{country}</CardDescription>
+              {publisherConfig && (
+                <p className="text-sm text-gray-500">Publisher: {publisherConfig.name}</p>
+              )}
             </div>
           </div>
           <div className="text-center sm:text-right">
