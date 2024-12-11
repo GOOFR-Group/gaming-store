@@ -89,6 +89,38 @@ export async function signInUser(credentials: UserCredentials) {
 }
 
 /**
+ * Signs in a user with their credentials.
+ * @param credentials User credentials.
+ * @returns JWT.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function addGameToCart(id:number) 
+{
+  const token = getToken();
+
+  const response = await fetch("/api/cart", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({id:id}),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
  * Retrieves a user given a user ID.
  * @param id User ID.
  * @returns User.
