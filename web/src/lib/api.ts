@@ -95,18 +95,16 @@ export async function signInUser(credentials: UserCredentials) {
  * @throws {Unauthorized} Incorrect credentials.
  * @throws {InternalServerError} Server internal error.
  */
-export async function addGameToCart(id:number) 
-{
+export async function addGameToCart(userId: string, gameId: string) {
   const token = getToken();
 
-  const response = await fetch("/api/cart", {
+  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({id:id}),
   });
 
   if (response.status >= 400) {

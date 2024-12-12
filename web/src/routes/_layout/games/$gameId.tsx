@@ -1,9 +1,9 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
-  createFileRoute,
-  useNavigate,
-  useParams,
-} from "@tanstack/react-router";
+  queryOptions,
+  useMutation,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
@@ -11,13 +11,34 @@ import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { gameQueryKey } from "@/lib/query-keys";
-import { COUNTRIES_MAP } from "@/lib/constants";
-import { addGameToCart } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { addGameToCart, getUser } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TokenMissing } from "@/lib/errors";
+import { gameQueryKey, userQueryKey } from "@/lib/query-keys";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
 });
+
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+  return queryOptions({
+    queryKey: userQueryKey,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const user = await getUser(userId);
+
+      return user;
+    },
+  });
+}
 
 function gameQueryOptions(gameId: string) {
   return queryOptions({
@@ -54,13 +75,43 @@ function gameQueryOptions(gameId: string) {
   });
 }
 
-function AddToCart() {
+function AddToCart({ gameId, userId }: { gameId: string; userId: string }) {
   /**
-   * Signs out a user and reloads the current page.
+   * Adds a game to the cart.
    */
-  async function handleClick() {
-    //await addGameToCart(2);
 
+  const { toast } = useToast();
+
+  const mutation = useMutation({
+    async mutationFn() {
+      await addGameToCart(userId, gameId);
+    },
+    onSuccess() {
+      toast({
+        variant: "success",
+        title: "Game Added!",
+        description: "The game was successfully added to your cart.",
+      });
+    },
+    onError(error) {
+      if (error instanceof TokenMissing) {
+        toast({
+          variant: "destructive",
+          title: "Log in to perform this action",
+        });
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  function handleClick() {
+    mutation.mutate();
   }
 
   return (
@@ -73,20 +124,22 @@ function AddToCart() {
 
 function Component() {
   const params = useParams({ from: "/_layout/games/$gameId" });
-  const { data } = useSuspenseQuery(gameQueryOptions(params.gameId));
 
-  const getLanguage = (code:string)  => {
+  const { data: gameData } = useSuspenseQuery(gameQueryOptions(params.gameId));
+
+  const query = useSuspenseQuery(userQueryOptions());
+  const userData = query.data;
+
+  const getLanguage = (code: string) => {
     const lang = new Intl.DisplayNames(["en"], { type: "language" });
     return lang.of(code);
   };
 
-  const country = data.languages.map((language) => (
-    getLanguage(language)
-  ));
+  const country = gameData.languages.map((language) => getLanguage(language));
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-4">{data.title}</h1>
+      <h1 className="text-4xl font-bold mb-4">{gameData.title}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
@@ -99,11 +152,11 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p className="text-muted-foreground">{data.about}</p>
+              <p className="text-muted-foreground">{gameData.about}</p>
 
               <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
-                  {data.genres.map((genre, index) => (
+                  {gameData.genres.map((genre, index) => (
                     <Badge key={index} variant="secondary">
                       {genre.toUpperCase()}
                     </Badge>
@@ -128,20 +181,20 @@ function Component() {
                 <div>
                   <h3 className="font-semibold mb-2">Minimum:</h3>
                   <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {data.systemRequirements.minimum
+                    {gameData.systemRequirements.minimum
                       .split("\n")
-                      .map((requirement) => (
-                        <li>{requirement}</li>
+                      .map((requirement, index) => (
+                        <li key={index}>{requirement}</li>
                       ))}
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Recommended:</h3>
                   <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {data.systemRequirements.recommended
+                    {gameData.systemRequirements.recommended
                       .split("\n")
-                      .map((requirement) => (
-                        <li>{requirement}</li>
+                      .map((requirement, index) => (
+                        <li key={index}>{requirement}</li>
                       ))}
                   </ul>
                 </div>
@@ -154,20 +207,20 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-3xl font-bold">€{data.price}</span>
+                <span className="text-3xl font-bold">€{gameData.price}</span>
                 <div className="flex items-center">
                   <Star className="text-yellow-400 fill-yellow-400 mr-1" />
                   <span className="font-semibold">4.8</span>
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <AddToCart />
+              <AddToCart gameId={gameData.id} userId={userData.id} />
               <Button className="w-full text-lg py-6 mt-2" variant="secondary">
                 Add to Wishlist
               </Button>
               <p className="text-sm text-muted-foreground mt-2 text-center">
                 Release Date:{" "}
-                {new Date(data.releaseDate).toLocaleDateString("en-UK", {
+                {new Date(gameData.releaseDate).toLocaleDateString("en-UK", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -179,7 +232,7 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-2">Developed by</h3>
-              <p className="text-muted-foreground">{data.publisher}</p>
+              <p className="text-muted-foreground">{gameData.publisher}</p>
             </CardContent>
           </Card>
 
@@ -187,8 +240,8 @@ function Component() {
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-2">Game Features</h3>
               <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {data.features.split("\n").map((feature) => (
-                  <li>{feature}</li>
+                {gameData.features.split("\n").map((feature, index) => (
+                  <li key={index}>{feature}</li>
                 ))}
               </ul>
             </CardContent>
