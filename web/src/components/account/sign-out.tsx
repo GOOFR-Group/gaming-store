@@ -13,12 +13,10 @@ export function SignOut() {
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
     localStorage.removeItem("publisherConfig");
-    localStorage.clear(); // Clear all localStorage data
-    sessionStorage.clear(); // Clear all sessionStorage data
+    localStorage.clear(); 
+    sessionStorage.clear();
     window.location.reload();
   }
-  
- 
   return (
     <Button variant="ghost" onClick={handleClick}>
       <LogOut /> Sign Out
