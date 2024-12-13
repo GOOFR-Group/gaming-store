@@ -1,15 +1,26 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 import { Game } from "@/components/game";
 import { Button } from "@/components/ui/button";
 import { gamesQueryKey } from "@/lib/query-keys";
 
+interface PublisherConfig {
+  name: string;
+}
+
+interface GameData {
+  title: string;
+  image: string;
+  publisher: string;
+  price: number;
+}
+
 function gamesQueryOptions() {
-  return queryOptions({
+  return queryOptions<GameData[]>({
     queryKey: gamesQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
@@ -32,11 +43,28 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Component() {
+  const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const config = localStorage.getItem("publisherConfig");
+    setPublisherConfig(config ? JSON.parse(config) : null);
+  }, []);
+
+  useEffect(() => {
+    const isLoggedIn = !!localStorage.getItem("authToken");
+    if (!isLoggedIn) {
+      localStorage.removeItem("publisherConfig");
+      navigate({ to: "/signin" });
+    }
+  }, []);
+
   const { data } = useSuspenseQuery(gamesQueryOptions());
 
   return (
     <div className="flex flex-col items-center min-h-screen">
       <main className="container flex-1">
+        {publisherConfig && <div className="mb-4 text-sm">Publisher: {publisherConfig.name}</div>}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -46,8 +74,8 @@ function Component() {
                     Your Gateway to Epic Gaming Adventures
                   </h1>
                   <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Discover, download, and dominate with our vast collection of
-                    games for all platforms.
+                    Discover, download, and dominate with our vast collection of games for all
+                    platforms.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -75,7 +103,7 @@ function Component() {
           </div>
         </section>
 
-        <Section href="/" id="recommended" title="Featured & Recommended">
+        <Section href="/" id="recommended" title="New Releases">
           {data.map((game) => (
             <Game
               key={game.title}
@@ -112,28 +140,19 @@ function Component() {
         </Section>
 
         <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8">
-            Browse by Genre
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tighter mb-8">Browse by Genre</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              "Action",
-              "Adventure",
-              "RPG",
-              "Strategy",
-              "Sports",
-              "Simulation",
-              "Puzzle",
-              "Indie",
-            ].map((genre) => (
-              <Button
-                key={genre}
-                className="h-20 text-lg font-semibold"
-                variant="outline"
-              >
-                {genre}
-              </Button>
-            ))}
+            {["Action", "Adventure", "RPG", "Strategy", "Sports", "Simulation", "Puzzle", "Indie"].map(
+              (genre) => (
+                <Button
+                  key={genre}
+                  className="h-20 text-lg font-semibold"
+                  variant="outline"
+                >
+                  {genre}
+                </Button>
+              )
+            )}
           </div>
         </section>
       </main>
@@ -156,10 +175,11 @@ function Section(props: {
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
       </Link>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {props.children}
       </div>
     </section>
   );
 }
+
+export default Component;

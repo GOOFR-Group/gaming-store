@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { SignOut } from "@/components/account/sign-out";
 
 export const Route = createFileRoute("/distribute/_layout")({
   component: Component,
@@ -35,7 +36,6 @@ function Component() {
   const location = useLocation();
 
   useEffect(() => {
-    // Hide the global scrollbar when the user is in the distribution routes.
     document.body.style.overflow = "hidden";
   }, []);
 
@@ -71,9 +71,8 @@ function Component() {
                 Account
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="mr-2 size-4" />
-                Logout
+              <DropdownMenuItem asChild>
+                <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
