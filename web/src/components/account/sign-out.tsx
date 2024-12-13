@@ -13,6 +13,8 @@ export function SignOut() {
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
     localStorage.removeItem("publisherConfig");
+    localStorage.clear(); // Clear all localStorage data
+    sessionStorage.clear(); // Clear all sessionStorage data
     window.location.reload();
   }
   

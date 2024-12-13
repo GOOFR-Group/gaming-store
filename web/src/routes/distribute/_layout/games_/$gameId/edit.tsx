@@ -1,19 +1,15 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useNavigate,
-  useParams,
-} from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 
-import { GameForm } from "@/components/form/game";
+import { GameForm } from '@/components/form/game'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { gameQueryKey } from "@/lib/query-keys";
+} from '@/components/ui/card'
+import { gameQueryKey } from '@/lib/query-keys'
 
 function gameQueryOptions(gameId: string) {
   return queryOptions({
@@ -21,48 +17,50 @@ function gameQueryOptions(gameId: string) {
     queryFn() {
       return {
         id: gameId,
-        title: "Epic Adventure",
-        publisher: "Stellar Games",
-        genres: ["action", "rpg"],
-        releaseDate: new Date("2023-12-01"),
+        title: 'Epic Adventure',
+        publisher: 'Stellar Games',
+        genres: ['action', 'rpg'],
+        releaseDate: new Date('2023-12-01'),
         about:
-          "Epic Adventure is an immersive action RPG that takes you on a journey through a vast, open world filled with danger and excitement.",
+          'Epic Adventure is an immersive action RPG that takes you on a journey through a vast, open world filled with danger and excitement.',
         features:
-          "- Expansive open world\n- Deep character customization\n- Epic boss battles\n- Multiplayer co-op mode",
-        languages: ["en", "es", "fr", "de"],
+          '- Expansive open world\n- Deep character customization\n- Epic boss battles\n- Multiplayer co-op mode',
+        languages: ['en', 'es', 'fr', 'de'],
         systemRequirements: {
           minimum:
-            "OS: Windows 10 64-bit\nProcessor: Intel Core i5-6600K or AMD Ryzen 5 1600\nMemory: 8 GB RAM\nGraphics: NVIDIA GeForce GTX 1060 or AMD Radeon RX 580",
+            'OS: Windows 10 64-bit\nProcessor: Intel Core i5-6600K or AMD Ryzen 5 1600\nMemory: 8 GB RAM\nGraphics: NVIDIA GeForce GTX 1060 or AMD Radeon RX 580',
           recommended:
-            "OS: Windows 10 64-bit\nProcessor: Intel Core i7-8700K or AMD Ryzen 7 3700X\nMemory: 16 GB RAM\nGraphics: NVIDIA GeForce RTX 2070 SUPER or AMD Radeon RX 5700 XT",
+            'OS: Windows 10 64-bit\nProcessor: Intel Core i7-8700K or AMD Ryzen 7 3700X\nMemory: 16 GB RAM\nGraphics: NVIDIA GeForce RTX 2070 SUPER or AMD Radeon RX 5700 XT',
         },
         screenshots: [
-          "/images/game.jpg",
-          "/images/game.jpg",
-          "/images/game.jpg",
-          "/images/game.jpg",
+          '/images/game.jpg',
+          '/images/game.jpg',
+          '/images/game.jpg',
+          '/images/game.jpg',
         ],
         ageRating: 16,
         price: 59.99,
         isActive: false,
-      };
+      }
     },
-  });
+  })
 }
 
-export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
-  component: Component,
-  loader(opts) {
-    return opts.context.queryClient.ensureQueryData(
-      gameQueryOptions(opts.params.gameId),
-    );
+export const Route = createFileRoute('/distribute/_layout/games_/$gameId/edit')(
+  {
+    component: Component,
+    loader(opts) {
+      return opts.context.queryClient.ensureQueryData(
+        gameQueryOptions(opts.params.gameId),
+      )
+    },
   },
-});
+)
 
 function Component() {
-  const params = useParams({ from: "/distribute/_layout/games/$gameId/edit" });
-  const { data } = useSuspenseQuery(gameQueryOptions(params.gameId));
-  const navigate = useNavigate();
+  const params = useParams({ from: '/distribute/_layout/games/$gameId/edit' })
+  const { data } = useSuspenseQuery(gameQueryOptions(params.gameId))
+  const navigate = useNavigate()
 
   return (
     <Card className="flex flex-col min-h-full">
@@ -88,7 +86,7 @@ function Component() {
           }}
           onSave={() =>
             navigate({
-              to: "/distribute/games/$gameId",
+              to: '/distribute/games/$gameId',
               params: {
                 gameId: params.gameId,
               },
@@ -97,5 +95,5 @@ function Component() {
         />
       </CardContent>
     </Card>
-  );
+  )
 }

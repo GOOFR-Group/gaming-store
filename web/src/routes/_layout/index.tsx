@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 import { Game } from "@/components/game";
@@ -44,10 +44,19 @@ export const Route = createFileRoute("/_layout/")({
 
 function Component() {
   const [publisherConfig, setPublisherConfig] = useState<PublisherConfig | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const config = localStorage.getItem("publisherConfig");
     setPublisherConfig(config ? JSON.parse(config) : null);
+  }, []);
+
+  useEffect(() => {
+    const isLoggedIn = !!localStorage.getItem("authToken");
+    if (!isLoggedIn) {
+      localStorage.removeItem("publisherConfig");
+      navigate({ to: "/signin" });
+    }
   }, []);
 
   const { data } = useSuspenseQuery(gamesQueryOptions());
@@ -172,3 +181,5 @@ function Section(props: {
     </section>
   );
 }
+
+export default Component;
