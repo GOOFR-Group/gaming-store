@@ -1,11 +1,34 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { Menu, ShoppingCart, User } from "lucide-react";
-
+import { Menu, ShoppingCart, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { clearToken } from "@/lib/auth";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
+
+function SignOut() {
+  function handleClick() {
+    clearToken();
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(
+          /=.*/,
+          "=;expires=" + new Date().toUTCString() + ";path=/"
+        );
+    });
+    localStorage.removeItem("publisherConfig");
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.reload();
+  }
+  return (
+    <Button variant="ghost" onClick={handleClick}>
+      <LogOut /> Sign Out
+    </Button>
+  );
+}
 
 function Component() {
   return (
@@ -28,7 +51,7 @@ function Component() {
               >
                 <Link href="/browse">Browse</Link>
               </Button>
-
+              <SignOut />
               <Button
                 asChild
                 className="text-sm font-medium hover:bg-transparent hover:text-primary"
