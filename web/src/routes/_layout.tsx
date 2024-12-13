@@ -21,7 +21,7 @@ function SignOut() {
     localStorage.removeItem("publisherConfig");
     localStorage.clear();
     sessionStorage.clear();
-    window.location.reload();
+    window.location.href = "/signin"; 
   }
   return (
     <Button variant="ghost" onClick={handleClick}>
@@ -51,7 +51,6 @@ function Component() {
               >
                 <Link href="/browse">Browse</Link>
               </Button>
-              <SignOut />
               <Button
                 asChild
                 className="text-sm font-medium hover:bg-transparent hover:text-primary"
@@ -59,7 +58,6 @@ function Component() {
               >
                 <Link href="/news">News</Link>
               </Button>
-
               <Button
                 asChild
                 className="text-sm font-medium hover:bg-transparent hover:text-primary"
@@ -67,7 +65,6 @@ function Component() {
               >
                 <Link href="/support">Support</Link>
               </Button>
-
               <Button
                 asChild
                 className="text-sm font-medium hover:bg-transparent hover:text-primary"
@@ -91,6 +88,7 @@ function Component() {
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
+              <SignOut /> 
               <Button className="md:hidden" size="icon" variant="ghost">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Menu</span>
