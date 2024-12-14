@@ -58,6 +58,8 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+import { MultimediaUploadList } from "./multimedia-uploader";
+
 const formSchema = z
   .object({
     title: z.string().min(1, {
@@ -128,9 +130,11 @@ const formSchema = z
         message: "Game files are required",
       })
       .optional(),
-    multimedia: z.array(z.instanceof(File)).min(1, {
-      message: "At least one screenshot must be uploaded",
-    }),
+    multimedia: z
+      .array(z.object({ id: z.string(), file: z.instanceof(File) }))
+      .min(1, {
+        message: "At least one screenshot must be uploaded",
+      }),
     ageRating: z.string({
       message: "Age rating is required",
     }),
@@ -228,7 +232,9 @@ export function GameForm(props: {
 
         // Upload multimedia files.
         const multimediaResults = await Promise.allSettled(
-          data.multimedia.map(uploadMultimedia),
+          data.multimedia.map((multimedia) =>
+            uploadMultimedia(multimedia.file),
+          ),
         );
 
         // Retrieve uploaded multimedia.
@@ -596,32 +602,6 @@ export function GameForm(props: {
 
           <FormField
             control={form.control}
-            name="multimedia"
-            render={({ field: { ref, name, onBlur, disabled } }) => (
-              <FormItem>
-                <FormLabel>Screenshots</FormLabel>
-                <FormControl>
-                  <Input
-                    ref={ref}
-                    multiple
-                    accept="image/*"
-                    disabled={disabled}
-                    name={name}
-                    type="file"
-                    onBlur={onBlur}
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files ?? []);
-                      form.setValue("multimedia", files);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="isActive"
             render={({ field }) => (
               <FormItem>
@@ -672,6 +652,44 @@ export function GameForm(props: {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="multimedia"
+          render={({ field: { ref, name, onBlur, disabled } }) => (
+            <FormItem>
+              <FormLabel>Screenshots</FormLabel>
+              <FormControl>
+                <Input
+                  ref={ref}
+                  multiple
+                  accept="image/*"
+                  disabled={disabled}
+                  name={name}
+                  type="file"
+                  onBlur={onBlur}
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    form.setValue(
+                      "multimedia",
+                      files.map((file, index) => ({
+                        id: `${index}`,
+                        file,
+                      })),
+                    );
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+              <MultimediaUploadList
+                multimedia={form.getValues("multimedia")}
+                onOrderChange={(multimedia) =>
+                  form.setValue("multimedia", multimedia)
+                }
+              />
             </FormItem>
           )}
         />

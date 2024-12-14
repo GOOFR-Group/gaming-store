@@ -8,3 +8,8 @@ export interface Multimedia {
   url: string;
   createdAt: string;
 }
+
+export interface TemporaryMultimedia {
+  id: string;
+  file: File;
+}
