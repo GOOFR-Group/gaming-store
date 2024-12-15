@@ -16,7 +16,7 @@ export interface Publisher {
 }
 
 /**
- * Represents a new NewPublisher/PublisherPost.
+ * Represents a new publisher.
  */
 export interface NewPublisher {
   email: string;
