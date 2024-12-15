@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import * as z from "zod";
@@ -44,14 +44,17 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { NewGame } from "@/domain/game";
-import { Multimedia } from "@/domain/multimedia";
+import { EditableGame, NewGame } from "@/domain/game";
+import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
 import { useTags } from "@/hooks/use-tags";
 import { useToast } from "@/hooks/use-toast";
 import {
   createGame,
   createGameMultimedia,
   createGameTag,
+  deleteGameMultimedia,
+  deleteGameTag,
+  updateGame,
   uploadMultimedia,
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
@@ -59,6 +62,14 @@ import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 import { MultimediaUploadList } from "./multimedia-uploader";
+
+const multimediaSchema = z.object({
+  id: z.string(),
+  checksum: z.number(),
+  mediaType: z.string(),
+  url: z.string(),
+  createdAt: z.string(),
+});
 
 const formSchema = z
   .object({
@@ -122,16 +133,22 @@ const formSchema = z
             "Recommended requirements must be shorter than 200 characters",
         }),
     }),
-    previewMultimedia: z.instanceof(File, {
+    previewMultimedia: z.union([multimediaSchema, z.instanceof(File)], {
       message: "Image preview is required",
     }),
-    downloadMultimedia: z
-      .instanceof(File, {
+    downloadMultimedia: z.union(
+      [multimediaSchema, z.instanceof(File).optional()],
+      {
         message: "Game files are required",
-      })
-      .optional(),
+      },
+    ),
     multimedia: z
-      .array(z.object({ id: z.string(), file: z.instanceof(File) }))
+      .array(
+        z.union([
+          multimediaSchema,
+          z.object({ id: z.string(), file: z.instanceof(File) }),
+        ]),
+      )
       .min(1, {
         message: "At least one screenshot must be uploaded",
       }),
@@ -168,6 +185,7 @@ export function GameForm(props: {
   defaultValues?: GameFormSchemaType;
   onSave: () => void;
 }) {
+  const params = useParams({ from: "/distribute/_layout/games/$gameId/edit" });
   const form = useForm<GameFormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: props.defaultValues ?? {
@@ -194,20 +212,25 @@ export function GameForm(props: {
 
   const mutation = useMutation({
     async mutationFn(data: GameFormSchemaType) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const publisherId = payload.sub;
+
+      let previewMultimedia: Multimedia;
+      if (data.previewMultimedia instanceof File) {
+        previewMultimedia = await uploadMultimedia(data.previewMultimedia);
+      } else {
+        previewMultimedia = data.previewMultimedia;
+      }
+
+      let downloadMultimedia: Multimedia | undefined;
+      if (data.downloadMultimedia instanceof File) {
+        downloadMultimedia = await uploadMultimedia(data.downloadMultimedia);
+      } else {
+        downloadMultimedia = data.downloadMultimedia;
+      }
+
       if (props.mode === "add") {
-        const token = getToken();
-        const payload = decodeTokenPayload(token);
-        const publisherId = payload.sub;
-
-        const previewMultimedia = await uploadMultimedia(
-          data.previewMultimedia,
-        );
-
-        let downloadMultimedia: Multimedia | undefined;
-        if (data.downloadMultimedia) {
-          downloadMultimedia = await uploadMultimedia(data.downloadMultimedia);
-        }
-
         const newGame: NewGame = {
           title: data.title,
           price: data.price,
@@ -233,7 +256,7 @@ export function GameForm(props: {
         // Upload multimedia files.
         const multimediaResults = await Promise.allSettled(
           data.multimedia.map((multimedia) =>
-            uploadMultimedia(multimedia.file),
+            uploadMultimedia((multimedia as TemporaryMultimedia).file),
           ),
         );
 
@@ -260,11 +283,115 @@ export function GameForm(props: {
             createGameTag(publisherId, createdGame.id, tag.id),
           ),
         );
+
+        return;
       }
+
+      const editableGame: EditableGame = {
+        title: data.title,
+        price: data.price,
+        isActive: data.isActive,
+        description: data.description,
+        ageRating: data.ageRating,
+        features: data.features,
+        languages: data.languages,
+        requirements: data.requirements,
+        previewMultimediaId: previewMultimedia.id,
+      };
+
+      if (data.releaseDate) {
+        editableGame.releaseDate = format(data.releaseDate, "yyyy-MM-dd");
+      }
+
+      if (downloadMultimedia) {
+        editableGame.downloadMultimediaId = downloadMultimedia.id;
+      }
+
+      const updatedGame = await updateGame(
+        publisherId,
+        params.gameId,
+        editableGame,
+      );
+
+      const files: {
+        index: number;
+        data: TemporaryMultimedia;
+      }[] = [];
+      data.multimedia.forEach((multimedia, index) => {
+        if ("file" in multimedia) {
+          files.push({ index, data: multimedia });
+        }
+      });
+
+      // Upload multimedia files.
+      const multimediaResults = await Promise.allSettled(
+        files.map((file) => {
+          return new Promise<{ index: number; multimedia: Multimedia }>(
+            (resolve, reject) => {
+              uploadMultimedia(file.data.file)
+                .then((multimedia) =>
+                  resolve({
+                    index: file.index,
+                    multimedia,
+                  }),
+                )
+                .catch(reject);
+            },
+          );
+        }),
+      );
+
+      // Retrieve existing multimedia.
+      const updatedMultimedia: Multimedia[] = data.multimedia.filter(
+        (multimedia) => "url" in multimedia,
+      );
+      multimediaResults.forEach((result) => {
+        if (result.status === "fulfilled") {
+          // Insert uploaded multimedia in the correct position.
+          updatedMultimedia.splice(
+            result.value.index,
+            0,
+            result.value.multimedia,
+          );
+        }
+      });
+
+      // Delete previous game multimedia association.
+      await Promise.allSettled(
+        updatedGame.multimedia.map((multimedia) =>
+          deleteGameMultimedia(publisherId, updatedGame.id, multimedia.id),
+        ),
+      );
+
+      // Delete previous game tag association.
+      await Promise.allSettled(
+        updatedGame.tags.map((tag) =>
+          deleteGameTag(publisherId, updatedGame.id, tag.id),
+        ),
+      );
+
+      // Create game multimedia association.
+      await Promise.allSettled(
+        updatedMultimedia.map((multimedia, idx) =>
+          createGameMultimedia(publisherId, updatedGame.id, multimedia.id, {
+            position: idx,
+          }),
+        ),
+      );
+
+      // Create game tag association.
+      await Promise.allSettled(
+        data.tags.map((tag) =>
+          createGameTag(publisherId, updatedGame.id, tag.id),
+        ),
+      );
     },
     onSuccess() {
       toast({
-        title: "Game added successfully",
+        title:
+          props.mode === "add"
+            ? "Game added successfully"
+            : "Game updated successfully",
       });
       props.onSave();
     },
@@ -537,7 +664,10 @@ export function GameForm(props: {
                     <div className="flex flex-wrap gap-1 mt-2">
                       {field.value.map((lang) => (
                         <Badge key={lang} variant="secondary">
-                          {LANGUAGES.find((l) => l.code === lang)?.name}
+                          {
+                            LANGUAGES.find((l) => l.code === lang.toUpperCase())
+                              ?.name
+                          }
                         </Badge>
                       ))}
                     </div>

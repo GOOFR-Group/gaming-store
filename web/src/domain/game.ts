@@ -60,3 +60,20 @@ export interface NewGame {
   previewMultimediaId: string;
   downloadMultimediaId?: string;
 }
+
+export interface EditableGame {
+  title?: string;
+  price?: number;
+  isActive?: boolean;
+  releaseDate?: string;
+  description?: string;
+  ageRating?: string;
+  features?: string;
+  languages?: string[];
+  requirements?: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId?: string;
+  downloadMultimediaId?: string;
+}
