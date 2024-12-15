@@ -193,9 +193,9 @@ export async function createPublisher(newPublisher: NewPublisher) {
     }
   }
 
-  const user = (await response.json()) as User;
+  const publisher = (await response.json()) as Publisher;
 
-  return user;
+  return publisher;
 }
 
 /**
