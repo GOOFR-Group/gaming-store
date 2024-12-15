@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 import * as z from "zod";
@@ -180,32 +180,44 @@ const formSchema = z
 
 type GameFormSchemaType = z.infer<typeof formSchema>;
 
-export function GameForm(props: {
-  mode: "add" | "edit";
-  defaultValues?: GameFormSchemaType;
+interface AddGameFormProps {
+  mode: "add";
   onSave: () => void;
-}) {
-  const params = useParams({ from: "/distribute/_layout/games/$gameId/edit" });
+}
+
+interface EditGameFormProps {
+  mode: "edit";
+  gameId: string;
+  defaultValues: GameFormSchemaType;
+  onSave: () => void;
+}
+
+type GameProps = AddGameFormProps | EditGameFormProps;
+
+export function GameForm(props: GameProps) {
   const form = useForm<GameFormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: props.defaultValues ?? {
-      title: "",
-      tags: [],
-      releaseDate: undefined,
-      description: "",
-      features: "",
-      languages: [],
-      requirements: {
-        minimum: "",
-        recommended: "",
-      },
-      downloadMultimedia: undefined,
-      previewMultimedia: undefined,
-      multimedia: [],
-      ageRating: undefined,
-      price: undefined,
-      isActive: false,
-    },
+    defaultValues:
+      props.mode === "edit"
+        ? props.defaultValues
+        : {
+            title: "",
+            tags: [],
+            releaseDate: undefined,
+            description: "",
+            features: "",
+            languages: [],
+            requirements: {
+              minimum: "",
+              recommended: "",
+            },
+            downloadMultimedia: undefined,
+            previewMultimedia: undefined,
+            multimedia: [],
+            ageRating: undefined,
+            price: undefined,
+            isActive: false,
+          },
   });
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -309,7 +321,7 @@ export function GameForm(props: {
 
       const updatedGame = await updateGame(
         publisherId,
-        params.gameId,
+        props.gameId,
         editableGame,
       );
 
@@ -803,13 +815,17 @@ export function GameForm(props: {
                   onBlur={onBlur}
                   onChange={(e) => {
                     const files = Array.from(e.target.files ?? []);
-                    form.setValue(
-                      "multimedia",
-                      files.map((file, index) => ({
-                        id: `${index}`,
+                    const updatedMultimedia = [...form.getValues("multimedia")];
+
+                    for (let i = 0; i < files.length; i++) {
+                      const file = files[i];
+                      updatedMultimedia.push({
+                        id: `${updatedMultimedia.length + i}`,
                         file,
-                      })),
-                    );
+                      });
+                    }
+
+                    form.setValue("multimedia", updatedMultimedia);
                   }}
                 />
               </FormControl>

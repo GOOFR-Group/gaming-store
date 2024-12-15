@@ -16,8 +16,15 @@ function MultimediaItem(props: {
 
   function getName() {
     if ("url" in props.multimedia) {
-      const url = props.multimedia.url.split("/");
-      return url[url.length - 1];
+      const paths = props.multimedia.url.split("/");
+      const lastPath = paths[paths.length - 1];
+
+      const searchParamsIndex = lastPath.indexOf("?");
+      if (searchParamsIndex > -1) {
+        return lastPath.substring(0, searchParamsIndex);
+      }
+
+      return lastPath;
     }
 
     return props.multimedia.file.name;

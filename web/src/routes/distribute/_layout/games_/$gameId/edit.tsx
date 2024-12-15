@@ -84,6 +84,7 @@ function Component() {
       </CardHeader>
       <CardContent className="flex-1">
         <GameForm
+          gameId={game.id}
           mode="edit"
           defaultValues={{
             description: game.description,
