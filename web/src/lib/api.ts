@@ -236,7 +236,7 @@ export async function signInPublisher(credentials: PublisherCredentials) {
 }
 
 export async function getPublisher(id: string) {
-  const token = getToken(true);
+  const token = getToken();
 
   const response = await fetch(`/api/publishers/${id}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),

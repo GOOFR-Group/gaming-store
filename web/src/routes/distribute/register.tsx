@@ -56,11 +56,6 @@ const formSchema = z
     vat: z.string().min(1, {
       message: "VAT is required",
     }),
-    picture: z
-      .instanceof(File, {
-        message: "Picture is required",
-      })
-      .optional(),
     password: z
       .string()
       .min(14, {
@@ -90,7 +85,6 @@ function Component() {
       country: "",
       address: "",
       vat: "",
-      picture: undefined,
       password: "",
       confirm: "",
     },
@@ -122,10 +116,6 @@ function Component() {
     onError(error) {
       if (error instanceof Conflict) {
         switch (error.code) {
-          case "publisher_name_already_exists":
-            form.setError("name", { message: "Name already exists" });
-            break;
-
           case "user_email_already_exists":
             form.setError("email", { message: "Email already exists" });
             break;
@@ -242,27 +232,6 @@ function Component() {
                       <FormLabel>VAT</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter your VAT" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="picture"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Picture</FormLabel>
-                      <FormControl>
-                        <Input
-                          accept="image/*"
-                          type="file"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            form.setValue("picture", files[0]);
-                          }}
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
