@@ -57,7 +57,35 @@ func (h *handler) ListGames(w http.ResponseWriter, r *http.Request, params api.L
 
 // ListRecommendedGames handles the http request to list recommended games.
 func (h *handler) ListRecommendedGames(w http.ResponseWriter, r *http.Request, params api.ListRecommendedGamesParams) {
-	w.WriteHeader(http.StatusNotImplemented)
+	ctx := r.Context()
+
+	domainGamesRecommendedFilter := listGamesRecommendedParamsToDomain(params)
+
+	domainPaginatedGames, err := h.service.ListGamesRecommended(ctx, domainGamesRecommendedFilter)
+	if err != nil {
+		var domainFilterValueInvalidError *domain.FilterValueInvalidError
+
+		switch {
+		case errors.As(err, &domainFilterValueInvalidError):
+			badRequest(w, codeFilterValueInvalid, fmt.Sprintf("%s: %s", errFilterValueInvalid, domainFilterValueInvalidError.FilterName))
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
+
+	gamesPaginated := gamesPaginatedFromDomain(domainPaginatedGames)
+
+	responseBody, err := json.Marshal(gamesPaginated)
+	if err != nil {
+		logging.Logger.ErrorContext(ctx, descriptionFailedToMarshalResponseBody, logging.Error(err))
+		internalServerError(w)
+
+		return
+	}
+
+	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
 // CreateGame handles the http request to create a game.
@@ -253,6 +281,18 @@ func listGamesParamsToDomain(params api.ListGamesParams) domain.GamesPaginatedFi
 		ReleaseDateBefore: optionalDateToOptionalTime(params.ReleaseDateBefore),
 		ReleaseDateAfter:  optionalDateToOptionalTime(params.ReleaseDateAfter),
 		TagIDs:            params.TagIds,
+	}
+}
+
+// listGamesRecommendedParamsToDomain returns a domain games recommended paginated filter based on the standardized list
+// recommended games parameters.
+func listGamesRecommendedParamsToDomain(params api.ListRecommendedGamesParams) domain.GamesRecommendedPaginatedFilter {
+	return domain.GamesRecommendedPaginatedFilter{
+		PaginatedRequestBase: paginatedRequestBaseToDomain(
+			params.Limit,
+			params.Offset,
+		),
+		UserID: params.UserId,
 	}
 }
 

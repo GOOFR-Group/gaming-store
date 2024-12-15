@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	descriptionFailedCreateGame  = "service: failed to create game"
-	descriptionFailedListGames   = "service: failed to list games"
-	descriptionFailedGetGameByID = "service: failed to get game by id"
-	descriptionFailedPatchGame   = "service: failed to patch game"
+	descriptionFailedCreateGame           = "service: failed to create game"
+	descriptionFailedListGames            = "service: failed to list games"
+	descriptionFailedListGamesRecommended = "service: failed to list recommended games"
+	descriptionFailedGetGameByID          = "service: failed to get game by id"
+	descriptionFailedPatchGame            = "service: failed to patch game"
 )
 
 // CreateGame creates a new game with the specified data.
@@ -124,6 +125,36 @@ func (s *service) ListGames(ctx context.Context, filter domain.GamesPaginatedFil
 	})
 	if err != nil {
 		return domain.PaginatedResponse[domain.Game]{}, logAndWrapError(ctx, err, descriptionFailedListGames, logAttrs...)
+	}
+
+	return paginatedGames, nil
+}
+
+// ListGamesRecommended returns the recommended games with the specified filter.
+func (s *service) ListGamesRecommended(ctx context.Context, filter domain.GamesRecommendedPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "ListGamesRecommended"),
+	}
+
+	if !filter.Limit.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterLimit}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	if !filter.Offset.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterOffset}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	var (
+		paginatedGames domain.PaginatedResponse[domain.Game]
+		err            error
+	)
+
+	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
+		paginatedGames, err = s.dataStore.ListGamesRecommended(ctx, tx, filter)
+		return err
+	})
+	if err != nil {
+		return domain.PaginatedResponse[domain.Game]{}, logAndWrapError(ctx, err, descriptionFailedListGamesRecommended, logAttrs...)
 	}
 
 	return paginatedGames, nil

@@ -41,6 +41,12 @@ func listSQLWhereOperatorArrayContainsArray(field string) listSQLWhereOperator {
 	}
 }
 
+func listSQLWhereOperatorArraysOverlap(field string) listSQLWhereOperator {
+	return func(position int) string {
+		return fmt.Sprintf("%s && $%d", field, position)
+	}
+}
+
 // listSQLWhere returns an SQL WHERE clause for the specified filter fields.
 func listSQLWhere(fields []listSQLWhereOperator) string {
 	if len(fields) == 0 {
