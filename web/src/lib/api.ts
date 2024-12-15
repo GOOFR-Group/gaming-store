@@ -168,7 +168,7 @@ export async function updateUser(id: string, details: EditableUser) {
 
 /**
  * Creates a new publisher.
- * @param newPublisher User to be created.
+ * @param newPublisher Publisher to be created.
  * @returns a NewPublisher instance.
  * @throws {Conflict} Username, email or vatin already exist.
  * @throws {InternalServerError} Server internal error.
