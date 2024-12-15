@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	codeGameMultimediaAlreadyExists = "game_multimedia_already_exists"
-	codeGameMultimediaNotFound      = "game_multimedia_not_found"
+	codeGameMultimediaAlreadyExists         = "game_multimedia_already_exists"
+	codeGameMultimediaNotFound              = "game_multimedia_not_found"
+	codeGameMultimediaPositionAlreadyExists = "game_multimedia_position_already_exists"
 
-	errGameMultimediaAlreadyExists = "game multimedia already exists"
-	errGameMultimediaNotFound      = "game multimedia association does not exist"
+	errGameMultimediaAlreadyExists         = "game multimedia already exists"
+	errGameMultimediaNotFound              = "game multimedia association does not exist"
+	errGameMultimediaPositionAlreadyExists = "game multimedia position already exists"
 )
 
 // CreateGameMultimedia handles the http request to create a game multimedia association.
@@ -47,6 +49,8 @@ func (h *handler) CreateGameMultimedia(w http.ResponseWriter, r *http.Request, p
 			notFound(w, codeMultimediaNotFound, errMultimediaNotFound)
 		case errors.Is(err, domain.ErrGameMultimediaAlreadyExists):
 			conflict(w, codeGameMultimediaAlreadyExists, errGameMultimediaAlreadyExists)
+		case errors.Is(err, domain.ErrGameMultimediaPositionAlreadyExists):
+			conflict(w, codeGameMultimediaPositionAlreadyExists, errGameMultimediaPositionAlreadyExists)
 		default:
 			internalServerError(w)
 		}

@@ -175,3 +175,50 @@ type Game struct {
 	CreatedAt          time.Time
 	ModifiedAt         time.Time
 }
+
+// GamePaginatedSort defines the field of the game to sort.
+type GamePaginatedSort string
+
+const (
+	GamePaginatedSortTitle       GamePaginatedSort = "title"
+	GamePaginatedSortPrice       GamePaginatedSort = "price"
+	GamePaginatedSortReleaseDate GamePaginatedSort = "releaseDate"
+	GamePaginatedSortUserCount   GamePaginatedSort = "userCount"
+)
+
+// Field returns the name of the field to sort by.
+func (s GamePaginatedSort) Field() GamePaginatedSort {
+	return s
+}
+
+// Valid returns true if the field is valid, false otherwise.
+func (s GamePaginatedSort) Valid() bool {
+	switch s {
+	case GamePaginatedSortTitle,
+		GamePaginatedSortPrice,
+		GamePaginatedSortReleaseDate,
+		GamePaginatedSortUserCount:
+		return true
+	default:
+		return false
+	}
+}
+
+// GamesPaginatedFilter defines the games filter structure.
+type GamesPaginatedFilter struct {
+	PaginatedRequest[GamePaginatedSort]
+	PublisherID       *uuid.UUID
+	Title             *GameTitle
+	PriceUnder        *GamePrice
+	PriceAbove        *GamePrice
+	IsActive          *bool
+	ReleaseDateBefore *time.Time
+	ReleaseDateAfter  *time.Time
+	TagIDs            *[]uuid.UUID
+}
+
+// GamesRecommendedPaginatedFilter defines the recommended games filter structure.
+type GamesRecommendedPaginatedFilter struct {
+	PaginatedRequestBase
+	UserID *uuid.UUID
+}
