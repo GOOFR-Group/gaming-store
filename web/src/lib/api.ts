@@ -1,7 +1,11 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
-import { NewPublisher, PublisherCredentials } from "@/domain/publisher";
+import {
+  NewPublisher,
+  Publisher,
+  PublisherCredentials,
+} from "@/domain/publisher";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -232,7 +236,7 @@ export async function signInPublisher(credentials: PublisherCredentials) {
 }
 
 export async function getPublisher(id: string) {
-  const token = getToken(true);
+  const token = getToken();
 
   const response = await fetch(`/api/publishers/${id}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
