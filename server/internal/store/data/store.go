@@ -13,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/goofr-group/gaming-store/server/internal/config"
-	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/goofr-group/gaming-store/server/internal/store/data/tx"
 )
 
@@ -78,25 +77,4 @@ func constraintNameFromError(err error) string {
 	}
 
 	return ""
-}
-
-// listSQLOrder returns an SQL ORDER keyword for the specified field and order.
-func listSQLOrder(field string, order domain.PaginationOrder, secondaryField *string) string {
-	o := " ASC"
-	if order == domain.PaginationOrderDesc {
-		o = " DESC"
-	}
-
-	sql := " ORDER BY " + field + o
-
-	if secondaryField != nil {
-		sql += ", " + *secondaryField + " ASC"
-	}
-
-	return sql
-}
-
-// listSQLLimitOffset returns an SQL LIMIT and OFFSET clause for the specified limit and offset.
-func listSQLLimitOffset(limit domain.PaginationLimit, offset domain.PaginationOffset) string {
-	return fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 }

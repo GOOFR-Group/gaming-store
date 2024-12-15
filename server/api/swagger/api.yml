@@ -322,6 +322,117 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
+  /games:
+    get:
+      summary: List games.
+      operationId: listGames
+      description: Returns the games with the specified filter.
+      tags:
+        - Game
+      parameters:
+        - name: publisherId
+          in: query
+          description: Publisher to filter by.
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: title
+          in: query
+          description: Title to filter by.
+          schema:
+            $ref: "#/components/schemas/GameTitle"
+        - name: priceUnder
+          in: query
+          description: Price under (<=) to filter by.
+          schema:
+            $ref: "#/components/schemas/GamePrice"
+        - name: priceAbove
+          in: query
+          description: Price above (>=) to filter by.
+          schema:
+            $ref: "#/components/schemas/GamePrice"
+        - name: isActive
+          in: query
+          description: State to filter by.
+          schema:
+            $ref: "#/components/schemas/GameIsActive"
+        - name: releaseDateBefore
+          in: query
+          description: Release date before (<=) to filter by.
+          schema:
+            $ref: "#/components/schemas/Date"
+        - name: releaseDateAfter
+          in: query
+          description: Release date after (>=) to filter by.
+          schema:
+            $ref: "#/components/schemas/Date"
+        - name: tagIds
+          in: query
+          description: Tags to filter by.
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/UUID"
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - title
+              - price
+              - releaseDate
+              - userCount
+            default: title
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /games/recommended:
+    get:
+      summary: List recommended games.
+      operationId: listRecommendedGames
+      description: Returns the recommended games with the specified filter.
+      tags:
+        - Game
+      parameters:
+        - name: userId
+          in: query
+          description: User to filter by.
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
   /publishers/{publisherId}/games:
     post:
       summary: Create a game.
@@ -1215,6 +1326,17 @@ components:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
+    GamesPaginated:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedResponse"
+        - type: object
+          required:
+            - games
+          properties:
+            games:
+              type: array
+              items:
+                $ref: "#/components/schemas/Game"
 
     GameMultimediaPost:
       type: object

@@ -46,6 +46,8 @@ type DataStore interface {
 	PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) error
 
 	CreateGame(ctx context.Context, tx pgx.Tx, publisherID uuid.UUID, editableGame domain.EditableGame) (uuid.UUID, error)
+	ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter domain.GamesRecommendedPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
 
