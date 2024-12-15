@@ -1,7 +1,7 @@
 import { Multimedia } from "./multimedia";
 
 /**
- * Represents a Publisher.
+ * Represents a publisher.
  */
 export interface Publisher {
   id: string;
