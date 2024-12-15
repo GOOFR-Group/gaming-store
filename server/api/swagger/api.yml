@@ -428,6 +428,7 @@ paths:
               - title
               - price
               - releaseDate
+              - userCount
             default: title
         - $ref: "#/components/parameters/OrderQueryParam"
         - $ref: "#/components/parameters/LimitQueryParam"
