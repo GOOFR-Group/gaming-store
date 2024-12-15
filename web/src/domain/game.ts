@@ -1,6 +1,9 @@
 import { Multimedia } from "./multimedia";
 import { Tag } from "./tag";
 
+/**
+ * Represents a game.
+ */
 export interface Game {
   id: string;
   publisherId: string;
@@ -22,11 +25,17 @@ export interface Game {
   modifiedAt: string;
 }
 
+/**
+ * Represents games with pagination.
+ */
 export interface PaginatedGames {
   games: Game[];
   total: number;
 }
 
+/**
+ * Represents the filters available for filtering games.
+ */
 export interface GamesFilters {
   limit?: number;
   offset?: number;
