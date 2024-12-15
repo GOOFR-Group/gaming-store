@@ -168,9 +168,9 @@ export async function updateUser(id: string, details: EditableUser) {
 
 /**
  * Creates a new publisher.
- * @param newPublisher User to be created.
- * @returns a NewPublisher instance.
- * @throws {Conflict} Username, email or vatin already exist.
+ * @param newPublisher Publisher to be created.
+ * @returns Publisher created.
+ * @throws {Conflict} Email or vatin already exist.
  * @throws {InternalServerError} Server internal error.
  */
 export async function createPublisher(newPublisher: NewPublisher) {
@@ -193,9 +193,9 @@ export async function createPublisher(newPublisher: NewPublisher) {
     }
   }
 
-  const user = (await response.json()) as User;
+  const publisher = (await response.json()) as Publisher;
 
-  return user;
+  return publisher;
 }
 
 /**

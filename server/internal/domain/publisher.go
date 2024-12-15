@@ -9,10 +9,16 @@ import (
 
 // Publisher errors.
 var (
-	ErrPublisherEmailAlreadyExists = errors.New("email already exists") // Returned when a publisher already
-	ErrPublisherVatinAlreadyExists = errors.New("vatin already exists") // Returned when a publisher already
+	ErrPublisherEmailAlreadyExists = errors.New("email already exists") // Returned when a publisher already exists with the same email.
+	ErrPublisherVatinAlreadyExists = errors.New("vatin already exists") // Returned when a publisher already exists with the same vatin.
 	ErrPublisherNotFound           = errors.New("publisher not found")  // Returned when a publisher is not found.
 )
+
+// SignInPublisher defines the sign-in publisher structure.
+type SignInPublisher struct {
+	Email    Email
+	Password Password
+}
 
 // EditablePublisher defines the editable publisher structure.
 type EditablePublisher struct {
@@ -30,7 +36,7 @@ type EditablePublisherWithPassword struct {
 	Password
 }
 
-// EditableUserPatch defines the patchable user structure.
+// EditablePublisherPatch defines the patchable publisher structure.
 type EditablePublisherPatch struct {
 	Email               *Email
 	Name                *Name
