@@ -274,8 +274,6 @@ export async function getGames(filters: GamesFilters) {
  * Retrieves the tags.
  * @param filters Tags filters.
  * @returns Tags.
- * @throws {Unauthorized} Access token is invalid.
- * @throws {Forbidden} Forbidden access.
  * @throws {InternalServerError} Server internal error.
  */
 export async function getTags(filters: TagFilters) {
@@ -299,15 +297,7 @@ export async function getTags(filters: TagFilters) {
   });
 
   if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
+    throw new InternalServerError();
   }
 
   const paginatedTags = (await response.json()) as PaginatedTags;
