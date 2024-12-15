@@ -300,4 +300,7 @@ export const TOAST_MESSAGES = {
   },
 } as const;
 
-export const TO_BE_ANNOUNCED = "To Be Announced";
+/**
+ * Label displayed when a game doesn't have a release date.
+ */
+export const TO_BE_ANNOUNCED = "To be announced";
