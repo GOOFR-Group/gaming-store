@@ -259,7 +259,7 @@ export async function getPublisher(id: string) {
     }
   }
 
-  const user = (await response.json()) as User;
+  const user = (await response.json()) as Publisher;
 
   return user;
 }
