@@ -1,10 +1,17 @@
 package domain
 
 import (
+	"database/sql/driver"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+)
+
+// Field constraints.
+const (
+	userDateOfBirthMinAge = 16
 )
 
 // User errors.
@@ -14,6 +21,43 @@ var (
 	ErrUserVatinAlreadyExists    = errors.New("vatin already exists")    // Returned when a user already exists with the same vatin.
 	ErrUserNotFound              = errors.New("user not found")          // Returned when a user is not found.
 )
+
+// UserDateOfBirth defines the user date of birth type.
+type UserDateOfBirth time.Time
+
+// Time returns the time.
+func (d UserDateOfBirth) Time() time.Time {
+	return time.Time(d)
+}
+
+// Valid returns true if the user date of birth is valid, false otherwise.
+func (d UserDateOfBirth) Valid() bool {
+	dateOfBirth := d.Time().UTC()
+	minTime := time.Now().AddDate(-userDateOfBirthMinAge, 0, 0).UTC()
+
+	return dateOfBirth.Before(minTime)
+}
+
+// Scan implements sql.Scanner so UserDateOfBirth can be read from databases transparently.
+func (d *UserDateOfBirth) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case nil:
+		return nil
+
+	case time.Time:
+		*d = UserDateOfBirth(src)
+
+	default:
+		return fmt.Errorf("Scan: unable to scan type %T into UserDateOfBirth", src)
+	}
+
+	return nil
+}
+
+// Value implements sql.Valuer so that UserDateOfBirth can be written to databases transparently.
+func (d UserDateOfBirth) Value() (driver.Value, error) {
+	return d.Time(), nil
+}
 
 // SignInUser defines the sign-in user structure.
 type SignInUser struct {
@@ -27,7 +71,7 @@ type EditableUser struct {
 	Username            Username
 	Email               Email
 	DisplayName         Name
-	DateOfBirth         time.Time
+	DateOfBirth         UserDateOfBirth
 	Address             Address
 	Country             Country
 	Vatin               Vatin
@@ -45,7 +89,7 @@ type EditableUserPatch struct {
 	Username            *Username
 	Email               *Email
 	DisplayName         *Name
-	DateOfBirth         *time.Time
+	DateOfBirth         *UserDateOfBirth
 	Address             *Address
 	Country             *Country
 	Vatin               *Vatin
@@ -59,7 +103,7 @@ type User struct {
 	Username          Username
 	Email             Email
 	DisplayName       Name
-	DateOfBirth       time.Time
+	DateOfBirth       UserDateOfBirth
 	Address           Address
 	Country           Country
 	Vatin             Vatin

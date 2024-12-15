@@ -1,0 +1,15 @@
+INSERT INTO tags (name, description) VALUES
+    ('Action', 'Fast-paced games that require quick reflexes and hand-eye coordination.'),
+    ('Adventure', 'Games that focus on storytelling and exploration.'),
+    ('RPG', 'Games where players assume the roles of characters in a fictional setting.'),
+    ('Shooter', 'Games that focus on combat involving firearms or other ranged weapons.'),
+    ('Strategy', 'Games that emphasize planning and skillful thinking to achieve victory.'),
+    ('Sport', 'Games that simulate the practice of sports.'),
+    ('Simulation', 'Games that mimic real-world activities.'),
+    ('Puzzle', 'Games that challenge the problem-solving skills of the player.'),
+    ('Horror', 'Games designed to scare the player.'),
+    ('Platform', 'Games that involve jumping between platforms and avoiding obstacles.'),
+    ('Fighting', 'Games that focus on close combat between characters.'),
+    ('Racing', 'Games that involve competing in races.'),
+    ('Stealth', 'Games that emphasize avoiding detection and completing objectives quietly.'),
+    ('MMO', 'Games that support large numbers of players interacting in a virtual world.');

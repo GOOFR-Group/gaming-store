@@ -16,6 +16,7 @@ import (
 
 const (
 	descriptionInvalidFieldValue       = "service: invalid field value"
+	descriptionInvalidFilterValue      = "service: invalid filter value"
 	descriptionFailedHashPassword      = "service: failed to hash password"
 	descriptionFailedCheckPasswordHash = "service: failed to check password hash"
 	descriptionFailedCreateJWT         = "service: failed to create jwt"
@@ -43,6 +44,18 @@ type DataStore interface {
 	GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error)
 	GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignInPublisher, error)
 	PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) error
+
+	CreateGame(ctx context.Context, tx pgx.Tx, publisherID uuid.UUID, editableGame domain.EditableGame) (uuid.UUID, error)
+	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
+	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
+
+	CreateGameTag(ctx context.Context, tx pgx.Tx, gameID, tagID uuid.UUID) error
+	DeleteGameTag(ctx context.Context, tx pgx.Tx, gameID, tagID uuid.UUID) error
+
+	CreateGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID, editableGameMultimedia domain.EditableGameMultimedia) error
+	DeleteGameMultimedia(ctx context.Context, tx pgx.Tx, gameID, multimediaID uuid.UUID) error
+
+	ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPaginatedFilter) (domain.PaginatedResponse[domain.Tag], error)
 
 	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
 	GetMultimediaByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Multimedia, error)

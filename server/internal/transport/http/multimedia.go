@@ -73,3 +73,26 @@ func multimediaFromDomain(multimedia domain.Multimedia) api.Multimedia {
 		CreatedAt: multimedia.CreatedAt,
 	}
 }
+
+// multimediaSliceFromDomain returns a standardized multimedia slice based on the domain model.
+func multimediaSliceFromDomain(multimedia []domain.Multimedia) []api.Multimedia {
+	m := make([]api.Multimedia, len(multimedia))
+
+	for i := 0; i < len(multimedia); i++ {
+		m[i] = multimediaFromDomain(multimedia[i])
+	}
+
+	return m
+}
+
+// optionalMultimediaFromDomain returns a standardized optional multimedia based on the domain model.
+func optionalMultimediaFromDomain(multimedia *domain.Multimedia) *api.Multimedia {
+	var m *api.Multimedia
+
+	if multimedia != nil {
+		temp := multimediaFromDomain(*multimedia)
+		m = &temp
+	}
+
+	return m
+}

@@ -7,6 +7,14 @@ tags:
     description: User operations
   - name: Publisher
     description: Publisher operations
+  - name: Game
+    description: Game operations
+  - name: Game Tag
+    description: Game tag operations
+  - name: Game Multimedia
+    description: Game multimedia operations
+  - name: Tag
+    description: Tag operations
   - name: Multimedia
     description: Multimedia operations
 servers:
@@ -69,7 +77,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
         400:
-          description: Invalid user ID.
+          description: Invalid parameters.
           content:
             application/json:
               schema:
@@ -110,7 +118,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
         400:
-          description: Invalid user ID or request body.
+          description: Invalid parameters or request body.
           content:
             application/json:
               schema:
@@ -314,6 +322,324 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
+  /publishers/{publisherId}/games:
+    post:
+      summary: Create a game.
+      operationId: createGame
+      description: Creates a new game with the specified data.
+      tags:
+        - Game
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GamePost"
+      responses:
+        201:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /publishers/{publisherId}/games/{gameId}:
+    get:
+      summary: Get a game by ID.
+      operationId: getGameByID
+      description: Returns the game with the specified identifier.
+      tags:
+        - Game
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Game not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Modify a game by ID.
+      operationId: patchGameByID
+      description: Modifies the game with the specified identifier. Only the specified fields in the request body are updated.
+      tags:
+        - Game
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GamePatch"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+        400:
+          description: Invalid parameters or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Game not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /publishers/{publisherId}/games/{gameId}/tags/{tagId}:
+    post:
+      summary: Create a game tag association.
+      operationId: createGameTag
+      description: Creates a game tag association.
+      tags:
+        - Game Tag
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/TagIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Game or tag not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Association already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a game tag association.
+      operationId: deleteGameTag
+      description: Deletes the game tag association.
+      tags:
+        - Game Tag
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/TagIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        409:
+          description: Association does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /publishers/{publisherId}/games/{gameId}/multimedia/{multimediaId}:
+    post:
+      summary: Create a game multimedia association.
+      operationId: createGameMultimedia
+      description: Creates a game multimedia association.
+      tags:
+        - Game Multimedia
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/MultimediaIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameMultimediaPost"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Game or multimedia not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Association or position already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a game multimedia association.
+      operationId: deleteGameMultimedia
+      description: Deletes the game multimedia association.
+      tags:
+        - Game Multimedia
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+        - $ref: "#/components/parameters/MultimediaIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        409:
+          description: Association does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /tags:
+    get:
+      summary: List tags.
+      operationId: listTags
+      description: Returns the tags with the specified filter.
+      tags:
+        - Tag
+      parameters:
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - name
+              - gameCount
+            default: name
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagsPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
   /multimedia:
     put:
       summary: Upload multimedia.
@@ -363,6 +689,34 @@ components:
       bearerFormat: JWT
 
   parameters:
+    LimitQueryParam:
+      name: limit
+      in: query
+      description: Amount of resources to get for the provided filter.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 100
+    OffsetQueryParam:
+      name: offset
+      in: query
+      description: Amount of resources to skip for the provided filter.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    OrderQueryParam:
+      name: order
+      in: query
+      description: Order to sort by.
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
+
     UserIdPathParam:
       name: userId
       in: path
@@ -374,6 +728,27 @@ components:
       name: publisherId
       in: path
       description: Publisher identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
+    GameIdPathParam:
+      name: gameId
+      in: path
+      description: Game identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
+    TagIdPathParam:
+      name: tagId
+      in: path
+      description: Tag identifier.
+      required: true
+      schema:
+        $ref: "#/components/schemas/UUID"
+    MultimediaIdPathParam:
+      name: multimediaId
+      in: path
+      description: Multimedia identifier.
       required: true
       schema:
         $ref: "#/components/schemas/UUID"
@@ -430,6 +805,11 @@ components:
       description: ISO 3166-1 alpha-2 code.
       minLength: 2
       maxLength: 2
+    Language:
+      type: string
+      description: BCP 47 language tag.
+      minLength: 1
+      maxLength: 20
     Vatin:
       type: string
       minLength: 1
@@ -437,8 +817,8 @@ components:
     File:
       type: string
       format: binary
-      description: File size up to 2 MB.
-      maxLength: 2097152
+      description: File size up to 20 MB.
+      maxLength: 20971520
     Checksum:
       type: integer
       format: int64
@@ -454,10 +834,6 @@ components:
       minLength: 1
       maxLength: 2048
 
-    UserBalance:
-      type: number
-      format: double
-
     JWT:
       type: object
       required:
@@ -466,6 +842,79 @@ components:
         token:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVcJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiWiBmFtZSI6IkPvaG4gRG9lIiWiaWF0IjOxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssW5c
+    PaginatedResponse:
+      type: object
+      required:
+        - total
+      properties:
+        total:
+          type: integer
+          description: The total amount of resources available for the provided filter.
+          minimum: 0
+
+    UserDateOfBirth:
+      type: string
+      format: date
+      description: A user must be at least 16 years old.
+      example: "2000-07-21"
+    UserBalance:
+      type: number
+      format: double
+
+    GameTitle:
+      type: string
+      minLength: 1
+      maxLength: 150
+      example: Jump Master
+    GamePrice:
+      type: number
+      format: double
+      minimum: 0
+    GameIsActive:
+      type: boolean
+    GameDescription:
+      type: string
+      minLength: 1
+      maxLength: 500
+    GameAgeRating:
+      type: string
+      minLength: 1
+      maxLength: 2
+      example: 18
+    GameFeatures:
+      type: string
+      minLength: 1
+      maxLength: 250
+    GameLanguages:
+      type: array
+      items:
+        $ref: "#/components/schemas/Language"
+      minItems: 1
+      maxItems: 200
+    GameRequirements:
+      type: object
+      required:
+        - minimum
+        - recommended
+      properties:
+        minimum:
+          type: string
+          minLength: 1
+          maxLength: 500
+        recommended:
+          type: string
+          minLength: 1
+          maxLength: 500
+
+    GameMultimediaPosition:
+      type: integer
+      minimum: 0
+      maximum: 20
+
+    TagDescription:
+      type: string
+      minLength: 1
+      maxLength: 200
 
     UserSignIn:
       type: object
@@ -499,7 +948,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
@@ -518,7 +967,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
@@ -553,7 +1002,7 @@ components:
         displayName:
           $ref: "#/components/schemas/Name"
         dateOfBirth:
-          $ref: "#/components/schemas/Date"
+          $ref: "#/components/schemas/UserDateOfBirth"
         address:
           $ref: "#/components/schemas/Address"
         country:
@@ -648,6 +1097,162 @@ components:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
+
+    GamePost:
+      type: object
+      required:
+        - title
+        - price
+        - isActive
+        - description
+        - ageRating
+        - features
+        - languages
+        - requirements
+        - previewMultimediaId
+      properties:
+        title:
+          $ref: "#/components/schemas/GameTitle"
+        price:
+          $ref: "#/components/schemas/GamePrice"
+        isActive:
+          $ref: "#/components/schemas/GameIsActive"
+        releaseDate:
+          $ref: "#/components/schemas/Date"
+        description:
+          $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
+        features:
+          $ref: "#/components/schemas/GameFeatures"
+        languages:
+          $ref: "#/components/schemas/GameLanguages"
+        requirements:
+          $ref: "#/components/schemas/GameRequirements"
+        previewMultimediaId:
+          $ref: "#/components/schemas/UUID"
+        downloadMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    GamePatch:
+      type: object
+      properties:
+        title:
+          $ref: "#/components/schemas/GameTitle"
+        price:
+          $ref: "#/components/schemas/GamePrice"
+        isActive:
+          $ref: "#/components/schemas/GameIsActive"
+        releaseDate:
+          $ref: "#/components/schemas/Date"
+        description:
+          $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
+        features:
+          $ref: "#/components/schemas/GameFeatures"
+        languages:
+          $ref: "#/components/schemas/GameLanguages"
+        requirements:
+          $ref: "#/components/schemas/GameRequirements"
+        previewMultimediaId:
+          $ref: "#/components/schemas/UUID"
+        downloadMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    Game:
+      type: object
+      required:
+        - id
+        - publisher
+        - title
+        - price
+        - isActive
+        - description
+        - ageRating
+        - features
+        - languages
+        - requirements
+        - previewMultimedia
+        - multimedia
+        - tags
+        - createdAt
+        - modifiedAt
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        publisher:
+          $ref: "#/components/schemas/Publisher"
+        title:
+          $ref: "#/components/schemas/GameTitle"
+        price:
+          $ref: "#/components/schemas/GamePrice"
+        isActive:
+          $ref: "#/components/schemas/GameIsActive"
+        releaseDate:
+          $ref: "#/components/schemas/Date"
+        description:
+          $ref: "#/components/schemas/GameDescription"
+        ageRating:
+          $ref: "#/components/schemas/GameAgeRating"
+        features:
+          $ref: "#/components/schemas/GameFeatures"
+        languages:
+          $ref: "#/components/schemas/GameLanguages"
+        requirements:
+          $ref: "#/components/schemas/GameRequirements"
+        previewMultimedia:
+          $ref: "#/components/schemas/Multimedia"
+        downloadMultimedia:
+          $ref: "#/components/schemas/Multimedia"
+        multimedia:
+          type: array
+          items:
+            $ref: "#/components/schemas/Multimedia"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+        modifiedAt:
+          $ref: "#/components/schemas/DateTime"
+
+    GameMultimediaPost:
+      type: object
+      required:
+        - position
+      properties:
+        position:
+          $ref: "#/components/schemas/GameMultimediaPosition"
+
+    Tag:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+        - modifiedAt
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          $ref: "#/components/schemas/Name"
+        description:
+          $ref: "#/components/schemas/TagDescription"
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+        modifiedAt:
+          $ref: "#/components/schemas/DateTime"
+    TagsPaginated:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedResponse"
+        - type: object
+          required:
+            - tags
+          properties:
+            tags:
+              type: array
+              items:
+                $ref: "#/components/schemas/Tag"
 
     MultimediaPut:
       type: object

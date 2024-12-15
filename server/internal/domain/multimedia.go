@@ -9,7 +9,7 @@ import (
 
 const (
 	// MultimediaFileMaxSize defines the maximum size of a multimedia file in bytes.
-	MultimediaFileMaxSize = 2097152
+	MultimediaFileMaxSize = 20971520
 )
 
 // Multimedia errors.
