@@ -15,6 +15,13 @@ var (
 	ErrUserNotFound              = errors.New("user not found")          // Returned when a user is not found.
 )
 
+// SignInUser defines the sign-in user structure.
+type SignInUser struct {
+	Username Username
+	Email    Email
+	Password Password
+}
+
 // EditableUser defines the editable user structure.
 type EditableUser struct {
 	Username            Username

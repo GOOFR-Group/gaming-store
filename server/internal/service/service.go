@@ -35,13 +35,13 @@ type DataStore interface {
 	CreateUser(ctx context.Context, tx pgx.Tx, editableUser domain.EditableUserWithPassword) (uuid.UUID, error)
 	GetUserByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.User, error)
 	GetUserByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.User, error)
-	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignIn, error)
+	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignInUser, error)
 	PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error
 
 	CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublisher domain.EditablePublisherWithPassword) (uuid.UUID, error)
 	GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error)
 	GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error)
-	GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignIn, error)
+	GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignInPublisher, error)
 	PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) error
 
 	CreateMultimedia(ctx context.Context, tx pgx.Tx, multimedia domain.MultimediaObject) (uuid.UUID, error)
