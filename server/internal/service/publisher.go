@@ -33,8 +33,6 @@ func (s *service) CreatePublisher(ctx context.Context, editablePublisher domain.
 		slog.String(logging.PublisherVatin, string(editablePublisher.Vatin)),
 	}
 
-	editablePublisher.Name = domain.Name(replaceSpacesWithHyphen(string(editablePublisher.Name)))
-	editablePublisher.Name = domain.Name(strings.ToLower(string(editablePublisher.Name)))
 	editablePublisher.Email = domain.Email(strings.ToLower(string(editablePublisher.Email)))
 	editablePublisher.Name = domain.Name(removeExtraSpaces(string(editablePublisher.Name)))
 	editablePublisher.Address = domain.Address(removeExtraSpaces(string(editablePublisher.Address)))
@@ -134,15 +132,14 @@ func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePubl
 		slog.String(logging.PublisherID, id.String()),
 	}
 
-	if editablePublisher.Name != nil {
-		name := domain.Name(replaceSpacesWithHyphen(string(*editablePublisher.Name)))
-		name = domain.Name(strings.ToLower(string(name)))
-		editablePublisher.Name = &name
-	}
-
 	if editablePublisher.Email != nil {
 		email := domain.Email(strings.ToLower(string(*editablePublisher.Email)))
 		editablePublisher.Email = &email
+	}
+
+	if editablePublisher.Name != nil {
+		name := domain.Name(removeExtraSpaces(string(*editablePublisher.Name)))
+		editablePublisher.Name = &name
 	}
 
 	if editablePublisher.Address != nil {
@@ -150,12 +147,12 @@ func (s *service) PatchPublisher(ctx context.Context, id uuid.UUID, editablePubl
 		editablePublisher.Address = &address
 	}
 
-	if editablePublisher.Name != nil && !editablePublisher.Name.Valid() {
-		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldName}, descriptionInvalidFieldValue, logAttrs...)
-	}
-
 	if editablePublisher.Email != nil && !editablePublisher.Email.Valid() {
 		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldEmail}, descriptionInvalidFieldValue, logAttrs...)
+	}
+
+	if editablePublisher.Name != nil && !editablePublisher.Name.Valid() {
+		return domain.Publisher{}, logInfoAndWrapError(ctx, &domain.FieldValueInvalidError{FieldName: domain.FieldName}, descriptionInvalidFieldValue, logAttrs...)
 	}
 
 	if editablePublisher.Address != nil && !editablePublisher.Address.Valid() {
@@ -213,7 +210,7 @@ func (s *service) SignInPublisher(ctx context.Context, email domain.Email, passw
 	email = domain.Email(strings.ToLower(string(email)))
 
 	var (
-		signIn domain.SignIn
+		signIn domain.SignInPublisher
 		err    error
 	)
 

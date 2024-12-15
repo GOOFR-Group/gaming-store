@@ -57,11 +57,11 @@ func (s *store) CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublishe
 func (s *store) GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
-			m.id, m.checksum, m.media_type, m.url, m.created_at
+			m.id, m.checksum, m.media_type, m.url, m.created_at 
 		FROM publishers p
 		LEFT JOIN multimedia m
 			ON m.id = p.picture_multimedia_id
-		WHERE p.id = $1
+		WHERE p.id = $1 
 	`,
 		id,
 	)
@@ -86,7 +86,7 @@ func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain
 		FROM publishers p
 		LEFT JOIN multimedia m
 			ON m.id = p.picture_multimedia_id
-		WHERE p.email = $1
+		WHERE p.email = $1 
 	`,
 		email,
 	)
@@ -104,7 +104,7 @@ func (s *store) GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain
 }
 
 // GetPublisherSignIn executes a query to return the sign-in of the publisher with the specified email.
-func (s *store) GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignIn, error) {
+func (s *store) GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.SignInPublisher, error) {
 	row := tx.QueryRow(ctx, `
 		SELECT email, password
 		FROM publishers
@@ -114,7 +114,7 @@ func (s *store) GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.
 		email,
 	)
 
-	var signIn domain.SignIn
+	var signIn domain.SignInPublisher
 
 	err := row.Scan(
 		&signIn.Email,
@@ -122,10 +122,10 @@ func (s *store) GetPublisherSignIn(ctx context.Context, tx pgx.Tx, email domain.
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrPublisherNotFound)
+			return domain.SignInPublisher{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, domain.ErrPublisherNotFound)
 		}
 
-		return domain.SignIn{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+		return domain.SignInPublisher{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
 	}
 
 	return signIn, nil
@@ -174,7 +174,8 @@ func (s *store) PatchPublisher(ctx context.Context, tx pgx.Tx, id uuid.UUID, edi
 // getPublisherFromRow returns the publisher by scanning the given row.
 func getPublisherFromRow(row pgx.Row) (domain.Publisher, error) {
 	var (
-		publisher                  domain.Publisher
+		publisher domain.Publisher
+
 		pictureMultimediaID        *uuid.UUID
 		pictureMultimediaChecksum  *uint32
 		pictureMultimediaMediaType *string

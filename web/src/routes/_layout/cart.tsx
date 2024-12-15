@@ -11,10 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cartQueryKey } from "@/lib/query-keys";
 
 function cartQueryOptions() {
   return queryOptions({
-    queryKey: ["cart"],
+    queryKey: cartQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {
