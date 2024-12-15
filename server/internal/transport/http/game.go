@@ -225,13 +225,13 @@ func listGamesParamsToDomain(params api.ListGamesParams) domain.GamesPaginatedFi
 
 	if params.Sort != nil {
 		switch *params.Sort {
-		case api.ListGamesParamsSortTitle:
+		case api.Title:
 			domainSort = domain.GamePaginatedSortTitle
-		case api.ListGamesParamsSortPrice:
+		case api.Price:
 			domainSort = domain.GamePaginatedSortPrice
-		case api.ListGamesParamsSortReleaseDate:
+		case api.ReleaseDate:
 			domainSort = domain.GamePaginatedSortReleaseDate
-		case api.ListGamesParamsSortUserCount:
+		case api.UserCount:
 			domainSort = domain.GamePaginatedSortUserCount
 		default:
 			domainSort = domain.GamePaginatedSort(*params.Sort)

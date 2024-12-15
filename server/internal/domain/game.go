@@ -217,36 +217,8 @@ type GamesPaginatedFilter struct {
 	TagIDs            *[]uuid.UUID
 }
 
-// GameRecommendedPaginatedSort defines the field of the recommended game to sort.
-type GameRecommendedPaginatedSort string
-
-const (
-	GameRecommendedPaginatedSortTitle       GameRecommendedPaginatedSort = "title"
-	GameRecommendedPaginatedSortPrice       GameRecommendedPaginatedSort = "price"
-	GameRecommendedPaginatedSortReleaseDate GameRecommendedPaginatedSort = "releaseDate"
-	GameRecommendedPaginatedSortUserCount   GameRecommendedPaginatedSort = "userCount"
-)
-
-// Field returns the name of the field to sort by.
-func (s GameRecommendedPaginatedSort) Field() GameRecommendedPaginatedSort {
-	return s
-}
-
-// Valid returns true if the field is valid, false otherwise.
-func (s GameRecommendedPaginatedSort) Valid() bool {
-	switch s {
-	case GameRecommendedPaginatedSortTitle,
-		GameRecommendedPaginatedSortPrice,
-		GameRecommendedPaginatedSortReleaseDate,
-		GameRecommendedPaginatedSortUserCount:
-		return true
-	default:
-		return false
-	}
-}
-
 // GamesRecommendedPaginatedFilter defines the recommended games filter structure.
 type GamesRecommendedPaginatedFilter struct {
-	PaginatedRequest[GameRecommendedPaginatedSort]
+	PaginatedRequestBase
 	UserID *uuid.UUID
 }

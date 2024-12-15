@@ -419,18 +419,6 @@ paths:
           description: User to filter by.
           schema:
             $ref: "#/components/schemas/UUID"
-        - name: sort
-          in: query
-          description: Name of the field to sort by.
-          schema:
-            type: string
-            enum:
-              - title
-              - price
-              - releaseDate
-              - userCount
-            default: title
-        - $ref: "#/components/parameters/OrderQueryParam"
         - $ref: "#/components/parameters/LimitQueryParam"
         - $ref: "#/components/parameters/OffsetQueryParam"
       responses:

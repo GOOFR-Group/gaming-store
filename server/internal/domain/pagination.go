@@ -61,12 +61,17 @@ func (o PaginationOffset) Valid() bool {
 	return o >= paginationOffsetMinValue
 }
 
+// PaginatedRequestBase defines the paginated request base structure.
+type PaginatedRequestBase struct {
+	Limit  PaginationLimit  // Amount of resources to get for the provided filter.
+	Offset PaginationOffset // Amount of resources to skip for the provided filter.
+}
+
 // PaginatedRequest defines the paginated request structure.
 type PaginatedRequest[SortField any] struct {
-	Sort   PaginationSort[SortField] // Field to sort by.
-	Order  PaginationOrder           // Order to sort by.
-	Limit  PaginationLimit           // Amount of resources to get for the provided filter.
-	Offset PaginationOffset          // Amount of resources to skip for the provided filter.
+	PaginatedRequestBase
+	Sort  PaginationSort[SortField] // Field to sort by.
+	Order PaginationOrder           // Order to sort by.
 }
 
 // PaginatedResponse defines the paginated response structure.
