@@ -4,5 +4,5 @@
 export const GamesColumns = {
   title: "title",
   releaseDate: "releaseDate",
-  genres: "tags",
+  tags: "tags",
 } as const;

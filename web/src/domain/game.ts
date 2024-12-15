@@ -32,6 +32,12 @@ export interface GamesFilters {
   offset?: number;
   sort?: string;
   order?: string;
+  publisherId?: string;
   title?: string;
-  genres?: number[];
+  priceUnder?: number;
+  priceAbove?: number;
+  isActive?: boolean;
+  releaseDateBefore?: string;
+  releaseDateAfter?: string;
+  tagIds?: number[];
 }

@@ -6,7 +6,6 @@ import { PaginatedTags, TagFilters } from "@/domain/tag";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
-import { LANGUAGES_MAP } from "./constants";
 import {
   Conflict,
   ContentTooLarge,
@@ -212,16 +211,12 @@ export async function uploadMultimedia(file: File) {
 }
 
 /**
- * Retrieves the games of a publisher.
- * @param id Publisher ID.
+ * Retrieves the games.
  * @param filters Filters.
- * @returns Games of a publisher.
- * @throws {Unauthorized} Access token is invalid.
- * @throws {Forbidden} Forbidden access.
- * @throws {NotFound} Publisher not found.
+ * @returns Paginated games.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getPublisherGames(id: string, filters: GamesFilters) {
+export async function getGames(filters: GamesFilters) {
   const searchParams = new URLSearchParams();
   if (filters.limit) {
     searchParams.set("limit", String(filters.limit));
@@ -235,80 +230,39 @@ export async function getPublisherGames(id: string, filters: GamesFilters) {
   if (filters.order) {
     searchParams.set("order", filters.order);
   }
-  if (filters.title?.trim()) {
-    searchParams.set("title", filters.title.trim());
+  if (filters.publisherId) {
+    searchParams.set("publisherId", filters.publisherId);
   }
-  if (filters.genres) {
-    searchParams.set("genres", filters.genres.join(","));
+  if (filters.title) {
+    searchParams.set("title", filters.title);
+  }
+  if (filters.priceUnder) {
+    searchParams.set("priceUnder", String(filters.priceUnder));
+  }
+  if (filters.priceAbove) {
+    searchParams.set("priceAbove", String(filters.priceAbove));
+  }
+  if (filters.isActive) {
+    searchParams.set("isActive", String(filters.isActive));
+  }
+  if (filters.releaseDateBefore) {
+    searchParams.set("releaseDateBefore", filters.releaseDateBefore);
+  }
+  if (filters.releaseDateAfter) {
+    searchParams.set("releaseDateAfter", filters.releaseDateAfter);
+  }
+  if (filters.tagIds) {
+    filters.tagIds.forEach((tagId) =>
+      searchParams.append("tagIds", String(tagId)),
+    );
   }
 
-  // const response = await fetch(`/api/publisher/${id}/games?${searchParams}`, {
-  //   signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
-  const games: PaginatedGames = {
-    total: 1,
-    games: [
-      {
-        id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
-        publisherId: id,
-        title: "Jump Master",
-        price: 0,
-        isActive: false,
-        releaseDate: "2017-07-21",
-        description: "string",
-        features: "string",
-        tags: [
-          {
-            id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
-            name: "RPG",
-            description: "RPG",
-            createdAt: "2017-07-21T17:32:28Z",
-            modifiedAt: "2017-07-21T17:32:28Z",
-          },
-        ],
-        languages: [LANGUAGES_MAP.EN.code, LANGUAGES_MAP.PT.code],
-        requirements: {
-          minimum: "string",
-          recommended: "string",
-        },
-        previewMultimedia: {
-          id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
-          checksum: 0,
-          mediaType: "string",
-          url: "string",
-          createdAt: "2017-07-21T17:32:28Z",
-        },
-        downloadMultimedia: {
-          id: "9e3a65b0-0579-4203-8112-d09ab3c6b1ff",
-          checksum: 0,
-          mediaType: "string",
-          url: "string",
-          createdAt: "2017-07-21T17:32:28Z",
-        },
-        createdAt: "2017-07-21T17:32:28Z",
-        modifiedAt: "2017-07-21T17:32:28Z",
-      },
-    ],
-  };
-  const response = new Response(JSON.stringify(games), {
-    status: 200,
+  const response = await fetch(`/api/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
   });
 
   if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
+    throw new InternalServerError();
   }
 
   const paginatedGames = (await response.json()) as PaginatedGames;

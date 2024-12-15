@@ -5,7 +5,7 @@ import {
   queryOptions,
   useQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ColumnFiltersState,
   PaginationState,
@@ -24,10 +24,9 @@ import {
 } from "@/components/ui/card";
 import { GamesFilters } from "@/domain/game";
 import { useToast } from "@/hooks/use-toast";
-import { getPublisherGames } from "@/lib/api";
+import { getGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TOAST_MESSAGES } from "@/lib/constants";
-import { TokenMissing, Unauthorized } from "@/lib/errors";
 import { gamesQueryKey } from "@/lib/query-keys";
 
 /**
@@ -37,39 +36,39 @@ import { gamesQueryKey } from "@/lib/query-keys";
  * @param [sorting=[]] Sorting.
  * @returns Query options.
  */
-function publisherGamesQueryOptions(
+function gamesQueryOptions(
   columnFilters: ColumnFiltersState = [],
   pagination: PaginationState = { pageIndex: 0, pageSize: 10 },
   sorting: SortingState = [],
 ) {
+  const token = getToken();
+  const payload = decodeTokenPayload(token);
+  const publisherId = payload.sub;
+
   // Considers a single-column sort, since sorting by multiple columns at once
   // is not supported.
   const sort = sorting[0];
   const titleFilter = columnFilters.find(
     (filter) => filter.id === GamesColumns.title,
   );
-  const genresFilter = columnFilters.find(
-    (filter) => filter.id === GamesColumns.genres,
+  const tagsFilter = columnFilters.find(
+    (filter) => filter.id === GamesColumns.tags,
   );
   const filters: GamesFilters = {
     limit: pagination.pageSize,
     offset: pagination.pageSize * pagination.pageIndex,
     sort: sort?.id,
     order: sort ? (sort.desc ? "desc" : "asc") : undefined,
+    publisherId,
     title: titleFilter?.value as string,
-    genres: genresFilter?.value as number[],
+    tagIds: tagsFilter?.value as number[],
   };
 
   return queryOptions({
     queryKey: gamesQueryKey(filters),
     placeholderData: keepPreviousData,
     async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-      const publisherId = payload.sub;
-
-      const games = await getPublisherGames(publisherId, filters);
-
+      const games = await getGames(filters);
       return games;
     },
   });
@@ -77,15 +76,6 @@ function publisherGamesQueryOptions(
 
 export const Route = createFileRoute("/distribute/_layout/games/")({
   component: Component,
-  onError(error) {
-    if (error instanceof TokenMissing || error instanceof Unauthorized) {
-      redirect({
-        to: "/distribute/signin",
-        replace: true,
-        throw: true,
-      });
-    }
-  },
 });
 
 function Component() {
@@ -96,9 +86,7 @@ function Component() {
   });
   const [sorting, setSorting] = useState<SortingState>([]);
   const { toast } = useToast();
-  const query = useQuery(
-    publisherGamesQueryOptions(columnFilters, pagination, sorting),
-  );
+  const query = useQuery(gamesQueryOptions(columnFilters, pagination, sorting));
 
   const totalGames = query.data?.total ?? 0;
   const games = query.data?.games ?? [];

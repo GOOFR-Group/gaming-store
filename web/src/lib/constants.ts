@@ -299,3 +299,5 @@ export const TOAST_MESSAGES = {
     description: "Please try again later or contact the support team.",
   },
 } as const;
+
+export const TO_BE_ANNOUNCED = "To Be Announced";
