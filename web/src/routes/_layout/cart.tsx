@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -104,14 +104,23 @@ export const Route = createFileRoute("/_layout/cart")({
       opts.context.queryClient.ensureQueryData(userQueryOptions()),
     ]);
 
+    if (!cartData || !userData) {
+      redirect({
+        to: "/signin",
+        replace: true,
+        throw: true,
+      });
+    }
+
     return { cart: cartData, user: userData };
   },
 });
 
 function Component() {
-  const { data } = useSuspenseQuery(cartQueryOptions());
+  const { data: cart } = useSuspenseQuery(cartQueryOptions());
   const { data: user } = useSuspenseQuery(userQueryOptions());
-  const [cartItems, setCartItems] = useState(data.games);
+
+  const [cartItems, setCartItems] = useState(cart.games);
   const accountBalance = user.balance; // Placeholder account balance
 
   async function removeItem(id: string) {

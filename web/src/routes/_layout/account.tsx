@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  QueryKey,
   queryOptions,
   useMutation,
   useQueryClient,
@@ -70,10 +69,9 @@ import { getUser, updateUser, uploadMultimedia } from "@/lib/api";
 import { clearToken, decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES, COUNTRIES_MAP } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { userQueryKey } from "@/lib/query-keys";
 import { cn, formatCurrency, getInitials } from "@/lib/utils";
 import { accountDetailsSchema } from "@/lib/zod";
-
-const userQueryKey: QueryKey = ["user"];
 
 /**
  * Query options for retrieving the signed in user.
@@ -110,9 +108,8 @@ export const Route = createFileRoute("/_layout/account")({
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
-  const query = useSuspenseQuery(userQueryOptions());
+  const { data: user } = useSuspenseQuery(userQueryOptions());
 
-  const user = query.data;
   const country =
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
