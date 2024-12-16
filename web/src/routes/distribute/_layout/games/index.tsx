@@ -5,7 +5,7 @@ import {
   queryOptions,
   useQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   ColumnFiltersState,
   PaginationState,
@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/card";
 import { GamesFilters } from "@/domain/game";
 import { useToast } from "@/hooks/use-toast";
-import { getGames } from "@/lib/api";
+import { getGames, getPublisher } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TOAST_MESSAGES } from "@/lib/constants";
-import { gamesQueryKey } from "@/lib/query-keys";
+import { gamesQueryKey, publisherQueryKey } from "@/lib/query-keys";
 
 /**
  * Query options for retrieving the games of the signed in publisher.
@@ -74,8 +74,37 @@ function gamesQueryOptions(
   });
 }
 
+/**
+ * Query options for retrieving the signed in publisher.
+ * @returns Query options.
+ */
+function publisherQueryOptions() {
+  return queryOptions({
+    queryKey: publisherQueryKey,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const publisherId = payload.sub;
+      const publisher = await getPublisher(publisherId);
+
+      return publisher;
+    },
+  });
+}
+
 export const Route = createFileRoute("/distribute/_layout/games/")({
   component: Component,
+  loader(opts) {
+    return opts.context.queryClient.ensureQueryData(publisherQueryOptions());
+  },
+  onError() {
+    redirect({
+      to: "/signin",
+      replace: true,
+      throw: true,
+    });
+  },
 });
 
 function Component() {
