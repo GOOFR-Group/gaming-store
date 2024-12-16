@@ -10,7 +10,7 @@ export interface Game {
   title: string;
   price: number;
   isActive: boolean;
-  releaseDate: string;
+  releaseDate?: string;
   description: string;
   features: string;
   tags: Tag[];
@@ -20,7 +20,7 @@ export interface Game {
     recommended: string;
   };
   previewMultimedia: Multimedia;
-  downloadMultimedia: Multimedia;
+  downloadMultimedia?: Multimedia;
   createdAt: string;
   modifiedAt: string;
 }
