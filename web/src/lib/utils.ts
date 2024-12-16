@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { COUNTRIES_MAP, LANGUAGES_MAP } from "./constants";
+
 /**
  * Utility function to apply conditional styles using Tailwind CSS.
  * @param classes Tailwind CSS classes to be merged.
@@ -54,7 +56,7 @@ export function getInitials(name: string) {
 export function getCountryName(code: string) {
   const codeUpperCase = code.toUpperCase();
 
-  if (codeUpperCase in LANGUAGES_MAP) {
+  if (codeUpperCase in COUNTRIES_MAP) {
     return COUNTRIES_MAP[codeUpperCase as keyof typeof COUNTRIES_MAP].name;
   }
 

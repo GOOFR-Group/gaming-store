@@ -1,5 +1,5 @@
 import { ApiError } from "@/domain/error";
-import { GamesFilters, PaginatedGames } from "@/domain/game";
+import { Game, GamesFilters, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
