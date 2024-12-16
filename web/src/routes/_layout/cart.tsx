@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Game } from "@/domain/game";
 import { toast } from "@/hooks/use-toast";
 import { getUser, removeGameFromCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
@@ -58,15 +59,39 @@ function cartQueryOptions() {
   return queryOptions({
     queryKey: cartQueryKey,
     queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
-        return {
-          id: idx + 1,
-          title: "Cosmic Explorers",
-          price: 59.99,
-          developer: "Stellar Games",
-          image: "/images/game.jpg",
-        };
-      });
+      const cart: { games: Game[] } = {
+        games: Array.from({ length: 5 }, (_, idx) => {
+          return {
+            id: (idx + 1).toString(),
+            title: "Epic Adventure",
+            publisher: "Stellareref Games",
+            genres: ["action", "rpg"],
+            releaseDate: new Date("2023-12-01"),
+            about:
+              "Epic Adventure is an immersive action RPG that takes you on a journey through a vast, open world filled with danger and excitement.",
+            features:
+              "Expansive open world\nDeep character customization\nEpic boss battles\nMultiplayer co-op mode",
+            languages: ["en", "es", "fr", "de"],
+            systemRequirements: {
+              minimum:
+                "OS: Windows 10 64-bit\nProcessor: Intel Core i5-6600K or AMD Ryzen 5 1600\nMemory: 8 GB RAM\nGraphics: NVIDIA GeForce GTX 1060 or AMD Radeon RX 580\nStorage: 50 GB available space (SSD recommended)",
+              recommended:
+                "OS: Windows 10 64-bit\nProcessor: Intel Core i7-8700K or AMD Ryzen 7 3700X\nMemory: 16 GB RAM\nGraphics: NVIDIA GeForce RTX 2070 SUPER or AMD Radeon RX 5700 XT",
+            },
+            screenshots: [
+              "/images/game.jpg",
+              "/images/game.jpg",
+              "/images/game.jpg",
+              "/images/game.jpg",
+            ],
+            ageRating: 18,
+            price: 29.99,
+            isActive: false,
+          };
+        }),
+      };
+
+      return cart;
     },
   });
 }
@@ -86,10 +111,10 @@ export const Route = createFileRoute("/_layout/cart")({
 function Component() {
   const { data } = useSuspenseQuery(cartQueryOptions());
   const { data: user } = useSuspenseQuery(userQueryOptions());
-  const [cartItems, setCartItems] = useState(data);
+  const [cartItems, setCartItems] = useState(data.games);
   const accountBalance = user.balance; // Placeholder account balance
 
-  async function removeItem(id: number) {
+  async function removeItem(id: string) {
     try {
       await removeGameFromCart("", id.toString());
     } catch {
@@ -103,7 +128,7 @@ function Component() {
     setCartItems(cartItems.filter((item) => item.id !== id));
   }
 
-  function moveItemToWishlist(id: number) {
+  function moveItemToWishlist(id: string) {
     setCartItems(cartItems.filter((item) => item.id !== id));
   }
 
@@ -128,7 +153,7 @@ function Component() {
                 <img
                   alt={item.title}
                   className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
-                  src={item.image}
+                  src={item.screenshots[0]}
                   width={100}
                 />
                 <div className="flex-grow flex flex-col justify-between">
@@ -136,7 +161,7 @@ function Component() {
                     <div>
                       <h2 className="text-lg font-semibold">{item.title}</h2>
                       <p className="text-sm text-muted-foreground">
-                        {item.developer}
+                        {item.publisher}
                       </p>
                     </div>
                     <p className="text-lg font-semibold">
