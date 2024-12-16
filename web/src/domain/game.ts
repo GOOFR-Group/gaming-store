@@ -13,8 +13,8 @@ export interface Game {
   isActive: boolean;
   releaseDate?: string;
   description: string;
+  ageRating: string;
   features: string;
-  tags: Tag[];
   languages: string[];
   requirements: {
     minimum: string;
@@ -22,6 +22,7 @@ export interface Game {
   };
   previewMultimedia: Multimedia;
   downloadMultimedia?: Multimedia;
+  tags: Tag[];
   createdAt: string;
   modifiedAt: string;
 }
