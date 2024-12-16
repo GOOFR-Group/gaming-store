@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -124,7 +124,9 @@ function Component() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Proceed to Checkout</Button>
+              <Link href="/payment">
+                <Button className="w-full">Proceed to Checkout</Button>
+              </Link>
             </CardFooter>
           </Card>
         </div>
