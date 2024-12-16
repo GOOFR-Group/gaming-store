@@ -22,6 +22,7 @@ export interface Game {
   };
   previewMultimedia: Multimedia;
   downloadMultimedia?: Multimedia;
+  multimedia: Multimedia[];
   tags: Tag[];
   createdAt: string;
   modifiedAt: string;
