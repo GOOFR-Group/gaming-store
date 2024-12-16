@@ -117,7 +117,7 @@ function Component() {
     onError(error) {
       if (error instanceof Conflict) {
         switch (error.code) {
-          case "user_email_already_exists":
+          case "publisher_email_already_exists":
             form.setError("email", { message: "Email already exists" });
             break;
 
