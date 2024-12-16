@@ -23,3 +23,8 @@ export function gameQueryKey(id: string): QueryKey {
  * Query key used when fetching the cart information.
  */
 export const cartQueryKey: QueryKey = ["cart"];
+
+/**
+ * Query key used when fetching the publisher information.
+ */
+export const publisherQueryKey: QueryKey = ["publisher"];

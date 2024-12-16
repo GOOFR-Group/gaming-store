@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { queryOptions } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -28,9 +29,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getPublisher } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { publisherQueryKey } from "@/lib/query-keys";
+
+/**
+ * Query options for retrieving the signed in publisher.
+ * @returns Query options.
+ */
+function publisherQueryOptions() {
+  return queryOptions({
+    queryKey: publisherQueryKey,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const publisherId = payload.sub;
+      const publisher = await getPublisher(publisherId);
+
+      return publisher;
+    },
+  });
+}
 
 export const Route = createFileRoute("/distribute/_layout/games/")({
   component: Component,
+  loader(opts) {
+    return opts.context.queryClient.ensureQueryData(publisherQueryOptions());
+  },
+  onError() {
+    redirect({
+      to: "/signin",
+      replace: true,
+      throw: true,
+    });
+  },
 });
 
 const data: Game[] = [
