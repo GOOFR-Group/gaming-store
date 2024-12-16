@@ -176,6 +176,50 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
+  /users/{userId}/games:
+    get:
+      summary: List user's game library.
+      operationId: listUserGames
+      description: Returns the user's game library with the specified filter.
+      tags:
+        - User
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - gameTitle
+              - gamePrice
+              - gameReleaseDate
+            default: gameTitle
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
   /publishers:
     post:
       summary: Create a publisher.
