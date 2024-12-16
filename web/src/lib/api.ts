@@ -1,4 +1,5 @@
 import { ApiError } from "@/domain/error";
+import { GameList } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
@@ -116,6 +117,55 @@ export async function getUser(id: string) {
   }
 
   const user = (await response.json()) as User;
+
+  return user;
+}
+
+/**
+ * Retrieves a user given a user ID.
+ * @param userId User ID.
+ * @param asc order of the content, true by default.
+ * @param limit limit of items, 100 by default.
+ * @param offset element where it starts, 0 by default.
+ * @returns GameList.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User not found.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getUserGames(
+  userId: string,
+  asc: boolean = true,
+  limit: number = 100,
+  offset: number = 0,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/users/${userId}/games?sort=gameTitle&order=${asc ? "asc" : "desc"}&limit=${limit}&offset=${offset}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const user = (await response.json()) as GameList;
 
   return user;
 }

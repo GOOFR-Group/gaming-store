@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getUser } from "@/lib/api";
+import { getUser, getUserGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
@@ -36,8 +36,9 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
+      const library = await getUserGames(userId);
 
-      return user;
+      return { user, library };
     },
   });
 }
@@ -58,9 +59,10 @@ export const Route = createFileRoute("/_layout/account")({
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
-  const query = useSuspenseQuery(userQueryOptions());
+  const userQuery = useSuspenseQuery(userQueryOptions());
 
-  const user = query.data;
+  const { user, library } = userQuery.data;
+
   const country =
     COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
       ?.name ?? "-";
@@ -106,18 +108,11 @@ function Component() {
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
-              <h3 className="text-lg font-semibold mb-2">My Games</h3>
+              <h3 className="text-lg font-semibold mb-2">My Games </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  "Game 1",
-                  "Game 2",
-                  "Game 3",
-                  "Game 4",
-                  "Game 5",
-                  "Game 6",
-                ].map((game) => (
-                  <div key={game}>
-                    <Link href="/games/1">
+                {library.games.map((game) => (
+                  <div key={game.id}>
+                    <Link href={`/games/${game.id}`}>
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
@@ -126,8 +121,10 @@ function Component() {
                     </Link>
                     <div className="p-4 flex items-center justify-between flex-wrap">
                       <div>
-                        <p className="text-sm text-gray-400">Stellar Games</p>
-                        <h3 className="text-xl font-semibold">{game}</h3>
+                        <p className="text-sm text-gray-400">
+                          {game.publisher.name}
+                        </p>
+                        <h3 className="text-xl font-semibold">{game.title}</h3>
                       </div>
                       <Button size="icon" variant="secondary">
                         <Download className="size-5" />
