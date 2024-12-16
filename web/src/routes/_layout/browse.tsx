@@ -19,7 +19,7 @@ import { gamesQueryKey } from "@/lib/query-keys";
 
 function gamesQueryOptions() {
   return queryOptions({
-    queryKey: gamesQueryKey,
+    queryKey: gamesQueryKey(),
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {

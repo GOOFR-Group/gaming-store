@@ -96,3 +96,19 @@ func getMultimediaFromRow(row pgx.Row) (domain.Multimedia, error) {
 
 	return multimedia, nil
 }
+
+// getMultimediaFromRows returns the multimedia by scanning the given rows.
+func getMultimediaFromRows(rows pgx.Rows) ([]domain.Multimedia, error) {
+	var multimedia []domain.Multimedia
+
+	for rows.Next() {
+		m, err := getMultimediaFromRow(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		multimedia = append(multimedia, m)
+	}
+
+	return multimedia, nil
+}
