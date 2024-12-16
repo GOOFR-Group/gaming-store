@@ -26,6 +26,17 @@ declare module "@tanstack/react-router" {
   }
 }
 
+declare module "@tanstack/react-table" {
+  // Type parameters are still necessary since ColumnMeta requires identical type parameters.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData, TValue> {
+    /**
+     * Column name.
+     */
+    name: string;
+  }
+}
+
 const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {

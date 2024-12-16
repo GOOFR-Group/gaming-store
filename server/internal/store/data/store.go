@@ -18,8 +18,10 @@ import (
 
 // Common failure descriptions.
 const (
-	descriptionFailedScanRow = "store: failed to scan row"
-	descriptionFailedExec    = "store: failed to exec"
+	descriptionFailedQuery    = "store: failed to query"
+	descriptionFailedExec     = "store: failed to exec"
+	descriptionFailedScanRow  = "store: failed to scan row"
+	descriptionFailedScanRows = "store: failed to scan rows"
 )
 
 // migrationsURL defines the source url of the migrations.

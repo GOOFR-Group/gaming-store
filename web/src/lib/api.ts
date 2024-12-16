@@ -1,4 +1,5 @@
 import { ApiError } from "@/domain/error";
+import { GamesFilters, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import {
@@ -6,6 +7,7 @@ import {
   Publisher,
   PublisherCredentials,
 } from "@/domain/publisher";
+import { PaginatedTags, TagFilters } from "@/domain/tag";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -203,8 +205,8 @@ export async function createPublisher(newPublisher: NewPublisher) {
 }
 
 /**
- * Signs in a user with their credentials.
- * @param credentials User credentials.
+ * Signs in a publisher with their credentials.
+ * @param credentials Publisher credentials.
  * @returns JWT.
  * @throws {Unauthorized} Incorrect credentials.
  * @throws {InternalServerError} Server internal error.
@@ -213,7 +215,6 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const response = await fetch("/api/publishers/signin", {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -305,4 +306,99 @@ export async function uploadMultimedia(file: File) {
   const multimedia = (await response.json()) as Multimedia;
 
   return multimedia;
+}
+
+/**
+ * Retrieves the games.
+ * @param filters Filters.
+ * @returns Paginated games.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getGames(filters: GamesFilters) {
+  const searchParams = new URLSearchParams();
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters.order) {
+    searchParams.set("order", filters.order);
+  }
+  if (filters.publisherId) {
+    searchParams.set("publisherId", filters.publisherId);
+  }
+  if (filters.title) {
+    searchParams.set("title", filters.title);
+  }
+  if (filters.priceUnder) {
+    searchParams.set("priceUnder", String(filters.priceUnder));
+  }
+  if (filters.priceAbove) {
+    searchParams.set("priceAbove", String(filters.priceAbove));
+  }
+  if (filters.isActive) {
+    searchParams.set("isActive", String(filters.isActive));
+  }
+  if (filters.releaseDateBefore) {
+    searchParams.set("releaseDateBefore", filters.releaseDateBefore);
+  }
+  if (filters.releaseDateAfter) {
+    searchParams.set("releaseDateAfter", filters.releaseDateAfter);
+  }
+  if (filters.tagIds) {
+    filters.tagIds.forEach((tagId) =>
+      searchParams.append("tagIds", String(tagId)),
+    );
+  }
+
+  const response = await fetch(`/api/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
+
+  if (response.status >= 400) {
+    throw new InternalServerError();
+  }
+
+  const paginatedGames = (await response.json()) as PaginatedGames;
+
+  return paginatedGames;
+}
+
+/**
+ * Retrieves the tags.
+ * @param filters Tags filters.
+ * @returns Tags.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getTags(filters: TagFilters) {
+  const searchParams = new URLSearchParams();
+
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters.order) {
+    searchParams.set("order", filters.order);
+  }
+
+  const response = await fetch(`/api/tags?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
+
+  if (response.status >= 400) {
+    throw new InternalServerError();
+  }
+
+  const paginatedTags = (await response.json()) as PaginatedTags;
+
+  return paginatedTags;
 }

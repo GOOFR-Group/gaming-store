@@ -23,4 +23,15 @@ const (
 	PublisherAddress = "publisher.address"
 	PublisherCountry = "publisher.country"
 	PublisherVatin   = "publisher.vatin"
+
+	GameID                  = "game.id"
+	GameTitle               = "game.title"
+	GamePrice               = "game.price"
+	GameIsActive            = "game.isActive"
+	GameAgeRating           = "game.ageRating"
+	GamePreviewMultimediaID = "game.previewMultimediaID"
+
+	TagID = "tag.id"
+
+	MultimediaID = "multimedia.id"
 )

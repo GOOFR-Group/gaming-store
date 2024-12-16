@@ -40,7 +40,19 @@ func (h *handler) CreatePublisher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	domainEditablePublisher := publisherPostToDomain(publisherPost)
+	domainEditablePublisher, err := publisherPostToDomain(publisherPost)
+	if err != nil {
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
+
+		switch {
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
 
 	domainPublisher, err := h.service.CreatePublisher(ctx, domainEditablePublisher)
 	if err != nil {
@@ -122,7 +134,19 @@ func (h *handler) PatchPublisherByID(w http.ResponseWriter, r *http.Request, pub
 		return
 	}
 
-	domainEditablePublisher := publisherPatchToDomain(publisherPatch)
+	domainEditablePublisher, err := publisherPatchToDomain(publisherPatch)
+	if err != nil {
+		var domainFieldValueInvalidError *domain.FieldValueInvalidError
+
+		switch {
+		case errors.As(err, &domainFieldValueInvalidError):
+			badRequest(w, codeFieldValueInvalid, fmt.Sprintf("%s: %s", errFieldValueInvalid, domainFieldValueInvalidError.FieldName))
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
 
 	domainPublisher, err := h.service.PatchPublisher(ctx, publisherID, domainEditablePublisher)
 	if err != nil {
@@ -203,49 +227,58 @@ func (h *handler) SignInPublisher(w http.ResponseWriter, r *http.Request) {
 }
 
 // publisherPostToDomain returns a domain editable publisher with password based on the standardized publisher post.
-func publisherPostToDomain(publisherPost api.PublisherPost) domain.EditablePublisherWithPassword {
+func publisherPostToDomain(publisherPost api.PublisherPost) (domain.EditablePublisherWithPassword, error) {
+	country, err := countryToDomain(publisherPost.Country)
+	if err != nil {
+		return domain.EditablePublisherWithPassword{}, err
+	}
+
 	return domain.EditablePublisherWithPassword{
 		EditablePublisher: domain.EditablePublisher{
 			Email:               domain.Email(publisherPost.Email),
 			Name:                domain.Name(publisherPost.Name),
 			Address:             domain.Address(publisherPost.Address),
-			Country:             domain.Country(publisherPost.Country),
+			Country:             country,
 			Vatin:               domain.Vatin(publisherPost.Vatin),
 			PictureMultimediaID: publisherPost.PictureMultimediaId,
 		},
 		Password: domain.Password(publisherPost.Password),
-	}
+	}, nil
 }
 
 // publisherPatchToDomain returns a domain patchable publisher based on the standardized publisher patch.
-func publisherPatchToDomain(publisherPatch api.PublisherPatch) domain.EditablePublisherPatch {
+func publisherPatchToDomain(publisherPatch api.PublisherPatch) (domain.EditablePublisherPatch, error) {
+	var country *domain.Country
+
+	if publisherPatch.Country != nil {
+		temp, err := countryToDomain(*publisherPatch.Country)
+		if err != nil {
+			return domain.EditablePublisherPatch{}, err
+		}
+
+		country = &temp
+	}
+
 	return domain.EditablePublisherPatch{
 		Email:               (*domain.Email)(publisherPatch.Email),
 		Name:                (*domain.Name)(publisherPatch.Name),
 		Address:             (*domain.Address)(publisherPatch.Address),
-		Country:             (*domain.Country)(publisherPatch.Country),
+		Country:             country,
 		Vatin:               (*domain.Vatin)(publisherPatch.Vatin),
 		PictureMultimediaID: publisherPatch.PictureMultimediaId,
-	}
+	}, nil
 }
 
 // publisherFromDomain returns a standardized publisher based on the domain model.
 func publisherFromDomain(publisher domain.Publisher) api.Publisher {
-	var pictureMultimedia *api.Multimedia
-
-	if publisher.PictureMultimedia != nil {
-		multimedia := multimediaFromDomain(*publisher.PictureMultimedia)
-		pictureMultimedia = &multimedia
-	}
-
 	return api.Publisher{
 		Id:                publisher.ID,
 		Email:             string(publisher.Email),
 		Name:              string(publisher.Name),
 		Address:           string(publisher.Address),
-		Country:           string(publisher.Country),
+		Country:           publisher.Country.String(),
 		Vatin:             string(publisher.Vatin),
-		PictureMultimedia: pictureMultimedia,
+		PictureMultimedia: optionalMultimediaFromDomain(publisher.PictureMultimedia),
 		CreatedAt:         publisher.CreatedAt,
 		ModifiedAt:        publisher.ModifiedAt,
 	}
