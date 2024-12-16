@@ -1,4 +1,5 @@
 import { Multimedia } from "./multimedia";
+import { Publisher } from "./publisher";
 import { Tag } from "./tag";
 
 /**
@@ -6,7 +7,7 @@ import { Tag } from "./tag";
  */
 export interface Game {
   id: string;
-  publisherId: string;
+  publisher: Publisher;
   title: string;
   price: number;
   isActive: boolean;
