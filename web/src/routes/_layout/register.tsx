@@ -40,7 +40,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
-import { COUNTRIES } from "@/lib/constants";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { accountDetailsSchema, passwordRefinement } from "@/lib/zod";
@@ -130,11 +130,7 @@ function Component() {
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 

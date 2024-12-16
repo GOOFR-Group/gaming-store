@@ -26,6 +26,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
+import { TOAST_MESSAGES } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
@@ -56,11 +57,7 @@ export function AddFunds(props: { id: string; balance: number }) {
       setOpen(false);
     },
     onError() {
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 

@@ -1,8 +1,6 @@
 import { Table } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
 
-import { camelCaseToTitleCase } from "@/lib/utils";
-
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -23,11 +21,7 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          className="ml-auto hidden h-8 lg:flex"
-          size="sm"
-          variant="outline"
-        >
+        <Button className="ml-auto h-8 lg:flex" size="sm" variant="outline">
           <Settings2 className="mr-2 size-4" />
           View
         </Button>
@@ -49,7 +43,7 @@ export function DataTableViewOptions<TData>({
                 className="capitalize"
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {camelCaseToTitleCase(column.id)}
+                {column.columnDef.meta?.name}
               </DropdownMenuCheckboxItem>
             );
           })}
