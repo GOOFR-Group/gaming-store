@@ -124,7 +124,7 @@ function Component() {
               </div>
             </CardContent>
             <CardFooter>
-              <Link href="/payment">
+              <Link className="w-full" href="/payment">
                 <Button className="w-full">Proceed to Checkout</Button>
               </Link>
             </CardFooter>

@@ -36,7 +36,7 @@ const purchaseItems = [
 export default function PaymentPage() {
     return (
         <div className="container mx-auto py-10">
-            <h1 className="text-3xl font-bold mb-6">Complete Your Purchase</h1>
+            <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
             <div className="grid md:grid-cols-2 gap-6">
                 <PaymentForm />
                 <PurchaseSummary />
@@ -75,137 +75,143 @@ export function PaymentForm() {
     }
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Billing Details</h2>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="John Doe" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input type="email" placeholder="johndoe@example.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Address</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="123 Gaming Street" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>City</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="New York" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="country"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Country</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="United States" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <FormField
-                        control={form.control}
-                        name="zipCode"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Zip Code</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="12345" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="cardNumber"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Card Number</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="1234 5678 9012 3456" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="expiryDate"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Expiry Date</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="MM/YY" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="cvv"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>CVV</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="123" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Processing...' : 'Complete Payment'}
-                    </Button>
-                </form>
-            </Form>
-        </div>
+        <Card className='ml-4'>
+            <CardHeader>
+                <CardTitle>Billing Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-6">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <FormField
+                                control={form.control}
+                                name="fullName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="John Doe" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" placeholder="johndoe@example.com" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Address</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="123 Gaming Street" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="city"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>City</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="New York" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="country"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Country</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="United States" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="zipCode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Zip Code</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="12345" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="cardNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Card Number</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="1234 5678 9012 3456" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="expiryDate"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Expiry Date</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="MM/YY" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="cvv"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>CVV</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="123" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Processing...' : 'Complete Payment'}
+                            </Button>
+                        </form>
+                    </Form>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
 
@@ -215,7 +221,7 @@ export function PurchaseSummary() {
     const total = subtotal + tax
 
     return (
-        <Card>
+        <Card className='mr-4'>
             <CardHeader>
                 <CardTitle>Purchase Summary</CardTitle>
             </CardHeader>
