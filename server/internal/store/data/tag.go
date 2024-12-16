@@ -11,12 +11,12 @@ import (
 
 // ListTags executes a query to return the tags for the specified filter.
 func (s *store) ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPaginatedFilter) (domain.PaginatedResponse[domain.Tag], error) {
-	var total int
-
 	row := tx.QueryRow(ctx, `
 		SELECT count(t.id) 
 		FROM tags t
 	`)
+
+	var total int
 
 	err := row.Scan(&total)
 	if err != nil {

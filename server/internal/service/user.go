@@ -240,7 +240,7 @@ func (s *service) SignInUser(ctx context.Context, username domain.Username, emai
 	email = domain.Email(strings.ToLower(string(email)))
 
 	var (
-		signIn domain.SignIn
+		signIn domain.SignInUser
 		err    error
 	)
 

@@ -1,8 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { COUNTRIES_MAP, LANGUAGES_MAP } from "./constants";
-
 /**
  * Utility function to apply conditional styles using Tailwind CSS.
  * @param classes Tailwind CSS classes to be merged.

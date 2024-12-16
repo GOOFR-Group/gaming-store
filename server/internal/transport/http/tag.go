@@ -25,11 +25,11 @@ func (h *handler) ListTags(w http.ResponseWriter, r *http.Request, params api.Li
 
 	domainPaginatedTags, err := h.service.ListTags(ctx, domainTagsFilter)
 	if err != nil {
-		var domainErrFilterValueInvalid *domain.FilterValueInvalidError
+		var domainFilterValueInvalidError *domain.FilterValueInvalidError
 
 		switch {
-		case errors.As(err, &domainErrFilterValueInvalid):
-			badRequest(w, codeFilterValueInvalid, fmt.Sprintf("%s: %s", errFilterValueInvalid, domainErrFilterValueInvalid.FilterName))
+		case errors.As(err, &domainFilterValueInvalidError):
+			badRequest(w, codeFilterValueInvalid, fmt.Sprintf("%s: %s", errFilterValueInvalid, domainFilterValueInvalidError.FilterName))
 		default:
 			internalServerError(w)
 		}

@@ -11,6 +11,7 @@ const (
 	FieldEmail                = "email"
 	FieldPassword             = "password"
 	FieldDisplayName          = "displayName"
+	FieldName                 = "name"
 	FieldDateOfBirth          = "dateOfBirth"
 	FieldAddress              = "address"
 	FieldCountry              = "country"

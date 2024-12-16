@@ -9,16 +9,16 @@ interface ToBeAnnouncedGame {
   price: number;
   isActive: boolean;
   description: string;
-  features: string;
   ageRating: string;
-  multimedia: Multimedia[];
-  tags: Tag[];
+  features: string;
   languages: string[];
   requirements: {
     minimum: string;
     recommended: string;
   };
   previewMultimedia: Multimedia;
+  multimedia: Multimedia[];
+  tags: Tag[];
   createdAt: string;
   modifiedAt: string;
 }
@@ -28,18 +28,33 @@ interface AnnouncedGame extends ToBeAnnouncedGame {
   downloadMultimedia: Multimedia;
 }
 
+/**
+ * Represents a game.
+ */
 export type Game = AnnouncedGame | ToBeAnnouncedGame;
 
+/**
+ * Represents games with pagination.
+ */
 export interface PaginatedGames {
   games: Game[];
   total: number;
 }
 
+/**
+ * Represents the filters available for filtering games.
+ */
 export interface GamesFilters {
   limit?: number;
   offset?: number;
   sort?: string;
   order?: string;
+  publisherId?: string;
   title?: string;
-  genres?: number[];
+  priceUnder?: number;
+  priceAbove?: number;
+  isActive?: boolean;
+  releaseDateBefore?: string;
+  releaseDateAfter?: string;
+  tagIds?: number[];
 }
