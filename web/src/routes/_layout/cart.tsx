@@ -11,10 +11,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
+import { getUser, removeGameFromCart } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
+
+// /**
+//  * Query options for retrieving the signed in user's cart.
+//  * @returns Query options.
+//  */
+// function cartQueryOptions() {
+//   return queryOptions({
+//     queryKey: cartQueryKey,
+//     async queryFn() {
+//       const token = getToken();
+//       const payload = decodeTokenPayload(token);
+
+//       const userId = payload.sub;
+//       const cart = await getUserCart(userId);
+
+//       return cart;
+//     },
+//   });
+// }
+
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+  return queryOptions({
+    queryKey: userQueryKey,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const user = await getUser(userId);
+
+      return user;
+    },
+  });
+}
 
 function cartQueryOptions() {
   return queryOptions({
-    queryKey: ["cart"],
+    queryKey: cartQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {
@@ -31,17 +73,37 @@ function cartQueryOptions() {
 
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
-  loader(opts) {
-    return opts.context.queryClient.ensureQueryData(cartQueryOptions());
+  async loader(opts) {
+    const [cartData, userData] = await Promise.all([
+      opts.context.queryClient.ensureQueryData(cartQueryOptions()),
+      opts.context.queryClient.ensureQueryData(userQueryOptions()),
+    ]);
+
+    return { cart: cartData, user: userData };
   },
 });
 
 function Component() {
   const { data } = useSuspenseQuery(cartQueryOptions());
+  const { data: user } = useSuspenseQuery(userQueryOptions());
   const [cartItems, setCartItems] = useState(data);
-  const accountBalance = 500.0; // Placeholder account balance
+  const accountBalance = user.balance; // Placeholder account balance
 
-  function removeItem(id: number) {
+  async function removeItem(id: number) {
+    try {
+      await removeGameFromCart("", id.toString());
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+      return;
+    }
+    setCartItems(cartItems.filter((item) => item.id !== id));
+  }
+
+  function moveItemToWishlist(id: number) {
     setCartItems(cartItems.filter((item) => item.id !== id));
   }
 
@@ -93,7 +155,7 @@ function Component() {
                     <Button
                       aria-label={`Move ${item.title} to wishlist`}
                       variant="ghost"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => moveItemToWishlist(item.id)}
                     >
                       Move to wishlist
                     </Button>

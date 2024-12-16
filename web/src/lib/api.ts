@@ -1,3 +1,4 @@
+import { Cart } from "@/domain/cart";
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
@@ -89,9 +90,46 @@ export async function signInUser(credentials: UserCredentials) {
 }
 
 /**
- * Signs in a user with their credentials.
- * @param credentials User credentials.
- * @returns JWT.
+ * Retrieves the user's cart.
+ * @param userId.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getUserCart(userId: string) {
+  try {
+    const token = getToken();
+
+    const response = await fetch(`/api/user/${userId}/cart}`, {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status >= 400) {
+      const error = (await response.json()) as ApiError;
+      switch (response.status) {
+        case 401:
+          throw new Unauthorized(error.code, error.message);
+        default:
+          throw new InternalServerError();
+      }
+    }
+
+    const cart = (await response.json()) as Cart;
+
+    return cart;
+  } catch {
+    /* empty */
+  }
+}
+
+/**
+ * Adds a game to cart.
+ * @param userId.
+ * @param gameId.
  * @throws {Unauthorized} Incorrect credentials.
  * @throws {InternalServerError} Server internal error.
  */
@@ -101,6 +139,36 @@ export async function addGameToCart(userId: string, gameId: string) {
   const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Removes a game from cart.
+ * @param userId.
+ * @param gameId.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function removeGameFromCart(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
