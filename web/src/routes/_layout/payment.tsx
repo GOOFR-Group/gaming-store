@@ -172,47 +172,6 @@ export function PaymentForm() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="cardNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Card Number</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="1234 5678 9012 3456" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="expiryDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Expiry Date</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="MM/YY" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="cvv"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>CVV</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="123" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
                             <Button className="w-full" disabled={isSubmitting} type="submit">
                                 {isSubmitting ? 'Processing...' : 'Complete Payment'}
                             </Button>
