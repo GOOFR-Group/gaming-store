@@ -203,8 +203,8 @@ export async function createPublisher(newPublisher: NewPublisher) {
 }
 
 /**
- * Signs in a user with their credentials.
- * @param credentials User credentials.
+ * Signs in a publisher with their credentials.
+ * @param credentials Publisher credentials.
  * @returns JWT.
  * @throws {Unauthorized} Incorrect credentials.
  * @throws {InternalServerError} Server internal error.

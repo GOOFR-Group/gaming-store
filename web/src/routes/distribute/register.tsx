@@ -135,6 +135,10 @@ function Component() {
     },
   });
 
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
   function onSubmit(data: RegisterSchemaType) {
     mutation.mutate(data);
   }
