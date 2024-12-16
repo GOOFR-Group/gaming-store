@@ -1,7 +1,11 @@
 import { ApiError } from "@/domain/error";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
-import { NewPublisher, PublisherCredentials } from "@/domain/publisher";
+import {
+  NewPublisher,
+  Publisher,
+  PublisherCredentials,
+} from "@/domain/publisher";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -168,9 +172,9 @@ export async function updateUser(id: string, details: EditableUser) {
 
 /**
  * Creates a new publisher.
- * @param newPublisher User to be created.
- * @returns a NewPublisher instance.
- * @throws {Conflict} Username, email or vatin already exist.
+ * @param newPublisher Publisher to be created.
+ * @returns Publisher created.
+ * @throws {Conflict} Email or vatin already exist.
  * @throws {InternalServerError} Server internal error.
  */
 export async function createPublisher(newPublisher: NewPublisher) {
@@ -193,9 +197,9 @@ export async function createPublisher(newPublisher: NewPublisher) {
     }
   }
 
-  const user = (await response.json()) as User;
+  const publisher = (await response.json()) as Publisher;
 
-  return user;
+  return publisher;
 }
 
 /**
@@ -232,7 +236,7 @@ export async function signInPublisher(credentials: PublisherCredentials) {
 }
 
 export async function getPublisher(id: string) {
-  const token = getToken(true);
+  const token = getToken();
 
   const response = await fetch(`/api/publishers/${id}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),

@@ -1,7 +1,7 @@
 import { Multimedia } from "./multimedia";
 
 /**
- * Represents a Publisher.
+ * Represents a publisher.
  */
 export interface Publisher {
   id: string;
@@ -16,7 +16,7 @@ export interface Publisher {
 }
 
 /**
- * Represents a new NewPublisher/PublisherPost.
+ * Represents a new publisher.
  */
 export interface NewPublisher {
   email: string;

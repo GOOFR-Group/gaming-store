@@ -15,10 +15,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { gamesQueryKey } from "@/lib/query-keys";
 
 function gamesQueryOptions() {
   return queryOptions({
-    queryKey: ["games"],
+    queryKey: gamesQueryKey,
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {

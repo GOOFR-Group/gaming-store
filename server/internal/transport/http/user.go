@@ -176,7 +176,7 @@ func (h *handler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var signIn api.SignIn
+	var signIn api.UserSignIn
 
 	err = json.Unmarshal(requestBody, &signIn)
 	if err != nil {
