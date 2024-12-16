@@ -258,3 +258,49 @@ export const COUNTRIES_MAP = {
  * List of countries.
  */
 export const COUNTRIES = Object.values(COUNTRIES_MAP);
+
+/**
+ * Map where the key is the language code and the value is the language information.
+ * ISO 639-1 Format.
+ */
+export const LANGUAGES_MAP = {
+  AR: { code: "AR", name: "Arabic" },
+  ZH: { code: "ZH", name: "Chinese" },
+  EN: { code: "EN", name: "English" },
+  FR: { code: "FR", name: "French" },
+  DE: { code: "DE", name: "German" },
+  HI: { code: "HI", name: "Hindi" },
+  IT: { code: "IT", name: "Italian" },
+  JA: { code: "JA", name: "Japanese" },
+  KO: { code: "KO", name: "Korean" },
+  PT: { code: "PT", name: "Portuguese" },
+  RU: { code: "RU", name: "Russian" },
+  ES: { code: "ES", name: "Spanish" },
+  TR: { code: "TR", name: "Turkish" },
+};
+
+/**
+ * List of languages.
+ */
+export const LANGUAGES = Object.values(LANGUAGES_MAP);
+
+/**
+ * Symbol used when no value is displayed.
+ */
+export const MISSING_VALUE_SYMBOL = "-";
+
+/**
+ * Default toast messages.
+ */
+export const TOAST_MESSAGES = {
+  unexpectedError: {
+    variant: "destructive",
+    title: "Oops! An unexpected error occurred",
+    description: "Please try again later or contact the support team.",
+  },
+} as const;
+
+/**
+ * Label displayed when a game doesn't have a release date.
+ */
+export const TO_BE_ANNOUNCED = "To be announced";

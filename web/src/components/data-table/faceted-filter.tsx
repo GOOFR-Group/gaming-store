@@ -1,7 +1,7 @@
 import { Column } from "@tanstack/react-table";
 import { Check, PlusCircle } from "lucide-react";
 
-import { camelCaseToTitleCase, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -36,14 +36,13 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   const facets = column.getFacetedUniqueValues();
   const selectedValues = new Set(column.getFilterValue() as string[]);
-  const title = camelCaseToTitleCase(column.id);
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button className="h-8 border-dashed" size="sm" variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
-          {title}
+          {column.columnDef.meta?.name}
           {selectedValues?.size > 0 && (
             <>
               <Separator className="mx-2 h-4" orientation="vertical" />
@@ -81,7 +80,7 @@ export function DataTableFacetedFilter<TData, TValue>({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder={title} />
+          <CommandInput placeholder="Search" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>

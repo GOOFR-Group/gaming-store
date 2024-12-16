@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { updateUser, uploadMultimedia } from "@/lib/api";
+import { TOAST_MESSAGES } from "@/lib/constants";
 import { ContentTooLarge } from "@/lib/errors";
 import { userQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
@@ -35,11 +36,7 @@ export function UserAvatar(props: {
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 
