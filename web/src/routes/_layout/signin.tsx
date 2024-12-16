@@ -1,27 +1,23 @@
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Card } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import { CardFooter } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
+import { CardTitle } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
+import { FormControl } from "@/components/ui/form";
+import { FormField } from "@/components/ui/form";
+import { FormItem } from "@/components/ui/form";
+import { FormLabel } from "@/components/ui/form";
+import { FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+
 import { useToast } from "@/hooks/use-toast";
 import { signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
@@ -60,7 +56,6 @@ function Component() {
         password: data.password,
       });
       const payload = decodeTokenPayload(jwt.token);
-
       storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
@@ -80,7 +75,6 @@ function Component() {
         }
         return;
       }
-
       toast({
         variant: "destructive",
         title: "Oops! An unexpected error occurred",
@@ -89,10 +83,6 @@ function Component() {
     },
   });
 
-  /**
-   * Handles form submission.
-   * @param data Form data.
-   */
   function onSubmit(data: SignInSchemaType) {
     mutation.mutate(data);
   }
@@ -103,9 +93,7 @@ function Component() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
-              <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In
-              </CardTitle>
+              <CardTitle className="text-3xl font-bold tracking-tight">Sign In</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -115,16 +103,12 @@ function Component() {
                   <FormItem>
                     <FormLabel>Email or Username</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter your email or username"
-                        {...field}
-                      />
+                      <Input placeholder="Enter your email or username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="password"
@@ -132,11 +116,7 @@ function Component() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
+                      <Input placeholder="Enter your password" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -144,17 +124,10 @@ function Component() {
               />
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button
-                className="w-full text-primary-foreground font-semibold"
-                type="submit"
-              >
+              <Button className="w-full text-primary-foreground font-semibold" type="submit">
                 Sign In
               </Button>
-              <Button
-                asChild
-                className="w-full text-primary-foreground font-semibold"
-                variant="secondary"
-              >
+              <Button asChild className="w-full text-primary-foreground font-semibold" variant="secondary">
                 <Link to="/register">Register</Link>
               </Button>
             </CardFooter>
