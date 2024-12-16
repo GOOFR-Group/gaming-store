@@ -1,14 +1,15 @@
-'use client'
-import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createFileRoute } from '@tanstack/react-router';
+import * as z from 'zod';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { formatCurrency } from "@/lib/utils";
 
 export const Route = createFileRoute('/_layout/payment')({
     component: () => PaymentPage(),
@@ -20,17 +21,25 @@ const formSchema = z.object({
     address: z.string().min(5, 'Address must be at least 5 characters'),
     city: z.string().min(2, 'City must be at least 2 characters'),
     country: z.string().min(2, 'Country must be at least 2 characters'),
-    zipCode: z.string().min(3, 'Zip code must be at least 3 characters'),
+    vat: z.string().min(9, 'Vat must be 9 characters').max(9, 'Vat must be 9 characters'),
     cardNumber: z.string().regex(/^\d{16}$/, 'Card number must be 16 digits'),
     expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Expiry date must be in MM/YY format'),
     cvv: z.string().regex(/^\d{3,4}$/, 'CVV must be 3 or 4 digits'),
 })
 
 const purchaseItems = [
-    { name: 'Game Title 1', price: 59.99 },
-    { name: 'Game Title 2', price: 49.99 },
-    { name: 'DLC Pack', price: 19.99 },
+    { name: 'Game Title 1', price: 79.99 },
+    { name: 'Game Title 2', price: 19.99 },
 ]
+
+let userTestData = {
+    name: "Antonio",
+    email: "antonio@gmail.com",
+    address: "Rua da asjasjdoa",
+    city: "Barcelona",
+    country: "Ucrain",
+    vat: "123456789",
+}
 
 
 export default function PaymentPage() {
@@ -56,7 +65,7 @@ export function PaymentForm() {
             address: '',
             city: '',
             country: '',
-            zipCode: '',
+            vat: '',
             cardNumber: '',
             expiryDate: '',
             cvv: '',
@@ -80,9 +89,9 @@ export function PaymentForm() {
                 <CardTitle>Billing Details</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-6">
+                <div className="space-y-4">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                             <FormField
                                 control={form.control}
                                 name="fullName"
@@ -103,7 +112,7 @@ export function PaymentForm() {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input type="email" placeholder="johndoe@example.com" {...field} />
+                                            <Input placeholder="johndoe@example.com" type="email" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -152,12 +161,12 @@ export function PaymentForm() {
                             </div>
                             <FormField
                                 control={form.control}
-                                name="zipCode"
+                                name="vat"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Zip Code</FormLabel>
+                                        <FormLabel>VAT</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="12345" {...field} />
+                                            <Input placeholder="999999999" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -204,7 +213,7 @@ export function PaymentForm() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            <Button className="w-full" disabled={isSubmitting} type="submit">
                                 {isSubmitting ? 'Processing...' : 'Complete Payment'}
                             </Button>
                         </form>
@@ -230,21 +239,21 @@ export function PurchaseSummary() {
                     {purchaseItems.map((item, index) => (
                         <div key={index} className="flex justify-between">
                             <span>{item.name}</span>
-                            <span>${item.price.toFixed(2)}</span>
+                            <span>{formatCurrency(item.price)}</span>
                         </div>
                     ))}
                     <div className="border-t pt-4">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-                            <span>${subtotal.toFixed(2)}</span>
+                            <span>{formatCurrency(subtotal)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Tax</span>
-                            <span>${tax.toFixed(2)}</span>
+                            <span>{formatCurrency(tax)}</span>
                         </div>
                         <div className="flex justify-between font-bold text-lg mt-4">
                             <span>Total</span>
-                            <span>${total.toFixed(2)}</span>
+                            <span>{formatCurrency(total)}</span>
                         </div>
                     </div>
                 </div>
