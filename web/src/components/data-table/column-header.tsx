@@ -1,7 +1,7 @@
 import { Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOffIcon } from "lucide-react";
 
-import { camelCaseToTitleCase, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
 import {
@@ -21,10 +21,10 @@ export function DataTableColumnHeader<TData, TValue>({
   column,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  const title = camelCaseToTitleCase(column.id);
+  const columnName = column.columnDef.meta?.name;
 
   if (!column.getCanSort()) {
-    return <div className={cn(className)}>{title}</div>;
+    return <div className={className}>{columnName}</div>;
   }
 
   return (
@@ -36,7 +36,7 @@ export function DataTableColumnHeader<TData, TValue>({
             size="sm"
             variant="ghost"
           >
-            <span>{title}</span>
+            <span>{columnName}</span>
             {column.getIsSorted() === "desc" ? (
               <ArrowDown className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "asc" ? (
@@ -54,6 +54,10 @@ export function DataTableColumnHeader<TData, TValue>({
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDown className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => column.clearSorting()}>
+            <ChevronsUpDown className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+            Unsorted
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>

@@ -29,7 +29,7 @@ func (s *service) CreatePublisher(ctx context.Context, editablePublisher domain.
 		slog.String(logging.PublisherEmail, string(editablePublisher.Email)),
 		slog.String(logging.PublisherName, string(editablePublisher.Name)),
 		slog.String(logging.PublisherAddress, string(editablePublisher.Address)),
-		slog.String(logging.PublisherCountry, string(editablePublisher.Country)),
+		slog.String(logging.PublisherCountry, editablePublisher.Country.String()),
 		slog.String(logging.PublisherVatin, string(editablePublisher.Vatin)),
 	}
 

@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { TOAST_MESSAGES } from "@/lib/constants";
 import { Unauthorized } from "@/lib/errors";
 
 export const Route = createFileRoute("/_layout/signin")({
@@ -75,11 +76,8 @@ function Component() {
         }
         return;
       }
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 

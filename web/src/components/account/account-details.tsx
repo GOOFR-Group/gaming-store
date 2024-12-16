@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input";
 import { User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
-import { COUNTRIES } from "@/lib/constants";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { userQueryKey } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
@@ -167,11 +167,7 @@ function EditAccountDetails(props: {
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 

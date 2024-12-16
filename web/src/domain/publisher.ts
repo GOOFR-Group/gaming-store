@@ -29,21 +29,9 @@ export interface NewPublisher {
 }
 
 /**
- * Represents an editable Publisher/PublisherPatch.
- */
-export interface EditablePublisher {
-  email?: string;
-  name?: string;
-  address?: string;
-  country?: string;
-  vatin?: string;
-  pictureMultimediaId?: string;
-}
-
-/**
  * Represents the publisher credentials to sign in.
  */
 export interface PublisherCredentials {
-  email?: string;
+  email: string;
   password: string;
 }
