@@ -11,6 +11,7 @@ import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Game as gameDomain } from "@/domain/game";
 import { useToast } from "@/hooks/use-toast";
 import { addGameToCart, getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
@@ -29,13 +30,17 @@ function userQueryOptions() {
   return queryOptions({
     queryKey: userQueryKey,
     async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
+      try {
+        const token = getToken();
+        const payload = decodeTokenPayload(token);
 
-      const userId = payload.sub;
-      const user = await getUser(userId);
+        const userId = payload.sub;
+        const user = await getUser(userId);
 
-      return user;
+        return user;
+      } catch {
+        return null;
+      }
     },
   });
 }
@@ -44,7 +49,7 @@ function gameQueryOptions(gameId: string) {
   return queryOptions({
     queryKey: gameQueryKey(gameId),
     queryFn() {
-      return {
+      const game: gameDomain = {
         id: gameId,
         title: "Epic Adventure",
         publisher: "Stellareref Games",
@@ -67,15 +72,16 @@ function gameQueryOptions(gameId: string) {
           "/images/game.jpg",
           "/images/game.jpg",
         ],
-        ageRating: 16,
+        ageRating: 18,
         price: 29.99,
         isActive: false,
       };
+      return game;
     },
   });
 }
 
-function AddToCart({ gameId, userId }: { gameId: string; userId: string }) {
+function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
   /**
    * Adds a game to the cart.
    */
@@ -84,7 +90,7 @@ function AddToCart({ gameId, userId }: { gameId: string; userId: string }) {
 
   const mutation = useMutation({
     async mutationFn() {
-      await addGameToCart(userId, gameId);
+      await addGameToCart(userId!, gameId);
     },
     onSuccess() {
       toast({
@@ -166,7 +172,7 @@ function Component() {
                 <img
                   alt="Age rating"
                   className="h-12"
-                  src="/images/pegi/18.png"
+                  src={`/images/pegi/${gameData.ageRating}.png`}
                 />
               </div>
             </CardContent>
@@ -208,13 +214,15 @@ function Component() {
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-3xl font-bold">€{gameData.price}</span>
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 fill-yellow-400 mr-1" />
-                  <span className="font-semibold">4.8</span>
+                <div className="flex items-center p-2 relative bg-gray-500">
+                  <span className="w-full -rotate-12 h-1 z-10 absolute top-5 right-0 bg-white"></span>
+                  <span className="w-full rotate-12 h-1 z-10  absolute top-5 right-0 bg-white"></span>
+                  <Star className="text-yellow-400 fill-yellow-400 mr-1 opacity-65" />
+                  <span className="font-semibold opacity-65">4.8</span>
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <AddToCart gameId={gameData.id} userId={userData.id} />
+              <AddToCart gameId={gameData.id} userId={userData?.id} />
               <Button className="w-full text-lg py-6 mt-2" variant="secondary">
                 Add to Wishlist
               </Button>
@@ -254,12 +262,6 @@ function Component() {
               </h3>
               <p className="text-sm text-muted-foreground">
                 {country.join(", ")}
-                {/*
-                  numbers2.join(",")
-                  '90,8,18,32,50'
-                */}
-                {/* English, French, German, Spanish, Italian, Russian, Japanese,
-                Korean, Chinese (Simplified and Traditional) */}
               </p>
             </CardContent>
           </Card>
@@ -272,14 +274,14 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 5 }, (_, idx) => {
+          {gameData.screenshots.map((data, index) => {
             return (
               <Game
-                key={idx}
-                image="/images/game.jpg"
+                key={index}
+                image={data}
                 price={59.99}
-                publisher="Stellar Games"
-                title={`Game ${idx}`}
+                publisher={gameData.publisher}
+                title={`Game ${index}`}
               />
             );
           })}
