@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Menu, ShoppingCart, User } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_layout")({
@@ -58,7 +59,12 @@ function Component() {
             <nav className="flex items-center space-x-2">
               <Button asChild size="icon" variant="ghost">
                 <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
+                  <div className="relative">
+                    <ShoppingCart className="h-5 w-5" />
+                    <Badge className="w-1 font-extralight absolute top-3 left-3 flex justify-center h-5 text-sm">
+                      2
+                    </Badge>
+                  </div>
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
