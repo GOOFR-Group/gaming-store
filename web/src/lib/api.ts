@@ -204,7 +204,7 @@ export async function createPublisher(newPublisher: NewPublisher) {
 
 /**
  * Signs in a publisher with their credentials.
- * @param credentials User credentials.
+ * @param credentials Publisher credentials.
  * @returns JWT.
  * @throws {Unauthorized} Incorrect credentials.
  * @throws {InternalServerError} Server internal error.
