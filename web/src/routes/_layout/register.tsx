@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -28,7 +29,6 @@ import { SelectContent } from "@/components/ui/select";
 import { SelectItem } from "@/components/ui/select";
 import { SelectTrigger } from "@/components/ui/select";
 import { SelectValue } from "@/components/ui/select";
-
 import { useToast } from "@/hooks/use-toast";
 import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
@@ -137,7 +137,9 @@ function Component() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
-              <CardTitle className="text-3xl font-bold tracking-tight">Register Account</CardTitle>
+              <CardTitle className="text-3xl font-bold tracking-tight">
+                Register Account
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -161,7 +163,11 @@ function Component() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your email" type="email" {...field} />
+                        <Input
+                          placeholder="Enter your email"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,10 +199,14 @@ function Component() {
                               variant="outline"
                               className={cn(
                                 "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
-                              {field.value ? format(field.value, "dd/MM/yyyy") : <span>Enter your date of birth</span>}
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Enter your date of birth</span>
+                              )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
@@ -221,7 +231,10 @@ function Component() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
-                      <Select defaultValue={field.value} onValueChange={field.onChange}>
+                      <Select
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
                           <SelectTrigger className="border-input">
                             <SelectValue placeholder="Select a country" />
@@ -273,7 +286,11 @@ function Component() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your password" type="password" {...field} />
+                      <Input
+                        placeholder="Enter your password"
+                        type="password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -294,7 +311,11 @@ function Component() {
               />
             </CardContent>
             <CardFooter>
-              <Button className="w-full text-primary-foreground font-semibold" disabled={mutation.isPending} type="submit">
+              <Button
+                className="w-full text-primary-foreground font-semibold"
+                disabled={mutation.isPending}
+                type="submit"
+              >
                 Register Account
               </Button>
             </CardFooter>
