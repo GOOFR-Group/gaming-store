@@ -116,7 +116,12 @@ function Component() {
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
-                        src="/images/game.jpg"
+                        src={game.downloadMultimedia.url}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = "/images/game.jpg";
+                        }}
                       />
                     </Link>
                     <div className="p-4 flex items-center justify-between flex-wrap">
