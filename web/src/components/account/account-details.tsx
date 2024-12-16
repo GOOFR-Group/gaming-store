@@ -2,18 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@radix-ui/react-select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -38,6 +26,15 @@ import { Conflict } from "@/lib/errors";
 import { userQueryKey } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { accountDetailsSchema } from "@/lib/zod";
+
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export function AccountDetails(props: { user: User; country: string }) {
   const [isEditMode, setEditMode] = useState(false);
