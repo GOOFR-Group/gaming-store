@@ -213,7 +213,6 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const response = await fetch("/api/publishers/signin", {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -233,35 +232,6 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const jwt = (await response.json()) as Jwt;
 
   return jwt;
-}
-
-export async function getPublisher(id: string) {
-  const token = getToken();
-
-  const response = await fetch(`/api/publishers/${id}`, {
-    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-
-  const user = (await response.json()) as Publisher;
-
-  return user;
 }
 
 /**
