@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -21,52 +22,100 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { signInPublisher } from "@/lib/api";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { Unauthorized } from "@/lib/errors";
 
 export const Route = createFileRoute("/distribute/signin")({
   component: Component,
 });
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address",
+  emailOrUsername: z.string().min(1, {
+    message: "Email or Username is required",
   }),
   password: z.string().min(1, {
     message: "Password is required",
   }),
 });
 
+type SignInSchemaType = z.infer<typeof formSchema>;
+
 function Component() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<SignInSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      emailOrUsername: "",
       password: "",
     },
   });
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    async mutationFn(data: SignInSchemaType) {
+      const jwt = await signInPublisher({
+        email: data.emailOrUsername,
+        password: data.password,
+      });
+      const payload = decodeTokenPayload(jwt.token);
 
-  function onSubmit() {}
+      storeToken(jwt.token, payload.exp);
+    },
+    async onSuccess() {
+      await navigate({ to: "/distribute/games" });
+    },
+    onError(error) {
+      if (error instanceof Unauthorized) {
+        switch (error.code) {
+          case "credentials_incorrect":
+            form.setError("emailOrUsername", {
+              message: "",
+            });
+            form.setError("password", {
+              message: "Credentials are incorrect",
+            });
+            break;
+        }
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
+  function onSubmit(data: SignInSchemaType) {
+    mutation.mutate(data);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
-      <Card className="w-full max-w-lg bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+      <Card className="w-full max-w-md bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
               <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In to Distribution Center
+                Sign In
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="emailOrUsername"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email or Username</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your email"
-                        type="email"
+                        placeholder="Enter your email or username"
                         {...field}
                       />
                     </FormControl>
@@ -106,12 +155,6 @@ function Component() {
                 variant="secondary"
               >
                 <Link to="/distribute/register">Register</Link>
-              </Button>
-              <Button
-                className="text-primary hover:text-primary/90"
-                variant="link"
-              >
-                Forgot your password?
               </Button>
             </CardFooter>
           </form>

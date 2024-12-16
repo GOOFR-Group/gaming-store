@@ -66,10 +66,10 @@ function Component() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link className="flex w-full" to="/distribute/account">
+              <DropdownMenuItem asChild className="" id="menuitem">
+                <Link className="flex items-center" to="/distribute/account">
                   <User className="mr-2 size-4" />
-                  Account
+                  <span>Account</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
