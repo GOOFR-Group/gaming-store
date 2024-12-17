@@ -11,6 +11,21 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 )
 
+// ListUserCartGames handles the http request to list user cart games.
+func (h *handler) ListUserCartGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserCartGamesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// CreateUserCartGame handles the http request to create a user cart game association.
+func (h *handler) CreateUserCartGame(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, gameID api.GameIdPathParam) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// DeleteUserCartGame handles the http request to delete a user cart game association.
+func (h *handler) DeleteUserCartGame(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, gameID api.GameIdPathParam) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // ListUserGames handles the http request to list user's game library.
 func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserGamesParams) {
 	ctx := r.Context()
