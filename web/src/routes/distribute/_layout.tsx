@@ -25,11 +25,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { clearToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/distribute/_layout")({
   component: Component,
 });
+
+function SignOut() {
+  /**
+   * Signs out a user and reloads the current page.
+   */
+  function handleClick() {
+    clearToken();
+    window.location.reload();
+  }
+
+  return (
+    <Button variant="ghost" onClick={handleClick}>
+      <LogOut /> Sign Out
+    </Button>
+  );
+}
 
 function Component() {
   const location = useLocation();
@@ -66,16 +83,15 @@ function Component() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link className="flex w-full" to="/distribute/account">
+              <DropdownMenuItem asChild className="" id="menuitem">
+                <Link className="flex items-center" to="/distribute/account">
                   <User className="mr-2 size-4" />
-                  Account
+                  <span>Account</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <LogOut className="mr-2 size-4" />
-                Logout
+                <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
