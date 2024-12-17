@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	descriptionFailedListUserGamesLibrary = "service: failed to list user games library"
+	descriptionFailedListUserLibraryGames = "service: failed to list user library games"
 )
 
-// ListUserGamesLibrary returns the user games library with the specified filter.
-func (s *service) ListUserGamesLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserGamesLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
+// ListUserLibraryGames returns the user library games with the specified filter.
+func (s *service) ListUserLibraryGames(ctx context.Context, userID uuid.UUID, filter domain.UserLibraryGamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
 	logAttrs := []any{
-		slog.String(logging.ServiceMethod, "ListUserGamesLibrary"),
+		slog.String(logging.ServiceMethod, "ListUserLibraryGames"),
 	}
 
 	if filter.Sort != nil && !filter.Sort.Valid() {
@@ -43,11 +43,11 @@ func (s *service) ListUserGamesLibrary(ctx context.Context, userID uuid.UUID, fi
 	)
 
 	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
-		paginatedGames, err = s.dataStore.ListGamesByUserLibrary(ctx, tx, userID, filter)
+		paginatedGames, err = s.dataStore.ListUserLibraryGames(ctx, tx, userID, filter)
 		return err
 	})
 	if err != nil {
-		return domain.PaginatedResponse[domain.Game]{}, logAndWrapError(ctx, err, descriptionFailedListUserGamesLibrary, logAttrs...)
+		return domain.PaginatedResponse[domain.Game]{}, logAndWrapError(ctx, err, descriptionFailedListUserLibraryGames, logAttrs...)
 	}
 
 	return paginatedGames, nil

@@ -1,32 +1,32 @@
 package domain
 
-// UserGameLibraryPaginatedSort defines the field of the user game library to sort.
-type UserGameLibraryPaginatedSort string
+// UserLibraryGamePaginatedSort defines the field of the user library game to sort.
+type UserLibraryGamePaginatedSort string
 
 const (
-	UserGameLibraryPaginatedSortGameTitle       UserGameLibraryPaginatedSort = "gameTitle"
-	UserGameLibraryPaginatedSortGamePrice       UserGameLibraryPaginatedSort = "gamePrice"
-	UserGameLibraryPaginatedSortGameReleaseDate UserGameLibraryPaginatedSort = "gameReleaseDate"
+	UserLibraryGamePaginatedSortGameTitle       UserLibraryGamePaginatedSort = "gameTitle"
+	UserLibraryGamePaginatedSortGamePrice       UserLibraryGamePaginatedSort = "gamePrice"
+	UserLibraryGamePaginatedSortGameReleaseDate UserLibraryGamePaginatedSort = "gameReleaseDate"
 )
 
 // Field returns the name of the field to sort by.
-func (s UserGameLibraryPaginatedSort) Field() UserGameLibraryPaginatedSort {
+func (s UserLibraryGamePaginatedSort) Field() UserLibraryGamePaginatedSort {
 	return s
 }
 
 // Valid returns true if the field is valid, false otherwise.
-func (s UserGameLibraryPaginatedSort) Valid() bool {
+func (s UserLibraryGamePaginatedSort) Valid() bool {
 	switch s {
-	case UserGameLibraryPaginatedSortGameTitle,
-		UserGameLibraryPaginatedSortGamePrice,
-		UserGameLibraryPaginatedSortGameReleaseDate:
+	case UserLibraryGamePaginatedSortGameTitle,
+		UserLibraryGamePaginatedSortGamePrice,
+		UserLibraryGamePaginatedSortGameReleaseDate:
 		return true
 	default:
 		return false
 	}
 }
 
-// UserGamesLibraryPaginatedFilter defines the user games library filter structure.
-type UserGamesLibraryPaginatedFilter struct {
-	PaginatedRequest[UserGameLibraryPaginatedSort]
+// UserLibraryGamesPaginatedFilter defines the user library games filter structure.
+type UserLibraryGamesPaginatedFilter struct {
+	PaginatedRequest[UserLibraryGamePaginatedSort]
 }

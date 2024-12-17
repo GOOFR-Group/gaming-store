@@ -39,6 +39,8 @@ type DataStore interface {
 	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignInUser, error)
 	PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error
 
+	ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryGamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+
 	CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublisher domain.EditablePublisherWithPassword) (uuid.UUID, error)
 	GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error)
 	GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error)
@@ -48,7 +50,6 @@ type DataStore interface {
 	CreateGame(ctx context.Context, tx pgx.Tx, publisherID uuid.UUID, editableGame domain.EditableGame) (uuid.UUID, error)
 	ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter domain.GamesRecommendedPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
-	ListGamesByUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserGamesLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
 

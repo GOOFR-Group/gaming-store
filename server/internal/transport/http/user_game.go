@@ -30,9 +30,9 @@ func (h *handler) DeleteUserCartGame(w http.ResponseWriter, r *http.Request, use
 func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserGamesParams) {
 	ctx := r.Context()
 
-	domainUserGamesLibraryFilter := listUserGamesParamsToDomain(params)
+	domainUserLibraryGamesFilter := listUserGamesParamsToDomain(params)
 
-	domainPaginatedGames, err := h.service.ListUserGamesLibrary(ctx, userID, domainUserGamesLibraryFilter)
+	domainPaginatedGames, err := h.service.ListUserLibraryGames(ctx, userID, domainUserLibraryGamesFilter)
 	if err != nil {
 		var domainFilterValueInvalidError *domain.FilterValueInvalidError
 
@@ -59,25 +59,25 @@ func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID a
 	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
-// listUserGamesParamsToDomain returns a domain user games library paginated filter based on the standardized list user
+// listUserGamesParamsToDomain returns a domain user library games paginated filter based on the standardized list user
 // games parameters.
-func listUserGamesParamsToDomain(params api.ListUserGamesParams) domain.UserGamesLibraryPaginatedFilter {
-	domainSort := domain.UserGameLibraryPaginatedSortGameTitle
+func listUserGamesParamsToDomain(params api.ListUserGamesParams) domain.UserLibraryGamesPaginatedFilter {
+	domainSort := domain.UserLibraryGamePaginatedSortGameTitle
 
 	if params.Sort != nil {
 		switch *params.Sort {
 		case api.ListUserGamesParamsSortGameTitle:
-			domainSort = domain.UserGameLibraryPaginatedSortGameTitle
+			domainSort = domain.UserLibraryGamePaginatedSortGameTitle
 		case api.ListUserGamesParamsSortGamePrice:
-			domainSort = domain.UserGameLibraryPaginatedSortGamePrice
+			domainSort = domain.UserLibraryGamePaginatedSortGamePrice
 		case api.ListUserGamesParamsSortGameReleaseDate:
-			domainSort = domain.UserGameLibraryPaginatedSortGameReleaseDate
+			domainSort = domain.UserLibraryGamePaginatedSortGameReleaseDate
 		default:
-			domainSort = domain.UserGameLibraryPaginatedSort(*params.Sort)
+			domainSort = domain.UserLibraryGamePaginatedSort(*params.Sort)
 		}
 	}
 
-	return domain.UserGamesLibraryPaginatedFilter{
+	return domain.UserLibraryGamesPaginatedFilter{
 		PaginatedRequest: paginatedRequestToDomain(
 			domainSort,
 			(*api.OrderQueryParam)(params.Order),
