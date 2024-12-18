@@ -58,8 +58,10 @@ function Component() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Minimum:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-muted-foreground">
+                    Minimum:
+                  </h3>
+                  <ul className="list-disc list-inside text-sm">
                     <li>OS: Windows 10 64-bit</li>
                     <li>Processor: Intel Core i5-4460 or AMD FX-6300</li>
                     <li>Memory: 8 GB RAM</li>
@@ -70,8 +72,10 @@ function Component() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Recommended:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-muted-foreground">
+                    Recommended:
+                  </h3>
+                  <ul className="list-disc list-inside text-sm">
                     <li>OS: Windows 10 64-bit</li>
                     <li>Processor: Intel Core i7-4790 or AMD Ryzen 5 1500X</li>
                     <li>Memory: 16 GB RAM</li>
@@ -112,15 +116,19 @@ function Component() {
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Developed by</h3>
-              <p className="text-muted-foreground">Stellar Games</p>
+              <h3 className="font-semibold mb-2 text-muted-foreground">
+                Developed by
+              </h3>
+              <p>Stellar Games</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Game Features</h3>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <h3 className="font-semibold mb-2 text-muted-foreground">
+                Game Features
+              </h3>
+              <ul className="list-disc list-inside text-sm  space-y-1">
                 <li>Vast, procedurally generated universe</li>
                 <li>Multiplayer co-op and PvP modes</li>
                 <li>Customizable spaceships and characters</li>
@@ -132,10 +140,10 @@ function Component() {
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="font-semibold mb-2 text-muted-foreground">
                 Languages Supported
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p>
                 English, French, German, Spanish, Italian, Russian, Japanese,
                 Korean, Chinese (Simplified and Traditional)
               </p>
@@ -150,7 +158,7 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 5 }, (_, idx) => {
+          {Array.from({ length: 4 }, (_, idx) => {
             return (
               <Game
                 key={idx}
