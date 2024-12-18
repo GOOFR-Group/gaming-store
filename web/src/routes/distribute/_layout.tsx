@@ -50,7 +50,7 @@ function Component() {
           >
             <img
               alt="GOOFR Gaming Store Logo"
-              className="size-16"
+              className="size-32"
               src="/images/logo.png"
             />
 

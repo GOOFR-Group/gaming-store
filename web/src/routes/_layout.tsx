@@ -16,14 +16,15 @@ function Component() {
             <Link className="flex items-center space-x-2" href="/">
               <img
                 alt="GOOFR Gaming Store Logo"
-                className="size-16"
+                className="w-32"
                 src="/images/logo.png"
               />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Button
                 asChild
-                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                // TODO: we need to revisit all text using text-sm
+                className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
                 <Link href="/browse">Browse</Link>
@@ -31,7 +32,7 @@ function Component() {
 
               <Button
                 asChild
-                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
                 <Link href="/news">News</Link>
@@ -39,7 +40,7 @@ function Component() {
 
               <Button
                 asChild
-                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
                 <Link href="/support">Support</Link>
@@ -47,7 +48,7 @@ function Component() {
 
               <Button
                 asChild
-                className="text-sm font-medium hover:bg-transparent hover:text-primary"
+                className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
                 <Link href="/distribute">Distribute</Link>
