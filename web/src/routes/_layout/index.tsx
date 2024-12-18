@@ -12,7 +12,7 @@ function gamesQueryOptions() {
   return queryOptions({
     queryKey: gamesQueryKey(),
     queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
+      return Array.from({ length: 4 }, (_, idx) => {
         return {
           title: `Game ${idx}`,
           image: "/images/game.jpg",
@@ -111,7 +111,7 @@ function Component() {
           ))}
         </Section>
 
-        <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
+        <section className="w-full py-12 md:py-12 lg:py-12 px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter mb-8">
             Browse by Genre
           </h2>
@@ -148,10 +148,7 @@ function Section(props: {
   id?: string;
 }) {
   return (
-    <section
-      className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6"
-      id={props.id}
-    >
+    <section className="w-full py-8 md:py-8 lg:py-8 px-4 md:px-6" id={props.id}>
       <Link className="flex items-center gap-4 mb-8" href={props.href}>
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
