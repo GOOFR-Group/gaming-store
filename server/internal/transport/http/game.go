@@ -16,10 +16,14 @@ const (
 	codeGameNotFound                   = "game_not_found"
 	codeGamePreviewMultimediaNotFound  = "game_preview_multimedia_not_found"
 	codeGameDownloadMultimediaNotFound = "game_download_multimedia_not_found"
+	codeGameNotActive                  = "game_not_active"
+	codeGameNotReleased                = "game_not_released"
 
 	errGameNotFound                   = "game not found"
 	errGamePreviewMultimediaNotFound  = "game preview multimedia not found"
 	errGameDownloadMultimediaNotFound = "game download multimedia not found"
+	errGameNotActive                  = "game not active"
+	errGameNotReleased                = "game not released"
 )
 
 // ListGames handles the http request to list games.
@@ -55,8 +59,8 @@ func (h *handler) ListGames(w http.ResponseWriter, r *http.Request, params api.L
 	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
-// ListRecommendedGames handles the http request to list recommended games.
-func (h *handler) ListRecommendedGames(w http.ResponseWriter, r *http.Request, params api.ListRecommendedGamesParams) {
+// ListGamesRecommended handles the http request to list recommended games.
+func (h *handler) ListGamesRecommended(w http.ResponseWriter, r *http.Request, params api.ListGamesRecommendedParams) {
 	ctx := r.Context()
 
 	domainGamesRecommendedFilter := listGamesRecommendedParamsToDomain(params)
@@ -285,8 +289,8 @@ func listGamesParamsToDomain(params api.ListGamesParams) domain.GamesPaginatedFi
 }
 
 // listGamesRecommendedParamsToDomain returns a domain games recommended paginated filter based on the standardized list
-// recommended games parameters.
-func listGamesRecommendedParamsToDomain(params api.ListRecommendedGamesParams) domain.GamesRecommendedPaginatedFilter {
+// games recommended parameters.
+func listGamesRecommendedParamsToDomain(params api.ListGamesRecommendedParams) domain.GamesRecommendedPaginatedFilter {
 	return domain.GamesRecommendedPaginatedFilter{
 		PaginatedRequestBase: paginatedRequestBaseToDomain(
 			params.Limit,
