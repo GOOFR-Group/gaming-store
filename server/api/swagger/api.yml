@@ -5,8 +5,10 @@ info:
 tags:
   - name: User
     description: User operations
-  - name: User Game
-    description: User game operations
+  - name: User Cart
+    description: User cart operations
+  - name: User Library
+    description: User library operations
   - name: Publisher
     description: Publisher operations
   - name: Game
@@ -184,7 +186,7 @@ paths:
       operationId: listUserCartGames
       description: Returns the user's shopping cart with the specified filter.
       tags:
-        - User Game
+        - User Cart
       security:
         - BearerAuth: [user]
       parameters:
@@ -226,7 +228,7 @@ paths:
       operationId: createUserCartGame
       description: Adds a game to the user shopping cart.
       tags:
-        - User Game
+        - User Cart
       security:
         - BearerAuth: [user]
       parameters:
@@ -264,7 +266,7 @@ paths:
       operationId: deleteUserCartGame
       description: Removes a game from the user shopping cart.
       tags:
-        - User Game
+        - User Cart
       security:
         - BearerAuth: [user]
       parameters:
@@ -291,13 +293,14 @@ paths:
                 $ref: "#/components/schemas/Error"
         500:
           $ref: "#/components/responses/InternalServerError"
+
   /users/{userId}/games:
     get:
       summary: List user game library.
       operationId: listUserGames
       description: Returns the user's game library with the specified filter.
       tags:
-        - User Game
+        - User Library
       security:
         - BearerAuth: [user]
       parameters:
