@@ -252,7 +252,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         409:
-          description: Association already exists.
+          description: Association already exists, or the game is not active, or the game has not been released, or the user is not old enough to play the game, or the user already has the game in their library.
           content:
             application/json:
               schema:
