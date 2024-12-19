@@ -16,10 +16,14 @@ const (
 	codeGameNotFound                   = "game_not_found"
 	codeGamePreviewMultimediaNotFound  = "game_preview_multimedia_not_found"
 	codeGameDownloadMultimediaNotFound = "game_download_multimedia_not_found"
+	codeGameNotActive                  = "game_not_active"
+	codeGameNotReleased                = "game_not_released"
 
 	errGameNotFound                   = "game not found"
 	errGamePreviewMultimediaNotFound  = "game preview multimedia not found"
 	errGameDownloadMultimediaNotFound = "game download multimedia not found"
+	errGameNotActive                  = "game not active"
+	errGameNotReleased                = "game not released"
 )
 
 // ListGames handles the http request to list games.

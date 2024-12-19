@@ -41,6 +41,88 @@ func (s *store) CreateUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameI
 	return nil
 }
 
+// ListUserCart executes a query to return the user cart for the specified filter.
+func (s *store) ListUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
+	sqlWhere := "WHERE uc.user_id = $1"
+
+	row := tx.QueryRow(ctx, `
+		SELECT count(uc.game_id) 
+		FROM users_carts uc 
+	`+sqlWhere,
+		userID,
+	)
+
+	var total int
+
+	err := row.Scan(&total)
+	if err != nil {
+		return domain.PaginatedResponse[domain.Game]{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+	}
+
+	var domainSortField domain.UserCartPaginatedSort
+	if filter.Sort != nil {
+		domainSortField = filter.Sort.Field()
+	}
+
+	sortField := "uc.created_at"
+
+	switch domainSortField {
+	case domain.UserCartPaginatedSortCreatedAt:
+		sortField = "uc.created_at"
+	case domain.UserCartPaginatedSortGameTitle:
+		sortField = "g.title"
+	}
+
+	rows, err := tx.Query(ctx, `
+		SELECT g.id, g.title, g.price, g.is_active, g.release_date, g.description, g.age_rating, g.features, g.languages, g.requirements, g.created_at, g.modified_at,
+			p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
+			pm.id, pm.checksum, pm.media_type, pm.url, pm.created_at,
+			gpm.id, gpm.checksum, gpm.media_type, gpm.url, gpm.created_at,
+			gdm.id, gdm.checksum, gdm.media_type, gdm.url, gdm.created_at
+		FROM users_carts uc
+		INNER JOIN games g
+			ON g.id = uc.game_id
+		INNER JOIN publishers p
+			ON p.id = g.publisher_id
+		LEFT JOIN multimedia pm
+			ON pm.id = p.picture_multimedia_id
+		INNER JOIN multimedia gpm
+			ON gpm.id = g.preview_multimedia_id
+		LEFT JOIN multimedia gdm
+			ON gdm.id = g.download_multimedia_id 
+ 	`+sqlWhere+listSQLOrder(sortField, filter.Order, nil)+listSQLLimitOffset(filter.Limit, filter.Offset),
+		userID,
+	)
+	if err != nil {
+		return domain.PaginatedResponse[domain.Game]{}, fmt.Errorf("%s: %w", descriptionFailedQuery, err)
+	}
+	defer rows.Close()
+
+	games, err := getGamesFromRows(rows)
+	if err != nil {
+		return domain.PaginatedResponse[domain.Game]{}, fmt.Errorf("%s: %w", descriptionFailedScanRows, err)
+	}
+
+	for i, game := range games {
+		game.Multimedia, err = s.GetGameMultimedia(ctx, tx, game.ID)
+		if err != nil {
+			return domain.PaginatedResponse[domain.Game]{}, err
+		}
+
+		game.Tags, err = s.GetGameTags(ctx, tx, game.ID)
+		if err != nil {
+			return domain.PaginatedResponse[domain.Game]{}, err
+		}
+
+		games[i] = game
+	}
+
+	return domain.PaginatedResponse[domain.Game]{
+		Total:   total,
+		Results: games,
+	}, nil
+}
+
 // DeleteUserCartGame executes a query to delete the user cart game association with the specified identifiers.
 func (s *store) DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error {
 	commandTag, err := tx.Exec(ctx, `

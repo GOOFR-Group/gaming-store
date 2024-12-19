@@ -207,7 +207,7 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 	argsWhere = append(argsWhere, true)
 
 	filterFields = append(filterFields, listSQLWhereOperatorGreaterThanEqual("g.release_date"))
-	argsWhere = append(argsWhere, time.Now().AddDate(-1, 0, 0))
+	argsWhere = append(argsWhere, time.Now().AddDate(-1, 0, 0).UTC())
 
 	if filter.UserID != nil {
 		rows, err := tx.Query(ctx, `

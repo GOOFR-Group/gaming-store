@@ -11,6 +11,12 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 )
 
+const (
+	codeUserLibraryGameAlreadyExists = "user_library_game_already_exists"
+
+	errUserLibraryGameAlreadyExists = "user library game already exists"
+)
+
 // ListUserGames handles the http request to list user's game library.
 func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserGamesParams) {
 	ctx := r.Context()
