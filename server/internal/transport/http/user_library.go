@@ -11,28 +11,13 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 )
 
-// ListUserCartGames handles the http request to list user cart games.
-func (h *handler) ListUserCartGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserCartGamesParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// CreateUserCartGame handles the http request to create a user cart game association.
-func (h *handler) CreateUserCartGame(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, gameID api.GameIdPathParam) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// DeleteUserCartGame handles the http request to delete a user cart game association.
-func (h *handler) DeleteUserCartGame(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, gameID api.GameIdPathParam) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
 // ListUserGames handles the http request to list user's game library.
 func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam, params api.ListUserGamesParams) {
 	ctx := r.Context()
 
 	domainUserLibraryGamesFilter := listUserGamesParamsToDomain(params)
 
-	domainPaginatedGames, err := h.service.ListUserLibraryGames(ctx, userID, domainUserLibraryGamesFilter)
+	domainPaginatedGames, err := h.service.ListUserLibrary(ctx, userID, domainUserLibraryGamesFilter)
 	if err != nil {
 		var domainFilterValueInvalidError *domain.FilterValueInvalidError
 
@@ -59,25 +44,25 @@ func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID a
 	writeResponseJSON(w, http.StatusOK, responseBody)
 }
 
-// listUserGamesParamsToDomain returns a domain user library games paginated filter based on the standardized list user
-// games parameters.
-func listUserGamesParamsToDomain(params api.ListUserGamesParams) domain.UserLibraryGamesPaginatedFilter {
-	domainSort := domain.UserLibraryGamePaginatedSortGameTitle
+// listUserGamesParamsToDomain returns a domain user library paginated filter based on the standardized list user games
+// parameters.
+func listUserGamesParamsToDomain(params api.ListUserGamesParams) domain.UserLibraryPaginatedFilter {
+	domainSort := domain.UserLibraryPaginatedSortGameTitle
 
 	if params.Sort != nil {
 		switch *params.Sort {
 		case api.ListUserGamesParamsSortGameTitle:
-			domainSort = domain.UserLibraryGamePaginatedSortGameTitle
+			domainSort = domain.UserLibraryPaginatedSortGameTitle
 		case api.ListUserGamesParamsSortGamePrice:
-			domainSort = domain.UserLibraryGamePaginatedSortGamePrice
+			domainSort = domain.UserLibraryPaginatedSortGamePrice
 		case api.ListUserGamesParamsSortGameReleaseDate:
-			domainSort = domain.UserLibraryGamePaginatedSortGameReleaseDate
+			domainSort = domain.UserLibraryPaginatedSortGameReleaseDate
 		default:
-			domainSort = domain.UserLibraryGamePaginatedSort(*params.Sort)
+			domainSort = domain.UserLibraryPaginatedSort(*params.Sort)
 		}
 	}
 
-	return domain.UserLibraryGamesPaginatedFilter{
+	return domain.UserLibraryPaginatedFilter{
 		PaginatedRequest: paginatedRequestToDomain(
 			domainSort,
 			(*api.OrderQueryParam)(params.Order),

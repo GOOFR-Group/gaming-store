@@ -39,7 +39,11 @@ type DataStore interface {
 	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignInUser, error)
 	PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error
 
-	ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryGamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	CreateUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
+	DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
+
+	ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	ExistsUserLibraryGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) (bool, error)
 
 	CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublisher domain.EditablePublisherWithPassword) (uuid.UUID, error)
 	GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error)

@@ -10,8 +10,8 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
-// ListUserLibraryGames executes a query to return the user library games for the specified filter.
-func (s *store) ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryGamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
+// ListUserLibrary executes a query to return the user library for the specified filter.
+func (s *store) ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
 	sqlWhere := "WHERE ul.user_id = $1"
 
 	row := tx.QueryRow(ctx, `
@@ -28,7 +28,7 @@ func (s *store) ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid
 		return domain.PaginatedResponse[domain.Game]{}, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
 	}
 
-	var domainSortField domain.UserLibraryGamePaginatedSort
+	var domainSortField domain.UserLibraryPaginatedSort
 	if filter.Sort != nil {
 		domainSortField = filter.Sort.Field()
 	}
@@ -36,11 +36,11 @@ func (s *store) ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid
 	sortField := "g.title"
 
 	switch domainSortField {
-	case domain.UserLibraryGamePaginatedSortGameTitle:
+	case domain.UserLibraryPaginatedSortGameTitle:
 		sortField = "g.title"
-	case domain.UserLibraryGamePaginatedSortGamePrice:
+	case domain.UserLibraryPaginatedSortGamePrice:
 		sortField = "g.price"
-	case domain.UserLibraryGamePaginatedSortGameReleaseDate:
+	case domain.UserLibraryPaginatedSortGameReleaseDate:
 		sortField = "g.release_date"
 	}
 
@@ -92,4 +92,27 @@ func (s *store) ListUserLibraryGames(ctx context.Context, tx pgx.Tx, userID uuid
 		Total:   total,
 		Results: games,
 	}, nil
+}
+
+// ExistsUserLibraryGame executes a query to return whether a game exists in a user library with the specified identifiers.
+func (s *store) ExistsUserLibraryGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) (bool, error) {
+	row := tx.QueryRow(ctx, `
+		SELECT EXISTS (
+			SELECT 1 
+			FROM users_libraries
+			WHERE user_id = $1 AND game_id = $2
+		)
+	`,
+		userID,
+		gameID,
+	)
+
+	var ok bool
+
+	err := row.Scan(&ok)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", descriptionFailedScanRow, err)
+	}
+
+	return ok, nil
 }
