@@ -68,13 +68,13 @@ func (d GameDescription) Valid() bool {
 type GameAgeRating string
 
 // Valid returns true if the game age rating is valid, false otherwise.
-func (d GameAgeRating) Valid() bool {
-	return len(d) >= gameAgeRatingMinLength && len(d) <= gameAgeRatingMaxLength
+func (ar GameAgeRating) Valid() bool {
+	return len(ar) >= gameAgeRatingMinLength && len(ar) <= gameAgeRatingMaxLength
 }
 
 // Value returns the integer value.
-func (d GameAgeRating) Value() int {
-	v, err := strconv.Atoi(string(d))
+func (ar GameAgeRating) Value() int {
+	v, err := strconv.Atoi(string(ar))
 	if err != nil {
 		return 0
 	}
