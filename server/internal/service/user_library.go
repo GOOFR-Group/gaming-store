@@ -19,6 +19,7 @@ const (
 func (s *service) ListUserLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
 	logAttrs := []any{
 		slog.String(logging.ServiceMethod, "ListUserLibrary"),
+		slog.String(logging.UserID, userID.String()),
 	}
 
 	if filter.Sort != nil && !filter.Sort.Valid() {

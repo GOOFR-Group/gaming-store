@@ -92,6 +92,7 @@ func (s *service) CreateUserCartGame(ctx context.Context, userID, gameID uuid.UU
 func (s *service) ListUserCart(ctx context.Context, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
 	logAttrs := []any{
 		slog.String(logging.ServiceMethod, "ListUserCart"),
+		slog.String(logging.UserID, userID.String()),
 	}
 
 	if filter.Sort != nil && !filter.Sort.Valid() {
