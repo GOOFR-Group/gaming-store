@@ -22,12 +22,9 @@ const formSchema = z.object({
     city: z.string().min(2, 'City must be at least 2 characters'),
     country: z.string().min(2, 'Country must be at least 2 characters'),
     vat: z.string().min(9, 'Vat must be 9 characters').max(9, 'Vat must be 9 characters'),
-    cardNumber: z.string().regex(/^\d{16}$/, 'Card number must be 16 digits'),
-    expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Expiry date must be in MM/YY format'),
-    cvv: z.string().regex(/^\d{3,4}$/, 'CVV must be 3 or 4 digits'),
 })
 
-const purchaseItems = [
+const cartItems = [
     { name: 'Game Title 1', price: 79.99 },
     { name: 'Game Title 2', price: 19.99 },
 ]
@@ -37,15 +34,24 @@ let userTestData = {
     email: "antonio@gmail.com",
     address: "Rua da asjasjdoa",
     city: "Barcelona",
-    country: "Ucrain",
+    country: "Spain",
     vat: "123456789",
 }
 
 
 export default function PaymentPage() {
+    const accountBalance = 500.0; // Placeholder account balance
+
     return (
-        <div className="container mx-auto py-10">
-            <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
+                <div className="text-lg mr-4">
+                    Account Balance:{" "}
+                    <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
+                </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
                 <PaymentForm />
                 <PurchaseSummary />
@@ -60,17 +66,15 @@ export function PaymentForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            fullName: '',
-            email: '',
-            address: '',
-            city: '',
-            country: '',
-            vat: '',
-            cardNumber: '',
-            expiryDate: '',
-            cvv: '',
+            fullName: userTestData.name,
+            email: userTestData.email,
+            address: userTestData.address,
+            city: userTestData.city,
+            country: userTestData.country,
+            vat: userTestData.vat,
         },
     })
+
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true)
@@ -184,8 +188,8 @@ export function PaymentForm() {
 }
 
 export function PurchaseSummary() {
-    const subtotal = purchaseItems.reduce((sum, item) => sum + item.price, 0)
-    const tax = subtotal * 0.08 // Assuming 8% tax rate
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0)
+    const tax = subtotal * 0.1; // Assuming 10% tax
     const total = subtotal + tax
 
     return (
@@ -195,7 +199,7 @@ export function PurchaseSummary() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {purchaseItems.map((item, index) => (
+                    {cartItems.map((item, index) => (
                         <div key={index} className="flex justify-between">
                             <span>{item.name}</span>
                             <span>{formatCurrency(item.price)}</span>
