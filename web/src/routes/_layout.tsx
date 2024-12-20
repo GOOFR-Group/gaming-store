@@ -16,14 +16,13 @@ function Component() {
             <Link className="flex items-center space-x-2" href="/">
               <img
                 alt="GOOFR Gaming Store Logo"
-                className="w-32"
+                className="w-28"
                 src="/images/logo.png"
               />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Button
                 asChild
-                // TODO: we need to revisit all text using text-sm
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >

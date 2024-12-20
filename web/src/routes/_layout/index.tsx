@@ -24,6 +24,21 @@ function gamesQueryOptions() {
   });
 }
 
+const genres = [
+  {
+    label: "Action",
+    image:
+      "https://static-00.iconduck.com/assets.00/chess-piece-icon-1845x2048-ycyhv04g.png",
+  },
+  { label: "Adventure", image: "" },
+  { label: "RPG", image: "" },
+  { label: "Strategy", image: "" },
+  { label: "Sports", image: "" },
+  { label: "Simulation", image: "" },
+  { label: "Puzzle", image: "" },
+  { label: "Indie", image: "" },
+];
+
 export const Route = createFileRoute("/_layout/")({
   component: Component,
   loader(opts) {
@@ -53,13 +68,13 @@ function Component() {
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button
                     asChild
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 tracking-wider"
                   >
                     <Link to="/browse">Shop Now</Link>
                   </Button>
                   <Button
                     asChild
-                    className="border-gray-700 text-white hover:bg-gray-800"
+                    className="border-gray-700 text-white hover:bg-gray-800 tracking-wider"
                     variant="outline"
                   >
                     <a href="#recommended">View Recommended Games</a>
@@ -111,27 +126,21 @@ function Component() {
           ))}
         </Section>
 
-        <section className="w-full py-12 md:py-12 lg:py-12 px-4 md:px-6">
+        <section className="w-full py-12 px-6">
           <h2 className="text-3xl font-bold tracking-tighter mb-8">
             Browse by Genre
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              "Action",
-              "Adventure",
-              "RPG",
-              "Strategy",
-              "Sports",
-              "Simulation",
-              "Puzzle",
-              "Indie",
-            ].map((genre) => (
+            {genres.map((genre) => (
               <Button
-                key={genre}
-                className="h-20 text-lg font-semibold"
+                key={genre.label}
+                className="group h-20 text-lg font-semibold relative overflow-hidden"
                 variant="outline"
               >
-                {genre}
+                <div
+                  className={`size-16 absolute -left-3 bottom-0 bg-[url('${genre.image}')] bg-contain bg-no-repeat group-hover:brightness-90`}
+                />
+                {genre.label}
               </Button>
             ))}
           </div>
@@ -148,7 +157,7 @@ function Section(props: {
   id?: string;
 }) {
   return (
-    <section className="w-full py-8 md:py-8 lg:py-8 px-4 md:px-6" id={props.id}>
+    <section className="w-full py-8 px-6" id={props.id}>
       <Link className="flex items-center gap-4 mb-8" href={props.href}>
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
