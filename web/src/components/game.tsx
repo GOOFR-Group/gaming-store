@@ -7,10 +7,10 @@ export function Game(props: {
   image: string;
 }) {
   return (
-    <Link href="/games/1">
+    <Link className="group" href="/games/1">
       <img
         alt="Game cover"
-        className="object-cover h-[400px] rounded-lg w-full"
+        className="object-cover h-[400px] rounded-lg w-full transition-transform group-hover:brightness-90"
         src={props.image}
       />
       <div className="py-2 flex flex-col gap-1">

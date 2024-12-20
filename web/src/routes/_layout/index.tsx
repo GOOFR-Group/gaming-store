@@ -25,18 +25,14 @@ function gamesQueryOptions() {
 }
 
 const genres = [
-  {
-    label: "Action",
-    image:
-      "https://static-00.iconduck.com/assets.00/chess-piece-icon-1845x2048-ycyhv04g.png",
-  },
-  { label: "Adventure", image: "" },
-  { label: "RPG", image: "" },
-  { label: "Strategy", image: "" },
-  { label: "Sports", image: "" },
-  { label: "Simulation", image: "" },
-  { label: "Puzzle", image: "" },
-  { label: "Indie", image: "" },
+  { label: "Action", image: "/images/genres/action.png" },
+  { label: "Adventure", image: "/images/genres/adventure.png" },
+  { label: "RPG", image: "/images/genres/rpg.png" },
+  { label: "Strategy", image: "/images/genres/strategy.png" },
+  { label: "Sport", image: "/images/genres/sport.png" },
+  { label: "Simulation", image: "/images/genres/simulation.png" },
+  { label: "Puzzle", image: "/images/genres/puzzle.png" },
+  { label: "Racing", image: "/images/genres/racing.png" },
 ];
 
 export const Route = createFileRoute("/_layout/")({
