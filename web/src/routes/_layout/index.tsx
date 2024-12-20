@@ -134,7 +134,7 @@ function Component() {
                 variant="outline"
               >
                 <div
-                  className="size-16 absolute -left-3 bottom-0 bg-contain bg-no-repeat group-hover:brightness-90"
+                  className="size-[10vw] sm:size-16 absolute -left-3 sm:bottom-0 bottom-1/2 sm:translate-y-0 translate-y-1/2 bg-contain bg-no-repeat group-hover:brightness-90"
                   style={{
                     backgroundImage: `url('${genre.image}')`,
                   }}
