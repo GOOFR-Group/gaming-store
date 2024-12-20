@@ -138,7 +138,10 @@ function Component() {
                 variant="outline"
               >
                 <div
-                  className={`size-16 absolute -left-3 bottom-0 bg-[url('${genre.image}')] bg-contain bg-no-repeat group-hover:brightness-90`}
+                  className="size-16 absolute -left-3 bottom-0 bg-contain bg-no-repeat group-hover:brightness-90"
+                  style={{
+                    backgroundImage: `url('${genre.image}')`,
+                  }}
                 />
                 {genre.label}
               </Button>
