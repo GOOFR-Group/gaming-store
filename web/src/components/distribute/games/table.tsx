@@ -15,9 +15,10 @@ import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 
 import { DataTable, DataTableColumnHeader } from "@/components/data-table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Game } from "@/domain/game";
-import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL, TO_BE_ANNOUNCED } from "@/lib/constants";
 
 import { GamesColumns } from "./columns";
 import { Search } from "./search";
@@ -41,13 +42,19 @@ const columns = [
       return <DataTableColumnHeader column={column} />;
     },
     cell({ getValue }) {
-      return format(getValue(), "dd/MM/yyyy");
+      const releaseDate = getValue();
+      if (!releaseDate) {
+        return TO_BE_ANNOUNCED;
+      }
+
+      return format(releaseDate, "dd/MM/yyyy");
     },
     meta: {
       name: "Release Date",
     },
   }),
-  columnHelper.accessor(GamesColumns.genres, {
+  columnHelper.accessor(GamesColumns.tags, {
+    enableSorting: false,
     header({ column }) {
       return <DataTableColumnHeader column={column} />;
     },
@@ -57,7 +64,15 @@ const columns = [
         return MISSING_VALUE_SYMBOL;
       }
 
-      return tags.map((tag) => tag.name).join(", ");
+      return (
+        <div className="flex flex-wrap items-center gap-2">
+          {tags.map((tag) => (
+            <Badge key={tag.id} variant="secondary">
+              {tag.name}
+            </Badge>
+          ))}
+        </div>
+      );
     },
     meta: {
       name: "Genres",
@@ -68,14 +83,16 @@ const columns = [
     enableHiding: false,
     cell({ row }) {
       return (
-        <Button asChild className="size-8" size="icon" variant="ghost">
-          <Link
-            params={{ gameId: row.original.id }}
-            to="/distribute/games/$gameId"
-          >
-            <ChevronRight />
-          </Link>
-        </Button>
+        <div className="flex items-center justify-end">
+          <Button asChild className="size-8" size="icon" variant="ghost">
+            <Link
+              params={{ gameId: row.original.id }}
+              to="/distribute/games/$gameId"
+            >
+              <ChevronRight />
+            </Link>
+          </Button>
+        </div>
       );
     },
   }),
@@ -102,6 +119,7 @@ export function GamesTable(props: {
     manualFiltering: true,
     manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
+    rowCount: props.total,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: props.onColumnFiltersChange,
     onPaginationChange: props.onPaginationChange,
@@ -118,7 +136,7 @@ export function GamesTable(props: {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <Search
           value={(titleColumn?.getFilterValue() as string) ?? ""}
           onChange={(value) => titleColumn?.setFilterValue(value)}
@@ -129,7 +147,6 @@ export function GamesTable(props: {
         loading={props.loading}
         table={table}
         toolbar={<GamesToolbar table={table} />}
-        totalRows={props.total}
       />
     </>
   );

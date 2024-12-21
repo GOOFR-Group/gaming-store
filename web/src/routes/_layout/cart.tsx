@@ -59,8 +59,8 @@ function Component() {
           <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-4">
+      <div className="flex flex-wrap-reverse gap-8">
+        <div className="flex-1 space-y-4">
           {cartItems.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
@@ -74,9 +74,7 @@ function Component() {
                   <div className="flex flex-wrap justify-between items-start">
                     <div>
                       <h2 className="text-lg font-semibold">{item.title}</h2>
-                      <p className="text-sm text-muted-foreground">
-                        {item.developer}
-                      </p>
+                      <p className="text-sm text-gray-300">{item.developer}</p>
                     </div>
                     <p className="text-lg font-semibold">
                       €{item.price.toFixed(2)}
@@ -104,7 +102,7 @@ function Component() {
             </Card>
           ))}
         </div>
-        <div>
+        <div className="w-full sm:w-60 lg:w-96">
           <Card>
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>

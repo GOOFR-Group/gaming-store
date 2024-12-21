@@ -16,14 +16,12 @@ import { DataTableToolbar } from "./toolbar";
 interface DataTableProps<TData> {
   table: TableDef<TData>;
   toolbar?: ReactNode;
-  totalRows: number;
   loading?: boolean;
 }
 
 export function DataTable<TData>({
   table,
   toolbar,
-  totalRows,
   loading,
 }: DataTableProps<TData>) {
   return (
@@ -85,7 +83,7 @@ export function DataTable<TData>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} total={totalRows} />
+      <DataTablePagination table={table} total={table.getRowCount()} />
     </div>
   );
 }

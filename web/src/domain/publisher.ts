@@ -1,5 +1,8 @@
 import { Multimedia } from "./multimedia";
 
+/**
+ * Represents a publisher.
+ */
 export interface Publisher {
   id: string;
   email: string;
@@ -7,7 +10,7 @@ export interface Publisher {
   address: string;
   country: string;
   vatin: string;
-  pictureMultimedia: Multimedia;
+  pictureMultimedia?: Multimedia;
   createdAt: string;
   modifiedAt: string;
 }

@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	descriptionFailedCreateUser     = "service: failed to create user"
-	descriptionFailedGetUserByID    = "service: failed to get user by id"
-	descriptionFailedGetUserByEmail = "service: failed to get user by email"
-	descriptionFailedGetUserSignIn  = "service: failed to get user sign-in"
-	descriptionFailedPatchUser      = "service: failed to patch user"
+	descriptionFailedCreateUser           = "service: failed to create user"
+	descriptionFailedGetUserByID          = "service: failed to get user by id"
+	descriptionFailedGetUserByEmail       = "service: failed to get user by email"
+	descriptionFailedGetUserSignIn        = "service: failed to get user sign-in"
+	descriptionFailedPatchUser            = "service: failed to patch user"
+	descriptionFailedListUserGamesLibrary = "service: failed to list user games library"
 )
 
 // CreateUser creates a new user with the specified data.
@@ -240,7 +241,7 @@ func (s *service) SignInUser(ctx context.Context, username domain.Username, emai
 	email = domain.Email(strings.ToLower(string(email)))
 
 	var (
-		signIn domain.SignIn
+		signIn domain.SignInUser
 		err    error
 	)
 
@@ -284,4 +285,42 @@ func (s *service) SignInUser(ctx context.Context, username domain.Username, emai
 	}
 
 	return token, nil
+}
+
+// ListUserGamesLibrary returns the user games library with the specified filter.
+func (s *service) ListUserGamesLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserGamesLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "ListUserGamesLibrary"),
+	}
+
+	if filter.Sort != nil && !filter.Sort.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterSort}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	if !filter.Order.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterOrder}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	if !filter.Limit.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterLimit}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	if !filter.Offset.Valid() {
+		return domain.PaginatedResponse[domain.Game]{}, logInfoAndWrapError(ctx, &domain.FilterValueInvalidError{FilterName: domain.FieldFilterOffset}, descriptionInvalidFilterValue, logAttrs...)
+	}
+
+	var (
+		paginatedGames domain.PaginatedResponse[domain.Game]
+		err            error
+	)
+
+	err = s.readOnlyTx(ctx, func(tx pgx.Tx) error {
+		paginatedGames, err = s.dataStore.ListGamesByUserLibrary(ctx, tx, userID, filter)
+		return err
+	})
+	if err != nil {
+		return domain.PaginatedResponse[domain.Game]{}, logAndWrapError(ctx, err, descriptionFailedListUserGamesLibrary, logAttrs...)
+	}
+
+	return paginatedGames, nil
 }

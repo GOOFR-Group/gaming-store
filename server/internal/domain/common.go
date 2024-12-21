@@ -65,13 +65,6 @@ func (e Email) Valid() bool {
 // Password defines the password type.
 type Password string
 
-// SignIn defines the sign-in structure.
-type SignIn struct {
-	Username Username
-	Email    Email
-	Password Password
-}
-
 // Name defines the name type.
 type Name string
 

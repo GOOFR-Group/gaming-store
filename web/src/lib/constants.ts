@@ -301,6 +301,11 @@ export const TOAST_MESSAGES = {
 } as const;
 
 /**
+ * Label displayed when a game doesn't have a release date.
+ */
+export const TO_BE_ANNOUNCED = "To be announced";
+
+/**
  * Minimum age at which the user can be registered on the platform.
  */
 export const MINIMUM_USER_AGE = 16;
