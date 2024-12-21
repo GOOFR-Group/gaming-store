@@ -50,7 +50,7 @@ const genres = [
   { label: "RPG", value: "rpg" },
   { label: "Strategy", value: "strategy" },
   { label: "Simulation", value: "simulation" },
-  { label: "Sports", value: "sports" },
+  { label: "Sport", value: "sport" },
   { label: "Puzzle", value: "puzzle" },
   { label: "Shooter", value: "shooter" },
   { label: "Racing", value: "racing" },
