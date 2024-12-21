@@ -37,6 +37,11 @@ function Component() {
   useEffect(() => {
     // Hide the global scrollbar when the user is in the distribution routes.
     document.body.style.overflow = "hidden";
+
+    return () => {
+      // Restore global scrollbar when user exits from the distribution routes.
+      document.body.style.removeProperty("overflow");
+    };
   }, []);
 
   return (

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, ChevronsUpDown, Download } from "lucide-react";
 import * as z from "zod";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { FileInput } from "@/components/ui/file-input";
 import {
   Form,
   FormControl,
@@ -59,8 +60,10 @@ import {
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { cn, getMultimediaName } from "@/lib/utils";
 
+import { GamePreview } from "../game-preview";
 import { MultimediaUploadList } from "./multimedia-uploader";
 
 const multimediaSchema = z.object({
@@ -266,7 +269,7 @@ export function GameForm(props: GameProps) {
         const createdGame = await createGame(publisherId, newGame);
 
         // Upload multimedia files.
-        const multimediaResults = await Promise.allSettled(
+        const multimediaResults = await Promise.all(
           data.multimedia.map((multimedia) =>
             uploadMultimedia((multimedia as TemporaryMultimedia).file),
           ),
@@ -275,13 +278,11 @@ export function GameForm(props: GameProps) {
         // Retrieve uploaded multimedia.
         const uploadedMultimedia: Multimedia[] = [];
         multimediaResults.forEach((result) => {
-          if (result.status === "fulfilled") {
-            uploadedMultimedia.push(result.value);
-          }
+          uploadedMultimedia.push(result);
         });
 
         // Create game multimedia association.
-        await Promise.allSettled(
+        await Promise.all(
           uploadedMultimedia.map((multimedia, idx) =>
             createGameMultimedia(publisherId, createdGame.id, multimedia.id, {
               position: idx,
@@ -290,7 +291,7 @@ export function GameForm(props: GameProps) {
         );
 
         // Create game tag association.
-        await Promise.allSettled(
+        await Promise.all(
           data.tags.map((tag) =>
             createGameTag(publisherId, createdGame.id, tag.id),
           ),
@@ -336,7 +337,7 @@ export function GameForm(props: GameProps) {
       });
 
       // Upload multimedia files.
-      const multimediaResults = await Promise.allSettled(
+      const multimediaResults = await Promise.all(
         files.map((file) => {
           return new Promise<{ index: number; multimedia: Multimedia }>(
             (resolve, reject) => {
@@ -354,36 +355,30 @@ export function GameForm(props: GameProps) {
       );
 
       // Retrieve existing multimedia.
-      const updatedMultimedia: Multimedia[] = data.multimedia.filter(
+      const updatedMultimedia = data.multimedia.filter(
         (multimedia) => "url" in multimedia,
       );
       multimediaResults.forEach((result) => {
-        if (result.status === "fulfilled") {
-          // Insert uploaded multimedia in the correct position.
-          updatedMultimedia.splice(
-            result.value.index,
-            0,
-            result.value.multimedia,
-          );
-        }
+        // Insert uploaded multimedia in the correct position.
+        updatedMultimedia.splice(result.index, 0, result.multimedia);
       });
 
       // Delete previous game multimedia association.
-      await Promise.allSettled(
+      await Promise.all(
         updatedGame.multimedia.map((multimedia) =>
           deleteGameMultimedia(publisherId, updatedGame.id, multimedia.id),
         ),
       );
 
       // Delete previous game tag association.
-      await Promise.allSettled(
+      await Promise.all(
         updatedGame.tags.map((tag) =>
           deleteGameTag(publisherId, updatedGame.id, tag.id),
         ),
       );
 
       // Create game multimedia association.
-      await Promise.allSettled(
+      await Promise.all(
         updatedMultimedia.map((multimedia, idx) =>
           createGameMultimedia(publisherId, updatedGame.id, multimedia.id, {
             position: idx,
@@ -392,7 +387,7 @@ export function GameForm(props: GameProps) {
       );
 
       // Create game tag association.
-      await Promise.allSettled(
+      await Promise.all(
         data.tags.map((tag) =>
           createGameTag(publisherId, updatedGame.id, tag.id),
         ),
@@ -407,8 +402,23 @@ export function GameForm(props: GameProps) {
       });
       props.onSave();
     },
-    onError() {
-      // TODO: Handle errors.
+    onError(error) {
+      if (error instanceof ContentTooLarge) {
+        toast({
+          variant: "destructive",
+          title: "File sizes must be smaller than 20MB",
+        });
+        return;
+      }
+
+      if (error instanceof Conflict) {
+        toast({
+          variant: "destructive",
+          title: "Each screenshot must be unique",
+        });
+        return;
+      }
+
       toast(TOAST_MESSAGES.unexpectedError);
     },
   });
@@ -693,49 +703,98 @@ export function GameForm(props: GameProps) {
           <FormField
             control={form.control}
             name="previewMultimedia"
-            render={({ field: { ref, name, onBlur, disabled } }) => (
-              <FormItem>
-                <FormLabel>Image Preview</FormLabel>
-                <FormControl>
-                  <Input
-                    ref={ref}
-                    accept="image/*"
-                    disabled={disabled}
-                    name={name}
-                    type="file"
-                    onBlur={onBlur}
-                    onChange={(e) => {
-                      const file = Array.from(e.target.files ?? [])[0];
-                      form.setValue("previewMultimedia", file);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field: { ref, name, onBlur, disabled, value } }) => {
+              const formValues = form.getValues();
+
+              return (
+                <FormItem>
+                  <FormLabel>Image Preview</FormLabel>
+                  <FormControl>
+                    <FileInput
+                      ref={ref}
+                      accept="image/*"
+                      className="w-full"
+                      disabled={disabled}
+                      name={name}
+                      value={value}
+                      action={(multimedia) => (
+                        <GamePreview
+                          price={formValues.price}
+                          publisherName="" // TODO: Add publisher name once publisher tasks are done.
+                          title={formValues.title}
+                          previewMultimediaUrl={
+                            "url" in multimedia
+                              ? multimedia.url
+                              : URL.createObjectURL(multimedia)
+                          }
+                        />
+                      )}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const selectedFile = e.target.files?.item(0);
+                        if (selectedFile) {
+                          form.setValue("previewMultimedia", selectedFile);
+                        }
+                      }}
+                    >
+                      {(multimedia) => {
+                        return "url" in multimedia
+                          ? multimedia.url
+                          : multimedia.name;
+                      }}
+                    </FileInput>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
             control={form.control}
             name="downloadMultimedia"
-            render={({ field: { ref, name, onBlur, disabled } }) => (
+            render={({ field: { ref, name, onBlur, disabled, value } }) => (
               <FormItem>
                 <FormLabel optional={!form.getValues().releaseDate}>
                   Game Files
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <FileInput
                     ref={ref}
                     accept="application/zip"
                     disabled={disabled}
                     name={name}
                     type="file"
+                    value={value}
+                    action={(gameFiles) => (
+                      <Button
+                        asChild
+                        className="relative size-8 flex items-center left-2 text-muted-foreground hover:bg-primary/30"
+                        size="icon"
+                        variant="ghost"
+                      >
+                        <a
+                          download={getMultimediaName(gameFiles)}
+                          href={
+                            "url" in gameFiles
+                              ? gameFiles.url
+                              : URL.createObjectURL(gameFiles)
+                          }
+                        >
+                          <Download />
+                        </a>
+                      </Button>
+                    )}
                     onBlur={onBlur}
                     onChange={(e) => {
                       const file = Array.from(e.target.files ?? [])[0];
                       form.setValue("downloadMultimedia", file);
                     }}
-                  />
+                  >
+                    {(gameFiles) =>
+                      "url" in gameFiles ? gameFiles.url : gameFiles.name
+                    }
+                  </FileInput>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -801,17 +860,17 @@ export function GameForm(props: GameProps) {
         <FormField
           control={form.control}
           name="multimedia"
-          render={({ field: { ref, name, onBlur, disabled } }) => (
+          render={({ field: { ref, name, onBlur, disabled, value } }) => (
             <FormItem>
               <FormLabel>Screenshots</FormLabel>
               <FormControl>
-                <Input
+                <FileInput
                   ref={ref}
                   multiple
                   accept="image/*"
                   disabled={disabled}
                   name={name}
-                  type="file"
+                  value={value}
                   onBlur={onBlur}
                   onChange={(e) => {
                     const files = Array.from(e.target.files ?? []);
@@ -827,12 +886,16 @@ export function GameForm(props: GameProps) {
 
                     form.setValue("multimedia", updatedMultimedia);
                   }}
-                />
+                >
+                  {(screenshots) => {
+                    return `${screenshots.length} selected`;
+                  }}
+                </FileInput>
               </FormControl>
               <FormMessage />
               <MultimediaUploadList
                 multimedia={form.getValues("multimedia")}
-                onOrderChange={(multimedia) =>
+                onChange={(multimedia) =>
                   form.setValue("multimedia", multimedia)
                 }
               />

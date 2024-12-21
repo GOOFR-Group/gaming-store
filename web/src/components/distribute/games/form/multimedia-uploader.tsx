@@ -1,34 +1,21 @@
 import { move } from "@dnd-kit/helpers";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
+import { getMultimediaName } from "@/lib/utils";
 
 function MultimediaItem(props: {
   multimedia: Multimedia | TemporaryMultimedia;
   index: number;
+  onRemove: (index: number) => void;
 }) {
   const { ref } = useSortable({
     id: props.multimedia.id,
     index: props.index,
   });
-
-  function getName() {
-    if ("url" in props.multimedia) {
-      const paths = props.multimedia.url.split("/");
-      const lastPath = paths[paths.length - 1];
-
-      const searchParamsIndex = lastPath.indexOf("?");
-      if (searchParamsIndex > -1) {
-        return lastPath.substring(0, searchParamsIndex);
-      }
-
-      return lastPath;
-    }
-
-    return props.multimedia.file.name;
-  }
 
   function getImageSrc() {
     if ("url" in props.multimedia) {
@@ -49,20 +36,30 @@ function MultimediaItem(props: {
         src={getImageSrc()}
       />
 
-      <span className="text-foreground flex-1 truncate">{getName()}</span>
+      <span className="text-foreground flex-1 truncate">
+        {getMultimediaName(props.multimedia)}
+      </span>
 
-      <GripVertical className="ml-auto text-muted-foreground size-4" />
+      <Button
+        size="icon"
+        variant="destructive"
+        onClick={() => props.onRemove(props.index)}
+      >
+        <Trash2 />
+      </Button>
+
+      <GripVertical className="text-muted-foreground size-4" />
     </li>
   );
 }
 
 export function MultimediaUploadList<
   T extends Multimedia | TemporaryMultimedia,
->(props: { multimedia: T[]; onOrderChange: (multimedia: T[]) => void }) {
+>(props: { multimedia: T[]; onChange: (multimedia: T[]) => void }) {
   return (
     <DragDropProvider
       onDragEnd={(event) => {
-        props.onOrderChange(
+        props.onChange(
           move(
             props.multimedia,
             event.operation.source,
@@ -78,6 +75,11 @@ export function MultimediaUploadList<
               key={multimedia.id}
               index={index}
               multimedia={multimedia}
+              onRemove={(index) => {
+                const updatedMultimedia = [...props.multimedia];
+                updatedMultimedia.splice(index, 1);
+                props.onChange(updatedMultimedia);
+              }}
             />
           );
         })}

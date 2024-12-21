@@ -10,7 +10,7 @@ export function Game(props: {
     <article className="max-w-80">
       <img
         alt="Game cover"
-        className="object-cover aspect-[3/4] rounded-lg w-full"
+        className="object-cover w-80 aspect-[3/4] rounded-lg"
         src={props.image}
       />
       <div className="py-2 flex flex-col gap-1">
