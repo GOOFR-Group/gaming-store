@@ -49,16 +49,18 @@ function Component() {
       {/* Top bar */}
       <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
         <div className="flex items-center space-x-4">
+          <Link href="/">
+            <img
+              alt="GOOFR Gaming Store Logo"
+              className="w-28"
+              src="/images/logo.png"
+            />
+          </Link>
+
           <Link
             className="flex items-center gap-4 space-x-2"
             href="/distribute"
           >
-            <img
-              alt="GOOFR Gaming Store Logo"
-              className="size-16"
-              src="/images/logo.png"
-            />
-
             <h1 className="font-semibold text-xl">Distribution Center</h1>
           </Link>
         </div>

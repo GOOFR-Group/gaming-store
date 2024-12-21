@@ -47,8 +47,16 @@ type Service interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
+	ListUserGamesLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserGamesLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+
+	CreatePublisher(ctx context.Context, editablePublisher domain.EditablePublisherWithPassword) (domain.Publisher, error)
+	GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Publisher, error)
+	PatchPublisher(ctx context.Context, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) (domain.Publisher, error)
+	SignInPublisher(ctx context.Context, email domain.Email, password domain.Password) (string, error)
 
 	CreateGame(ctx context.Context, publisherID uuid.UUID, editableGame domain.EditableGame) (domain.Game, error)
+	ListGames(ctx context.Context, filter domain.GamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	ListGamesRecommended(ctx context.Context, filter domain.GamesRecommendedPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	GetGameByID(ctx context.Context, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, id uuid.UUID, editableGame domain.EditableGamePatch) (domain.Game, error)
 

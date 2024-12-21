@@ -9,6 +9,9 @@ export interface Multimedia {
   createdAt: string;
 }
 
+/**
+ * Represents temporary multimedia that has not yet been uploaded to the server.
+ */
 export interface TemporaryMultimedia {
   id: string;
   file: File;

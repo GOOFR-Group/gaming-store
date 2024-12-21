@@ -5,6 +5,8 @@ info:
 tags:
   - name: User
     description: User operations
+  - name: Publisher
+    description: Publisher operations
   - name: Game
     description: Game operations
   - name: Game Tag
@@ -151,7 +153,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SignIn"
+              $ref: "#/components/schemas/UserSignIn"
       responses:
         200:
           description: Successful operation.
@@ -167,6 +169,307 @@ paths:
                 $ref: "#/components/schemas/Error"
         401:
           description: Incorrect credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/{userId}/games:
+    get:
+      summary: List user's game library.
+      operationId: listUserGames
+      description: Returns the user's game library with the specified filter.
+      tags:
+        - User
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - gameTitle
+              - gamePrice
+              - gameReleaseDate
+            default: gameTitle
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /publishers:
+    post:
+      summary: Create a publisher.
+      operationId: createPublisher
+      description: Creates a new publisher with the specified data.
+      tags:
+        - Publisher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublisherPost"
+      responses:
+        201:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /publishers/{publisherId}:
+    get:
+      summary: Get a publisher by ID.
+      operationId: getPublisherByID
+      description: Returns the publisher with the specified identifier.
+      tags:
+        - Publisher
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Modify a publisher by ID.
+      operationId: patchPublisherByID
+      description: Modifies the publisher with the specified identifier. Only the specified fields in the request body are updated.
+      tags:
+        - Publisher
+      security:
+        - BearerAuth: [publisher]
+      parameters:
+        - $ref: "#/components/parameters/PublisherIdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublisherPatch"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publisher"
+        400:
+          description: Invalid parameters or request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Publisher not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Email or vatin already exists. Or multimedia does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /publishers/signin:
+    post:
+      summary: Sign in a publisher.
+      operationId: signInPublisher
+      description: Returns a JSON Web Token for the specified email and password.
+      tags:
+        - Publisher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublisherSignIn"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JWT"
+        400:
+          description: Invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: Incorrect credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /games:
+    get:
+      summary: List games.
+      operationId: listGames
+      description: Returns the games with the specified filter.
+      tags:
+        - Game
+      parameters:
+        - name: publisherId
+          in: query
+          description: Publisher to filter by.
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: title
+          in: query
+          description: Title to filter by.
+          schema:
+            $ref: "#/components/schemas/GameTitle"
+        - name: priceUnder
+          in: query
+          description: Price under (<=) to filter by.
+          schema:
+            $ref: "#/components/schemas/GamePrice"
+        - name: priceAbove
+          in: query
+          description: Price above (>=) to filter by.
+          schema:
+            $ref: "#/components/schemas/GamePrice"
+        - name: isActive
+          in: query
+          description: State to filter by.
+          schema:
+            $ref: "#/components/schemas/GameIsActive"
+        - name: releaseDateBefore
+          in: query
+          description: Release date before (<=) to filter by.
+          schema:
+            $ref: "#/components/schemas/Date"
+        - name: releaseDateAfter
+          in: query
+          description: Release date after (>=) to filter by.
+          schema:
+            $ref: "#/components/schemas/Date"
+        - name: tagIds
+          in: query
+          description: Tags to filter by.
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/UUID"
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - title
+              - price
+              - releaseDate
+              - userCount
+            default: title
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /games/recommended:
+    get:
+      summary: List recommended games.
+      operationId: listRecommendedGames
+      description: Returns the recommended games with the specified filter.
+      tags:
+        - Game
+      parameters:
+        - name: userId
+          in: query
+          description: User to filter by.
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
           content:
             application/json:
               schema:
@@ -686,6 +989,24 @@ components:
       minLength: 1
       maxLength: 2048
 
+    JWT:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVcJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiWiBmFtZSI6IkPvaG4gRG9lIiWiaWF0IjOxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssW5c
+    PaginatedResponse:
+      type: object
+      required:
+        - total
+      properties:
+        total:
+          type: integer
+          description: The total amount of resources available for the provided filter.
+          minimum: 0
+
     UserDateOfBirth:
       type: string
       format: date
@@ -750,7 +1071,7 @@ components:
       minLength: 1
       maxLength: 200
 
-    SignIn:
+    UserSignIn:
       type: object
       required:
         - password
@@ -761,24 +1082,6 @@ components:
           $ref: "#/components/schemas/Email"
         password:
           $ref: "#/components/schemas/Password"
-    JWT:
-      type: object
-      required:
-        - token
-      properties:
-        token:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVcJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiWiBmFtZSI6IkPvaG4gRG9lIiWiaWF0IjOxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssW5c
-    PaginatedResponse:
-      type: object
-      required:
-        - total
-      properties:
-        total:
-          type: integer
-          description: The total amount of resources available for the provided filter.
-          minimum: 0
-
     UserPost:
       type: object
       required:
@@ -870,6 +1173,55 @@ components:
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
 
+    PublisherSignIn:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        password:
+          $ref: "#/components/schemas/Password"
+    PublisherPost:
+      type: object
+      required:
+        - email
+        - password
+        - name
+        - address
+        - country
+        - vatin
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        password:
+          $ref: "#/components/schemas/Password"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
+    PublisherPatch:
+      type: object
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        name:
+          $ref: "#/components/schemas/Name"
+        address:
+          $ref: "#/components/schemas/Address"
+        country:
+          $ref: "#/components/schemas/Country"
+        vatin:
+          $ref: "#/components/schemas/Vatin"
+        pictureMultimediaId:
+          $ref: "#/components/schemas/UUID"
     Publisher:
       type: object
       required:
@@ -1018,6 +1370,17 @@ components:
           $ref: "#/components/schemas/DateTime"
         modifiedAt:
           $ref: "#/components/schemas/DateTime"
+    GamesPaginated:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedResponse"
+        - type: object
+          required:
+            - games
+          properties:
+            games:
+              type: array
+              items:
+                $ref: "#/components/schemas/Game"
 
     GameMultimediaPost:
       type: object

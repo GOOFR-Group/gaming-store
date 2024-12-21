@@ -123,12 +123,19 @@ func offsetToDomain(offset *api.OffsetQueryParam) domain.PaginationOffset {
 	return domain.PaginationOffset(*offset)
 }
 
+// paginatedRequestBaseToDomain returns a domain paginated request base based on the standardized query parameter models.
+func paginatedRequestBaseToDomain(limit *api.LimitQueryParam, offset *api.OffsetQueryParam) domain.PaginatedRequestBase {
+	return domain.PaginatedRequestBase{
+		Limit:  limitToDomain(limit),
+		Offset: offsetToDomain(offset),
+	}
+}
+
 // paginatedRequestToDomain returns a domain paginated request based on the standardized query parameter models.
 func paginatedRequestToDomain[T any](sort domain.PaginationSort[T], order *api.OrderQueryParam, limit *api.LimitQueryParam, offset *api.OffsetQueryParam) domain.PaginatedRequest[T] {
 	return domain.PaginatedRequest[T]{
-		Sort:   sort,
-		Order:  orderToDomain(order),
-		Limit:  limitToDomain(limit),
-		Offset: offsetToDomain(offset),
+		PaginatedRequestBase: paginatedRequestBaseToDomain(limit, offset),
+		Sort:                 sort,
+		Order:                orderToDomain(order),
 	}
 }

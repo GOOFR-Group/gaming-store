@@ -1,12 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useParams,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Download, Edit } from "lucide-react";
+import { Download } from "lucide-react";
 
 import { ErrorPage } from "@/components/distribute/error";
 import { GamePreview } from "@/components/distribute/games/game-preview";
@@ -27,7 +22,7 @@ import {
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
-import { NotFound, TokenMissing, Unauthorized } from "@/lib/errors";
+import { BadRequest, NotFound, TokenMissing, Unauthorized } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getLanguageName } from "@/lib/utils";
 
@@ -68,7 +63,12 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
     }
   },
   errorComponent(errorProps) {
-    if (errorProps.error instanceof NotFound) {
+    // If the game ID is not a valid UUID, a BadRequest is thrown.
+    // This error is visually identical to a NotFound error.
+    if (
+      errorProps.error instanceof BadRequest ||
+      errorProps.error instanceof NotFound
+    ) {
       return (
         <ErrorPage
           showBack
@@ -123,12 +123,6 @@ function Component() {
               </TooltipContent>
             </Tooltip>
           )}
-          <Button asChild>
-            <Link params={params} to="/distribute/games/$gameId/edit">
-              <Edit />
-              Edit
-            </Link>
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
