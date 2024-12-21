@@ -2,6 +2,9 @@ import { Multimedia } from "./multimedia";
 import { Publisher } from "./publisher";
 import { Tag } from "./tag";
 
+/**
+ * Represents a game that is not announced.
+ */
 interface ToBeAnnouncedGame {
   id: string;
   publisher: Publisher;
@@ -23,6 +26,9 @@ interface ToBeAnnouncedGame {
   modifiedAt: string;
 }
 
+/**
+ * Represents a game that is announced.
+ */
 interface AnnouncedGame extends ToBeAnnouncedGame {
   releaseDate: string;
   downloadMultimedia: Multimedia;
