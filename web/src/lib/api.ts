@@ -7,6 +7,7 @@ import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
 import {
+  BadRequest,
   Conflict,
   ContentTooLarge,
   Forbidden,
@@ -274,6 +275,7 @@ export async function getGames(filters: GamesFilters) {
  * Retrieves a game from a publisher.
  * @param publisherId Publisher ID.
  * @returns Game of a publisher.
+ * @throws {BadRequest} Invalid parameters.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game not found.
@@ -295,6 +297,8 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
       case 401:
         throw new Unauthorized(error.code, error.message);
       case 403:
