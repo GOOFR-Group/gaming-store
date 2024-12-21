@@ -56,6 +56,7 @@ import {
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
+import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 
 import { MultimediaUploadList } from "./multimedia-uploader";
@@ -231,7 +232,7 @@ export function GameForm(props: {
         const createdGame = await createGame(publisherId, newGame);
 
         // Upload multimedia files.
-        const multimediaResults = await Promise.allSettled(
+        const multimediaResults = await Promise.all(
           data.multimedia.map((multimedia) =>
             uploadMultimedia(multimedia.file),
           ),
@@ -240,13 +241,11 @@ export function GameForm(props: {
         // Retrieve uploaded multimedia.
         const uploadedMultimedia: Multimedia[] = [];
         multimediaResults.forEach((result) => {
-          if (result.status === "fulfilled") {
-            uploadedMultimedia.push(result.value);
-          }
+          uploadedMultimedia.push(result);
         });
 
         // Create game multimedia association.
-        await Promise.allSettled(
+        await Promise.all(
           uploadedMultimedia.map((multimedia, idx) =>
             createGameMultimedia(publisherId, createdGame.id, multimedia.id, {
               position: idx,
@@ -255,7 +254,7 @@ export function GameForm(props: {
         );
 
         // Create game tag association.
-        await Promise.allSettled(
+        await Promise.all(
           data.tags.map((tag) =>
             createGameTag(publisherId, createdGame.id, tag.id),
           ),
@@ -268,8 +267,23 @@ export function GameForm(props: {
       });
       props.onSave();
     },
-    onError() {
-      // TODO: Handle errors.
+    onError(error) {
+      if (error instanceof ContentTooLarge) {
+        toast({
+          variant: "destructive",
+          title: "File sizes must be smaller than 20MB",
+        });
+        return;
+      }
+
+      if (error instanceof Conflict) {
+        toast({
+          variant: "destructive",
+          title: "Each screenshot must be unique",
+        });
+        return;
+      }
+
       toast(TOAST_MESSAGES.unexpectedError);
     },
   });
