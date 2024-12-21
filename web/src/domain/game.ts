@@ -65,6 +65,9 @@ export interface GamesFilters {
   tagIds?: number[];
 }
 
+/**
+ * Represents a new game.
+ */
 export interface NewGame {
   title: string;
   price: number;
