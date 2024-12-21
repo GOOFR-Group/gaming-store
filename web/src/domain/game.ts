@@ -85,6 +85,9 @@ export interface NewGame {
   downloadMultimediaId?: string;
 }
 
+/**
+ * Represents an editable game.
+ */
 export interface EditableGame {
   title?: string;
   price?: number;
