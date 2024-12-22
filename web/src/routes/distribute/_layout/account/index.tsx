@@ -43,8 +43,10 @@ import { getPublisher, updatePublisher, uploadMultimedia } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES, COUNTRIES_MAP, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { publisherQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
+import { publisherAccountDetails } from "@/lib/zod";
 
 /**
  * Query options for retrieving the signed in publisher.
@@ -165,7 +167,7 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
@@ -174,12 +176,8 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
-    },
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
   });
 
   /**
@@ -228,45 +226,7 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
   );
 }
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(1, {
-      message: "Name is required",
-    })
-    .max(50, {
-      message: "Name must be shorter than 50 characters",
-    }),
-  email: z
-    .string()
-    .email({
-      message: "Please enter a valid email address",
-    })
-    .max(320, {
-      message: "Email must be shorter than 320 characters",
-    }),
-  country: z.string().min(1, {
-    message: "Country is required",
-  }),
-  address: z
-    .string()
-    .min(1, {
-      message: "Address is required",
-    })
-    .max(100, {
-      message: "Address must be shorter than 100 characters",
-    }),
-  vatin: z
-    .string()
-    .min(1, {
-      message: "VAT No. is required",
-    })
-    .max(20, {
-      message: "VAT No. must be shorter than 20 characters",
-    }),
-});
-
-type AccountDetailsSchemaType = z.infer<typeof formSchema>;
+type AccountDetailsSchemaType = z.infer<typeof publisherAccountDetails>;
 
 function EditAccountDetails(props: {
   publisher: Publisher;
@@ -275,7 +235,7 @@ function EditAccountDetails(props: {
 }) {
   const queryClient = useQueryClient();
   const form = useForm<AccountDetailsSchemaType>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(publisherAccountDetails),
     defaultValues: {
       name: props.publisher.name,
       email: props.publisher.email,
@@ -358,11 +318,7 @@ function EditAccountDetails(props: {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter your email"
-                      type="email"
-                      {...field}
-                    />
+                    <Input placeholder="Enter your email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

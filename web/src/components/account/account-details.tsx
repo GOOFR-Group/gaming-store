@@ -38,7 +38,7 @@ import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
-import { accountDetailsSchema } from "@/lib/zod";
+import { userAccountDetailsSchema } from "@/lib/zod";
 
 export function AccountDetails(props: { user: User; country: string }) {
   const [isEditMode, setEditMode] = useState(false);
@@ -113,7 +113,7 @@ function ViewAccountDetails(props: {
   );
 }
 
-type AccountDetailsSchemaType = z.infer<typeof accountDetailsSchema>;
+type AccountDetailsSchemaType = z.infer<typeof userAccountDetailsSchema>;
 
 function EditAccountDetails(props: {
   user: User;
@@ -122,7 +122,7 @@ function EditAccountDetails(props: {
 }) {
   const queryClient = useQueryClient();
   const form = useForm<AccountDetailsSchemaType>({
-    resolver: zodResolver(accountDetailsSchema),
+    resolver: zodResolver(userAccountDetailsSchema),
     defaultValues: {
       username: props.user.username,
       email: props.user.email,
