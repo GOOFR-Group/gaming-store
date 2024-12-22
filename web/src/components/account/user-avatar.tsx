@@ -21,7 +21,6 @@ export function UserAvatar(props: {
   const mutation = useMutation({
     async mutationFn(file: File) {
       const multimedia = await uploadMultimedia(file);
-
       await updateUser(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {

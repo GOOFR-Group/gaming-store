@@ -32,7 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createPublisher, signInPublisher } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
-import { TOAST_MESSAGES } from "@/lib/constants";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { passwordRefinement } from "@/lib/zod";
 
@@ -200,10 +200,16 @@ function Component() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="us">United States</SelectItem>
-                          <SelectItem value="uk">United Kingdom</SelectItem>
-                          <SelectItem value="ca">Canada</SelectItem>
-                          <SelectItem value="au">Australia</SelectItem>
+                          {COUNTRIES.map((country) => {
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                value={country.code}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
