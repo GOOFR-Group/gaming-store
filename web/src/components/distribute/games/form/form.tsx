@@ -61,6 +61,7 @@ import {
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { cn, getMultimediaName } from "@/lib/utils";
 
 import { GamePreview } from "../game-preview";
@@ -405,7 +406,7 @@ export function GameForm(props: GameProps) {
       });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
@@ -423,7 +424,7 @@ export function GameForm(props: GameProps) {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   const tagsQuery = useTags();
