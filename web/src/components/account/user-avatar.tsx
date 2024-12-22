@@ -31,7 +31,7 @@ export function UserAvatar(props: {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
-          title: "Picture size must be smaller than 2MB",
+          title: "Picture size must be smaller than 20 MB",
         });
         return;
       }

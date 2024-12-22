@@ -112,7 +112,7 @@ function Component() {
           />
         ) : (
           <ViewAccountDetails
-            country={country}
+            country={country} // TODO: Remove after publisher view game details is done.
             publisher={publisher}
             onEdit={() => setEditMode(true)}
           />
@@ -164,7 +164,6 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
   const mutation = useMutation({
     async mutationFn(file: File) {
       const multimedia = await uploadMultimedia(file);
-
       await updatePublisher(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {
@@ -174,7 +173,7 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
-          title: "Picture size must be smaller than 20MB",
+          title: "Picture size must be smaller than 20 MB",
         });
         return;
       }
