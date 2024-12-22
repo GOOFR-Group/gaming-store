@@ -237,6 +237,13 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   return jwt;
 }
 
+/**
+ * Retrieves a publisher given a publisher ID.
+ * @param id Publisher ID.
+ * @returns Publisher.
+ * @throws {NotFound} Publisher not found.
+ * @throws {InternalServerError} Server internal error.
+ */
 export async function getPublisher(id: string) {
   const token = getToken();
 
@@ -250,10 +257,6 @@ export async function getPublisher(id: string) {
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
       default:
@@ -261,20 +264,20 @@ export async function getPublisher(id: string) {
     }
   }
 
-  const user = (await response.json()) as Publisher;
+  const publisher = (await response.json()) as Publisher;
 
-  return user;
+  return publisher;
 }
 
 /**
- * Updates a user.
- * @param id User ID.
- * @param details User details.
- * @returns Updated user.
+ * Updates a publisher.
+ * @param id Publisher ID.
+ * @param details Publisher details.
+ * @returns Updated publisher.
  * @throws {Unauthorized} Access token invalid.
  * @throws {Forbidden} Forbidden access.
- * @throws {NotFound} User not found.
- * @throws {Conflict} Username, email or vatin already exists. Or multimedia does not exist.
+ * @throws {NotFound} Publisher not found.
+ * @throws {Conflict} Email or vatin already exists. Or multimedia does not exist.
  * @throws {InternalServerError} Server internal error.
  */
 export async function updatePublisher(id: string, details: EditablePublisher) {
