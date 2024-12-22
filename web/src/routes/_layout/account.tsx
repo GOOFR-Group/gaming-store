@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Gamepad2, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
@@ -46,13 +46,6 @@ export const Route = createFileRoute("/_layout/account")({
   component: Component,
   loader(opts) {
     return opts.context.queryClient.ensureQueryData(userQueryOptions());
-  },
-  onError() {
-    redirect({
-      to: "/signin",
-      replace: true,
-      throw: true,
-    });
   },
 });
 

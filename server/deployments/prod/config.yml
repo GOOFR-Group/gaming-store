@@ -8,3 +8,10 @@ database:
 cloudStorage:
   enabled: true
   bucketMultimedia: multimedia_bucket
+smtp:
+  enabled: true
+  host: SMTP_HOST
+  port: SMTP_PORT
+  username: SMTP_USERNAME
+  password: SMTP_PASSWORD
+  from: SMTP_FROM

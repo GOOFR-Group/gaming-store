@@ -122,4 +122,4 @@ export class TokenMissing extends Error {}
 /**
  * Represents the error that the JWT payload is missing from the JWT.
  */
-export class PayloadMissing extends Error {}
+export class TokenPayloadMissing extends Error {}

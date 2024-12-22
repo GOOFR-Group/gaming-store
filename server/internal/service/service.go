@@ -39,6 +39,14 @@ type DataStore interface {
 	GetUserSignIn(ctx context.Context, tx pgx.Tx, username domain.Username, email domain.Email) (domain.SignInUser, error)
 	PatchUser(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableUser domain.EditableUserPatch) error
 
+	CreateUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
+	ListUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
+	PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error
+
+	ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	ExistsUserLibraryGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) (bool, error)
+
 	CreatePublisher(ctx context.Context, tx pgx.Tx, editablePublisher domain.EditablePublisherWithPassword) (uuid.UUID, error)
 	GetPublisherByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Publisher, error)
 	GetPublisherByEmail(ctx context.Context, tx pgx.Tx, email domain.Email) (domain.Publisher, error)
@@ -48,7 +56,6 @@ type DataStore interface {
 	CreateGame(ctx context.Context, tx pgx.Tx, publisherID uuid.UUID, editableGame domain.EditableGame) (uuid.UUID, error)
 	ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter domain.GamesRecommendedPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
-	ListGamesByUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserGamesLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	GetGameByID(ctx context.Context, tx pgx.Tx, id uuid.UUID) (domain.Game, error)
 	PatchGame(ctx context.Context, tx pgx.Tx, id uuid.UUID, editableGame domain.EditableGamePatch) error
 
@@ -73,19 +80,26 @@ type ObjectStore interface {
 	GetMultimediaObject(ctx context.Context, name string) (domain.MultimediaObject, error)
 }
 
+// SMTP defines the smtp interface.
+type SMTP interface {
+	SendMailHTML(to []string, subject string, body string) error
+}
+
 // service defines the service structure.
 type service struct {
 	authnService AuthenticationService
 	dataStore    DataStore
 	objectStore  ObjectStore
+	smtp         SMTP
 }
 
 // New returns a new http handler.
-func New(authnService AuthenticationService, dataStore DataStore, objectStore ObjectStore) *service {
+func New(authnService AuthenticationService, dataStore DataStore, objectStore ObjectStore, smtp SMTP) *service {
 	return &service{
 		authnService: authnService,
 		dataStore:    dataStore,
 		objectStore:  objectStore,
+		smtp:         smtp,
 	}
 }
 
