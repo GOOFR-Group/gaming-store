@@ -5,6 +5,7 @@ type Service struct {
 	ServerHTTP   ServerHTTP   `yaml:"serverHTTP"`
 	Database     Database     `yaml:"database"`
 	CloudStorage CloudStorage `yaml:"cloudStorage"`
+	SMTP         SMTP         `yaml:"smtp"`
 }
 
 // ServerHTTP defines the http server configuration structure.
@@ -29,4 +30,14 @@ type Database struct {
 type CloudStorage struct {
 	Enabled          bool   `yaml:"enabled"`
 	BucketMultimedia string `yaml:"bucketMultimedia"`
+}
+
+// SMTP defines the SMTP configuration structure.
+type SMTP struct {
+	Enabled  bool   `yaml:"enabled"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	From     string `yaml:"from"`
 }

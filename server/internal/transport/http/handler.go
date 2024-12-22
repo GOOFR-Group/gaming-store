@@ -51,6 +51,7 @@ type Service interface {
 	CreateUserCartGame(ctx context.Context, userID, gameID uuid.UUID) error
 	ListUserCart(ctx context.Context, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	DeleteUserCartGame(ctx context.Context, userID, gameID uuid.UUID) error
+	PurchaseUserCart(ctx context.Context, userID uuid.UUID) error
 
 	ListUserLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 

@@ -6,6 +6,7 @@ import "errors"
 var (
 	ErrUserCartGameAlreadyExists = errors.New("user cart game already exists") // Returned when a user cart game association already exists.
 	ErrUserCartGameNotFound      = errors.New("user cart game not found")      // Returned when a user cart game association is not found.
+	ErrUserCartEmpty             = errors.New("user cart empty")               // Returned when a user cart is empty.
 )
 
 // UserCartPaginatedSort defines the field of the user cart to sort.

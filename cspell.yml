@@ -26,6 +26,7 @@ ignoreWords:
   - ihttp
   - ILIKE
   - iobjectStore
+  - ismtp
   - isready
   - Kitts
   - ldflags
