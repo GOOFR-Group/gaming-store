@@ -32,7 +32,7 @@ func New(config config.SMTP) *client {
 	}
 }
 
-// SendMailHTML send the given message to the given list of recipients using the HTML content type.
+// SendMailHTML sends the given message to the given list of recipients using the HTML content type.
 func (c *client) SendMailHTML(to []string, subject string, body string) error {
 	subject = fmt.Sprintf(headerSubject, subject)
 

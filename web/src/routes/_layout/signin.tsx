@@ -140,19 +140,15 @@ function Component() {
                 )}
               />
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex items-center flex-col space-y-4">
               <Button
                 className="w-full text-primary-foreground font-semibold"
                 type="submit"
               >
                 Sign In
               </Button>
-              <Button
-                asChild
-                className="w-full text-primary-foreground font-semibold"
-                variant="secondary"
-              >
-                <Link to="/register">Register</Link>
+              <Button asChild variant="link">
+                <Link to="/register">Create account</Link>
               </Button>
             </CardFooter>
           </form>
