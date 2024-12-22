@@ -16,11 +16,12 @@ const (
 
 // User errors.
 var (
-	ErrUserUsernameAlreadyExists = errors.New("username already exists") // Returned when a user already exists with the same username.
-	ErrUserEmailAlreadyExists    = errors.New("email already exists")    // Returned when a user already exists with the same email.
-	ErrUserVatinAlreadyExists    = errors.New("vatin already exists")    // Returned when a user already exists with the same vatin.
-	ErrUserNotFound              = errors.New("user not found")          // Returned when a user is not found.
-	ErrUserNotOldEnough          = errors.New("user not old enough")     // Returned when a user is user not old enough to perform a certain action.
+	ErrUserUsernameAlreadyExists = errors.New("username already exists")   // Returned when a user already exists with the same username.
+	ErrUserEmailAlreadyExists    = errors.New("email already exists")      // Returned when a user already exists with the same email.
+	ErrUserVatinAlreadyExists    = errors.New("vatin already exists")      // Returned when a user already exists with the same vatin.
+	ErrUserNotFound              = errors.New("user not found")            // Returned when a user is not found.
+	ErrUserNotOldEnough          = errors.New("user not old enough")       // Returned when a user is user not old enough to perform a certain action.
+	ErrUserBalanceInsufficient   = errors.New("user balance insufficient") // Returned when a user does not have sufficient balance.
 )
 
 // UserDateOfBirth defines the user date of birth type.

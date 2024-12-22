@@ -143,15 +143,49 @@ func (s *store) DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameI
 	return nil
 }
 
-// DeleteUserCart executes a query to delete all the user cart games association with the specified identifier.
-func (s *store) DeleteUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error {
+// PurchaseUserCart executes a query to delete all the user cart games and insert them in the user library with the
+// specified identifier. It also stores an invoice for the purchased games.
+func (s *store) PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error {
 	_, err := tx.Exec(ctx, `
-		DELETE FROM users_carts
-		WHERE user_id = $1
+		WITH purchasing_user AS (
+			SELECT id, vatin
+			FROM users
+			WHERE id = $1
+		), purchased_games AS (
+			DELETE FROM users_carts
+			WHERE user_id = (SELECT id FROM purchasing_user)
+			RETURNING user_id, game_id
+		), user_library AS (
+			INSERT INTO users_libraries (user_id, game_id)
+			SELECT user_id, game_id
+			FROM purchased_games
+		), invoice AS (
+			INSERT INTO invoices (user_id, user_vatin)
+			SELECT id, vatin
+			FROM purchasing_user
+			RETURNING id
+		)
+		INSERT INTO invoices_games (invoice_id, game_id, price, tax, publisher_vatin)
+		SELECT 
+			(SELECT id FROM invoice),
+			game_id,
+			(SELECT price FROM games WHERE id = game_id),
+			0,
+			(SELECT vatin FROM publishers WHERE id = (SELECT publisher_id FROM games WHERE id = game_id))
+		FROM purchased_games
 	`,
 		userID,
 	)
 	if err != nil {
+		switch constraintNameFromError(err) {
+		case constraintUsersLibrariesPkey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserLibraryGameAlreadyExists)
+		case constraintUsersLibrariesUserIDFkey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrUserNotFound)
+		case constraintUsersLibrariesGameIDFkey:
+			return fmt.Errorf("%s: %w", descriptionFailedExec, domain.ErrGameNotFound)
+		}
+
 		return fmt.Errorf("%s: %w", descriptionFailedExec, err)
 	}
 

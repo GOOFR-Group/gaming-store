@@ -1,14 +1,17 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"html/template"
 	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/goofr-group/gaming-store/server"
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 )
@@ -17,6 +20,12 @@ const (
 	descriptionFailedCreateUserCartGame = "service: failed to create user cart game association"
 	descriptionFailedListUserCart       = "service: failed to list user cart"
 	descriptionFailedDeleteUserCartGame = "service: failed to delete user cart game association"
+	descriptionFailedPurchaseUserCart   = "service: failed to purchase user cart"
+
+	listUserCartPaginatedLimit = 100
+
+	invoiceEmailSubject          = "GOOFR Store Invoice"
+	invoiceEmailBodyTemplatePath = "templates/email/invoice.html"
 )
 
 // CreateUserCartGame creates a user cart game association.
@@ -144,6 +153,108 @@ func (s *service) DeleteUserCartGame(ctx context.Context, userID, gameID uuid.UU
 			return logInfoAndWrapError(ctx, err, descriptionFailedDeleteUserCartGame, logAttrs...)
 		default:
 			return logAndWrapError(ctx, err, descriptionFailedDeleteUserCartGame, logAttrs...)
+		}
+	}
+
+	return nil
+}
+
+// PurchaseUserCart purchases a user shopping cart.
+func (s *service) PurchaseUserCart(ctx context.Context, userID uuid.UUID) error {
+	logAttrs := []any{
+		slog.String(logging.ServiceMethod, "PurchaseUserCart"),
+		slog.String(logging.UserID, userID.String()),
+	}
+
+	err := s.readWriteTx(ctx, func(tx pgx.Tx) error {
+		user, err := s.dataStore.GetUserByID(ctx, tx, userID)
+		if err != nil {
+			return err
+		}
+
+		var games []domain.Game
+
+		for {
+			userCart, err := s.dataStore.ListUserCart(ctx, tx, userID, domain.UserCartPaginatedFilter{
+				PaginatedRequest: domain.PaginatedRequest[domain.UserCartPaginatedSort]{
+					PaginatedRequestBase: domain.PaginatedRequestBase{
+						Limit:  listUserCartPaginatedLimit,
+						Offset: domain.PaginationOffset(len(games)),
+					},
+					Sort:  domain.UserCartPaginatedSortCreatedAt,
+					Order: domain.PaginationOrderDesc,
+				},
+			})
+			if err != nil {
+				return err
+			}
+
+			if games == nil {
+				games = make([]domain.Game, 0, userCart.Total)
+			}
+
+			games = append(games, userCart.Results...)
+
+			if len(userCart.Results) < listUserCartPaginatedLimit {
+				break
+			}
+		}
+
+		if len(games) == 0 {
+			return domain.ErrUserCartEmpty
+		}
+
+		var totalPrice float64
+		for _, game := range games {
+			totalPrice += float64(game.Price)
+		}
+
+		newUserBalance := user.Balance - totalPrice
+		if newUserBalance < 0 {
+			return domain.ErrUserBalanceInsufficient
+		}
+
+		err = s.dataStore.PatchUser(ctx, tx, userID, domain.EditableUserPatch{
+			Balance: &newUserBalance,
+		})
+		if err != nil {
+			return err
+		}
+
+		err = s.dataStore.PurchaseUserCart(ctx, tx, userID)
+		if err != nil {
+			return err
+		}
+
+		template, err := template.ParseFS(server.FileSystemTemplates, invoiceEmailBodyTemplatePath)
+		if err != nil {
+			return err
+		}
+
+		invoice := domain.Invoice{
+			User:       user,
+			Games:      games,
+			TotalPrice: totalPrice,
+			CreatedAt:  time.Now().UTC().Format(time.DateOnly),
+		}
+
+		var body bytes.Buffer
+
+		err = template.Execute(&body, invoice)
+		if err != nil {
+			return err
+		}
+
+		return s.smtp.SendMailHTML([]string{string(user.Email)}, invoiceEmailSubject, body.String())
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound),
+			errors.Is(err, domain.ErrUserCartEmpty),
+			errors.Is(err, domain.ErrUserBalanceInsufficient):
+			return logInfoAndWrapError(ctx, err, descriptionFailedPurchaseUserCart, logAttrs...)
+		default:
+			return logAndWrapError(ctx, err, descriptionFailedPurchaseUserCart, logAttrs...)
 		}
 	}
 
