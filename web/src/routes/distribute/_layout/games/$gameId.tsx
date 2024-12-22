@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download } from "lucide-react";
 
@@ -22,7 +22,7 @@ import {
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
-import { BadRequest, NotFound, TokenMissing, Unauthorized } from "@/lib/errors";
+import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getLanguageName } from "@/lib/utils";
 
@@ -52,15 +52,6 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
     return opts.context.queryClient.ensureQueryData(
       publisherGameQueryOptions(opts.params.gameId),
     );
-  },
-  onError(error) {
-    if (error instanceof TokenMissing || error instanceof Unauthorized) {
-      redirect({
-        to: "/distribute/signin",
-        replace: true,
-        throw: true,
-      });
-    }
   },
   errorComponent(errorProps) {
     // If the game ID is not a valid UUID, a BadRequest is thrown.
