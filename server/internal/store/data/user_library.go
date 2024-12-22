@@ -10,6 +10,12 @@ import (
 	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
+const (
+	constraintUsersLibrariesPkey       = "users_libraries_pkey"
+	constraintUsersLibrariesUserIDFkey = "users_libraries_user_id_fkey"
+	constraintUsersLibrariesGameIDFkey = "users_libraries_game_id_fkey"
+)
+
 // ListUserLibrary executes a query to return the user library for the specified filter.
 func (s *store) ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error) {
 	sqlWhere := "WHERE ul.user_id = $1"

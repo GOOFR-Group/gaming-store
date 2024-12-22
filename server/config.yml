@@ -8,3 +8,10 @@ database:
 cloudStorage:
   enabled: false
   bucketMultimedia: multimedia_bucket
+smtp:
+  enabled: false
+  host: smtp.gmail.com
+  port: 587
+  username:
+  password:
+  from:

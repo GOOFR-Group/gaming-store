@@ -14,9 +14,11 @@ import (
 const (
 	codeUserCartGameAlreadyExists = "user_cart_game_already_exists"
 	codeUserCartGameNotFound      = "user_cart_game_not_found"
+	codeUserCartEmpty             = "user_cart_empty"
 
 	errUserCartGameAlreadyExists = "user cart game already exists"
 	errUserCartGameNotFound      = "user cart game association does not exist"
+	errUserCartEmpty             = "user cart empty"
 )
 
 // ListUserCartGames handles the http request to list user cart games.
@@ -92,6 +94,29 @@ func (h *handler) DeleteUserCartGame(w http.ResponseWriter, r *http.Request, use
 		switch {
 		case errors.Is(err, domain.ErrUserCartGameNotFound):
 			conflict(w, codeUserCartGameNotFound, errUserCartGameNotFound)
+		default:
+			internalServerError(w)
+		}
+
+		return
+	}
+
+	writeResponseJSON(w, http.StatusNoContent, nil)
+}
+
+// PurchaseUserCart handles the http request to purchase a user cart.
+func (h *handler) PurchaseUserCart(w http.ResponseWriter, r *http.Request, userID api.UserIdPathParam) {
+	ctx := r.Context()
+
+	err := h.service.PurchaseUserCart(ctx, userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound):
+			notFound(w, codeUserNotFound, errUserNotFound)
+		case errors.Is(err, domain.ErrUserCartEmpty):
+			conflict(w, codeUserCartEmpty, errUserCartEmpty)
+		case errors.Is(err, domain.ErrUserBalanceInsufficient):
+			conflict(w, codeUserBalanceInsufficient, errUserBalanceInsufficient)
 		default:
 			internalServerError(w)
 		}

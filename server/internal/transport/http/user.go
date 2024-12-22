@@ -18,12 +18,14 @@ const (
 	codeUserEmailAlreadyExists    = "user_email_already_exists"
 	codeUserVatinAlreadyExists    = "user_vatin_already_exists"
 	codeUserNotOldEnough          = "user_not_old_enough"
+	codeUserBalanceInsufficient   = "user_balance_insufficient"
 
 	errUserNotFound              = "user not found"
 	errUserUsernameAlreadyExists = "username already exists"
 	errUserEmailAlreadyExists    = "email already exists"
 	errUserVatinAlreadyExists    = "vatin already exists"
 	errUserNotOldEnough          = "user not old enough"
+	errUserBalanceInsufficient   = "user balance insufficient"
 )
 
 // CreateUser handles the http request to create a user.

@@ -42,6 +42,7 @@ type DataStore interface {
 	CreateUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
 	ListUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
+	PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error
 
 	ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	ExistsUserLibraryGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) (bool, error)
@@ -79,19 +80,26 @@ type ObjectStore interface {
 	GetMultimediaObject(ctx context.Context, name string) (domain.MultimediaObject, error)
 }
 
+// SMTP defines the smtp interface.
+type SMTP interface {
+	SendMailHTML(to []string, subject string, body string) error
+}
+
 // service defines the service structure.
 type service struct {
 	authnService AuthenticationService
 	dataStore    DataStore
 	objectStore  ObjectStore
+	smtp         SMTP
 }
 
 // New returns a new http handler.
-func New(authnService AuthenticationService, dataStore DataStore, objectStore ObjectStore) *service {
+func New(authnService AuthenticationService, dataStore DataStore, objectStore ObjectStore, smtp SMTP) *service {
 	return &service{
 		authnService: authnService,
 		dataStore:    dataStore,
 		objectStore:  objectStore,
+		smtp:         smtp,
 	}
 }
 
