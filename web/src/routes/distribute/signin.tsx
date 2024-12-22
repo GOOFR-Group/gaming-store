@@ -100,7 +100,7 @@ function Component() {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
               <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In
+                Sign In to Distribution Center
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
