@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,6 +36,8 @@ var (
 	ErrGameNotFound                   = errors.New("game not found")                     // Returned when a game is not found.
 	ErrGamePreviewMultimediaNotFound  = errors.New("game preview multimedia not found")  // Returned when a game preview multimedia is not found.
 	ErrGameDownloadMultimediaNotFound = errors.New("game download multimedia not found") // Returned when a game download multimedia is not found.
+	ErrGameNotActive                  = errors.New("game not active")                    // Returned when a game is accessed in an inactive state.
+	ErrGameNotReleased                = errors.New("game not released")                  // Returned when a game is accessed in an unreleased state.
 )
 
 // GameTitle defines the game title type.
@@ -65,8 +68,18 @@ func (d GameDescription) Valid() bool {
 type GameAgeRating string
 
 // Valid returns true if the game age rating is valid, false otherwise.
-func (d GameAgeRating) Valid() bool {
-	return len(d) >= gameAgeRatingMinLength && len(d) <= gameAgeRatingMaxLength
+func (ar GameAgeRating) Valid() bool {
+	return len(ar) >= gameAgeRatingMinLength && len(ar) <= gameAgeRatingMaxLength
+}
+
+// Value returns the integer value.
+func (ar GameAgeRating) Value() int {
+	v, err := strconv.Atoi(string(ar))
+	if err != nil {
+		return 0
+	}
+
+	return v
 }
 
 // GameFeatures defines the game features type.

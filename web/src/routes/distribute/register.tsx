@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createPublisher, signInPublisher } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
-import { TOAST_MESSAGES } from "@/lib/constants";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { passwordRefinement } from "@/lib/zod";
 
@@ -54,9 +54,14 @@ const formSchema = z
     address: z.string().min(1, {
       message: "Address is required",
     }),
-    vat: z.string().min(1, {
-      message: "VAT is required",
-    }),
+    vatin: z
+      .string()
+      .min(1, {
+        message: "VAT No. is required",
+      })
+      .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+        message: "VAT No. must be 9 digits",
+      }),
     password: z
       .string()
       .min(14, {
@@ -78,14 +83,14 @@ const formSchema = z
 type RegisterSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
       country: "",
       address: "",
-      vat: "",
+      vatin: "",
       password: "",
       confirm: "",
     },
@@ -100,7 +105,7 @@ function Component() {
         email: data.email,
         country: data.country,
         address: data.address,
-        vatin: data.vat,
+        vatin: data.vatin,
         password: data.password,
       });
 
@@ -122,7 +127,7 @@ function Component() {
             break;
 
           case "publisher_vatin_already_exists":
-            form.setError("vat", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
@@ -147,7 +152,7 @@ function Component() {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
               <CardTitle className="text-3xl font-bold tracking-tight">
-                Register Publisher Account
+                Create Publisher Account
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -196,14 +201,20 @@ function Component() {
                       >
                         <FormControl>
                           <SelectTrigger className="border-input">
-                            <SelectValue placeholder="Select a country" />
+                            <SelectValue placeholder="Select your country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="us">United States</SelectItem>
-                          <SelectItem value="uk">United Kingdom</SelectItem>
-                          <SelectItem value="ca">Canada</SelectItem>
-                          <SelectItem value="au">Australia</SelectItem>
+                          {COUNTRIES.map((country) => {
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                value={country.code}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -227,12 +238,16 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="vat"
+                  name="vatin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>VAT</FormLabel>
+                      <FormLabel>VAT No.</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
+                        <Input
+                          maxLength={9}
+                          placeholder="Enter your VAT No."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -272,13 +287,19 @@ function Component() {
                 )}
               />
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col space-y-4">
               <Button
                 className="w-full text-primary-foreground font-semibold"
                 type="submit"
               >
-                Register Account
+                Create Account
               </Button>
+              <div className="flex justify-center items-center gap-2 w-full">
+                <span className="text-sm">Already have an account?</span>
+                <Button asChild className="p-0" variant="link">
+                  <Link to="/distribute/signin">Sign in</Link>
+                </Button>
+              </div>
             </CardFooter>
           </form>
         </Form>
