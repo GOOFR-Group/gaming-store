@@ -57,6 +57,7 @@ import {
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { cn } from "@/lib/utils";
 
 import { MultimediaUploadList } from "./multimedia-uploader";
@@ -267,7 +268,7 @@ export function GameForm(props: {
       });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
@@ -285,7 +286,7 @@ export function GameForm(props: {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   const tagsQuery = useTags();
