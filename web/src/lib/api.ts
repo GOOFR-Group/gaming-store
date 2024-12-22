@@ -9,6 +9,11 @@ import {
 import { CreateGameMultimedia } from "@/domain/game-multimedia";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
+import {
+  NewPublisher,
+  Publisher,
+  PublisherCredentials,
+} from "@/domain/publisher";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
 import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
@@ -173,6 +178,70 @@ export async function updateUser(id: string, details: EditableUser) {
   const user = (await response.json()) as User;
 
   return user;
+}
+
+/**
+ * Creates a new publisher.
+ * @param newPublisher Publisher to be created.
+ * @returns Publisher created.
+ * @throws {Conflict} Email or vatin already exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createPublisher(newPublisher: NewPublisher) {
+  const response = await fetch("/api/publishers", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newPublisher),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const publisher = (await response.json()) as Publisher;
+
+  return publisher;
+}
+
+/**
+ * Signs in a publisher with their credentials.
+ * @param credentials Publisher credentials.
+ * @returns JWT.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function signInPublisher(credentials: PublisherCredentials) {
+  const response = await fetch("/api/publishers/signin", {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const jwt = (await response.json()) as Jwt;
+
+  return jwt;
 }
 
 /**

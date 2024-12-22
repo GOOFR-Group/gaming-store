@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<body style="font-family: trebuchet ms, sans-serif">
+    <h2>Hi {{.User.DisplayName}}!</h2>
+    <p>Thank you for your purchase!</p>
+    <br>
+
+    <h3>Here are your new games:</h3>
+    <table>
+        <tr>
+            <th style="padding: 0 10px">Title</th>
+            <th style="padding: 0 10px">Publisher</th>
+            <th style="padding: 0 10px">Publisher VAT No.</th>
+            <th style="padding: 0 10px">Price</th>
+        </tr>
+
+        {{range $game := .Games}}
+        <tr>
+            <td style="padding: 0 10px">{{$game.Title}}</td>
+            <td style="padding: 0 10px">{{$game.Publisher.Name}}</td>
+            <td style="padding: 0 10px">{{$game.Publisher.Vatin}}</td>
+            <td style="padding: 0 10px">€{{$game.Price}}</td>
+        </tr>
+        {{end}}
+    </table>
+    <br>
+
+    <table>
+        <tr>
+            <td style="padding: 0 10px">Total Price:</td>
+            <td style="padding: 0 10px">€{{.TotalPrice}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0 10px">Purchase date (UTC):</td>
+            <td style="padding: 0 10px">{{.CreatedAt}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0 10px">VAT No.:</td>
+            <td style="padding: 0 10px">{{.User.Vatin}}</td>
+        </tr>
+    </table>
+
+    <p>
+        Best regards,<br>
+        <b>GOOFR Store</b>
+    </p>
+</body>
+
+</html>
