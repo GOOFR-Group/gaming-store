@@ -68,7 +68,6 @@ function Component() {
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
-
               <Button className="md:hidden" size="icon" variant="ghost">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Menu</span>
