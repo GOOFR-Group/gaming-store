@@ -286,7 +286,7 @@ function EditAccountDetails(props: {
                   >
                     <FormControl>
                       <SelectTrigger className="border-input">
-                        <SelectValue placeholder="Select a country" />
+                        <SelectValue placeholder="Select your country" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
