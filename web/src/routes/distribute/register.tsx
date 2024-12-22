@@ -54,9 +54,14 @@ const formSchema = z
     address: z.string().min(1, {
       message: "Address is required",
     }),
-    vat: z.string().min(1, {
-      message: "VAT is required",
-    }),
+    vatin: z
+      .string()
+      .min(1, {
+        message: "VAT is required",
+      })
+      .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+        message: "VAT must be 9 digits",
+      }),
     password: z
       .string()
       .min(14, {
@@ -85,7 +90,7 @@ function Component() {
       email: "",
       country: "",
       address: "",
-      vat: "",
+      vatin: "",
       password: "",
       confirm: "",
     },
@@ -100,7 +105,7 @@ function Component() {
         email: data.email,
         country: data.country,
         address: data.address,
-        vatin: data.vat,
+        vatin: data.vatin,
         password: data.password,
       });
 
@@ -122,7 +127,7 @@ function Component() {
             break;
 
           case "publisher_vatin_already_exists":
-            form.setError("vat", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT already exists" });
             break;
         }
         return;
@@ -233,12 +238,16 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="vat"
+                  name="vatin"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>VAT</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
+                        <Input
+                          maxLength={9}
+                          placeholder="Enter your VAT"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

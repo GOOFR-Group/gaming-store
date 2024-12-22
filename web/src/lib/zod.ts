@@ -104,7 +104,7 @@ export const accountDetailsSchema = z.object({
     .min(1, {
       message: "VAT is required",
     })
-    .max(20, {
-      message: "VAT must be shorter than 20 characters",
+    .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+      message: "VAT must be 9 digits",
     }),
 });

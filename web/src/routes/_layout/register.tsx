@@ -280,7 +280,11 @@ function Component() {
                     <FormItem>
                       <FormLabel>VAT</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
+                        <Input
+                          maxLength={9}
+                          placeholder="Enter your VAT"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
