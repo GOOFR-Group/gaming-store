@@ -271,7 +271,7 @@ export function GameForm(props: {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
-          title: "File sizes must be smaller than 20MB",
+          title: "File sizes must be smaller than 20 MB",
         });
         return;
       }
