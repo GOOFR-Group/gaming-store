@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
 import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { accountDetailsSchema } from "@/lib/zod";
@@ -149,7 +150,7 @@ function EditAccountDetails(props: {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
           case "user_username_already_exists":
@@ -168,7 +169,7 @@ function EditAccountDetails(props: {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**

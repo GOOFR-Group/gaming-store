@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { updateUser, uploadMultimedia } from "@/lib/api";
 import { TOAST_MESSAGES } from "@/lib/constants";
 import { ContentTooLarge } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
 
@@ -26,7 +27,7 @@ export function UserAvatar(props: {
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
@@ -36,7 +37,7 @@ export function UserAvatar(props: {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**
