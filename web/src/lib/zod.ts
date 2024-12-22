@@ -116,7 +116,7 @@ export const publisherAccountDetails = z.object({
       message: "Name is required",
     })
     .max(100, {
-      message: "Full name must be shorter than 100 characters",
+      message: "Name must be shorter than 100 characters",
     }),
   email: z
     .string()
