@@ -33,8 +33,8 @@ export const Route = createFileRoute("/distribute/signin")({
 });
 
 const formSchema = z.object({
-  emailOrUsername: z.string().min(1, {
-    message: "Email or Username is required",
+  email: z.string().email({
+    message: "Please enter a valid email address",
   }),
   password: z.string().min(1, {
     message: "Password is required",
@@ -47,7 +47,7 @@ function Component() {
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailOrUsername: "",
+      email: "",
       password: "",
     },
   });
@@ -56,7 +56,7 @@ function Component() {
   const mutation = useMutation({
     async mutationFn(data: SignInSchemaType) {
       const jwt = await signInPublisher({
-        email: data.emailOrUsername,
+        email: data.email,
         password: data.password,
       });
       const payload = decodeTokenPayload(jwt.token);
@@ -70,7 +70,7 @@ function Component() {
       if (error instanceof Unauthorized) {
         switch (error.code) {
           case "credentials_incorrect":
-            form.setError("emailOrUsername", {
+            form.setError("email", {
               message: "",
             });
             form.setError("password", {
@@ -106,15 +106,12 @@ function Component() {
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="emailOrUsername"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email or Username</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter your email or username"
-                        {...field}
-                      />
+                      <Input placeholder="Enter your email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
