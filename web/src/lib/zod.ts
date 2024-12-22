@@ -102,9 +102,9 @@ export const accountDetailsSchema = z.object({
   vatin: z
     .string()
     .min(1, {
-      message: "VAT is required",
+      message: "VAT No. is required",
     })
     .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
-      message: "VAT must be 9 digits",
+      message: "VAT No. must be 9 digits",
     }),
 });

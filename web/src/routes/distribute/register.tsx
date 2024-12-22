@@ -57,10 +57,10 @@ const formSchema = z
     vatin: z
       .string()
       .min(1, {
-        message: "VAT is required",
+        message: "VAT No. is required",
       })
       .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
-        message: "VAT must be 9 digits",
+        message: "VAT No. must be 9 digits",
       }),
     password: z
       .string()
@@ -127,7 +127,7 @@ function Component() {
             break;
 
           case "publisher_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
@@ -241,11 +241,11 @@ function Component() {
                   name="vatin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>VAT</FormLabel>
+                      <FormLabel>VAT No.</FormLabel>
                       <FormControl>
                         <Input
                           maxLength={9}
-                          placeholder="Enter your VAT"
+                          placeholder="Enter your VAT No."
                           {...field}
                         />
                       </FormControl>
