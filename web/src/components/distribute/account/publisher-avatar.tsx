@@ -5,27 +5,28 @@ import { LoaderCircle, Upload } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { updateUser, uploadMultimedia } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { updatePublisher, uploadMultimedia } from "@/lib/api";
 import { TOAST_MESSAGES } from "@/lib/constants";
 import { ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { userQueryKey } from "@/lib/query-keys";
+import { publisherQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
 
-export function UserAvatar(props: {
+export function PublisherAvatar(props: {
   id: string;
-  displayName: string;
+  name: string;
   url?: string;
 }) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const mutation = useMutation({
     async mutationFn(file: File) {
       const multimedia = await uploadMultimedia(file);
-      await updateUser(props.id, { pictureMultimediaId: multimedia.id });
+      await updatePublisher(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: userQueryKey });
+      await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
     },
     onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
@@ -57,11 +58,11 @@ export function UserAvatar(props: {
     <Avatar asChild className="relative size-24 group cursor-pointer">
       <label>
         <AvatarImage
-          alt="Gamer Avatar"
+          alt="Publisher Avatar"
           className="object-cover"
           src={props.url}
         />
-        <AvatarFallback>{getInitials(props.displayName)}</AvatarFallback>
+        <AvatarFallback>{getInitials(props.name)}</AvatarFallback>
         {mutation.isPending ? (
           <>
             <div className="absolute size-full bg-black opacity-70" />
