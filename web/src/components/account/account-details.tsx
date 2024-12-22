@@ -334,7 +334,7 @@ function EditAccountDetails(props: {
           />
 
           <div className="flex w-full justify-end items-center gap-2 mt-4">
-            <Button variant="ghost" onClick={props.onCancel}>
+            <Button type="reset" variant="ghost" onClick={props.onCancel}>
               Cancel
             </Button>
             <Button disabled={mutation.isPending} type="submit">

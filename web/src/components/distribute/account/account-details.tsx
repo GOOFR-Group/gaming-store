@@ -1,26 +1,11 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { LoaderCircle, Upload } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -38,87 +23,36 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Publisher } from "@/domain/publisher";
-import { toast, useToast } from "@/hooks/use-toast";
-import { getPublisher, updatePublisher, uploadMultimedia } from "@/lib/api";
-import { decodeTokenPayload, getToken } from "@/lib/auth";
-import {
-  COUNTRIES,
-  COUNTRIES_MAP,
-  MISSING_VALUE_SYMBOL,
-  TOAST_MESSAGES,
-} from "@/lib/constants";
-import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { useToast } from "@/hooks/use-toast";
+import { updatePublisher } from "@/lib/api";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { publisherQueryKey } from "@/lib/query-keys";
-import { getInitials } from "@/lib/utils";
 import { publisherAccountDetails } from "@/lib/zod";
 
-/**
- * Query options for retrieving the signed in publisher.
- * @returns Query options.
- */
-function publisherQueryOptions() {
-  return queryOptions({
-    queryKey: publisherQueryKey,
-    async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-
-      const publisherId = payload.sub;
-      const publisher = await getPublisher(publisherId);
-
-      return publisher;
-    },
-  });
-}
-
-export const Route = createFileRoute("/distribute/_layout/account/")({
-  component: Component,
-  loader(opts) {
-    return opts.context.queryClient.ensureQueryData(publisherQueryOptions());
-  },
-});
-
-function Component() {
+export function PublisherAccountDetails(props: {
+  publisher: Publisher;
+  country: string;
+}) {
   const [isEditMode, setEditMode] = useState(false);
 
-  const query = useSuspenseQuery(publisherQueryOptions());
-  const publisher = query.data;
-  const country =
-    COUNTRIES_MAP[publisher.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? MISSING_VALUE_SYMBOL;
+  if (isEditMode) {
+    return (
+      <EditAccountDetails
+        publisher={props.publisher}
+        onCancel={() => setEditMode(false)}
+        onSave={() => setEditMode(false)}
+      />
+    );
+  }
 
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <PublisherAvatar
-            id={publisher.id}
-            name={publisher.name}
-            url={publisher.pictureMultimedia?.url}
-          />
-          <div className="text-center sm:text-left">
-            <CardTitle className="text-2xl">{publisher.name}</CardTitle>
-            <CardDescription className="text-sm">{country}</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        {isEditMode ? (
-          <EditAccountDetails
-            publisher={publisher}
-            onCancel={() => setEditMode(false)}
-            onSave={() => setEditMode(false)}
-          />
-        ) : (
-          <ViewAccountDetails
-            country={country} // TODO: Remove after publisher view game details is done.
-            publisher={publisher}
-            onEdit={() => setEditMode(true)}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <ViewAccountDetails
+      country={props.country} // TODO: Remove after publisher view game details is done.
+      publisher={props.publisher}
+      onEdit={() => setEditMode(true)}
+    />
   );
 }
 
@@ -156,75 +90,6 @@ function ViewAccountDetails(props: {
         <p className="text-lg">{props.publisher.address}</p>
       </div>
     </div>
-  );
-}
-
-function PublisherAvatar(props: { id: string; name: string; url?: string }) {
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    async mutationFn(file: File) {
-      const multimedia = await uploadMultimedia(file);
-      await updatePublisher(props.id, { pictureMultimediaId: multimedia.id });
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
-    },
-    onError: withAuthErrors((error) => {
-      if (error instanceof ContentTooLarge) {
-        toast({
-          variant: "destructive",
-          title: "Picture size must be smaller than 20 MB",
-        });
-        return;
-      }
-
-      toast(TOAST_MESSAGES.unexpectedError);
-    }),
-  });
-
-  /**
-   * Handles file upload.
-   * @param event Input change event.
-   */
-  function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
-    const selectedFile = event.target.files?.item(0);
-    if (!selectedFile) {
-      return;
-    }
-
-    mutation.mutate(selectedFile);
-  }
-
-  return (
-    <Avatar asChild className="relative size-24 group cursor-pointer">
-      <label>
-        <AvatarImage
-          alt="Publisher Avatar"
-          className="object-cover"
-          src={props.url}
-        />
-        <AvatarFallback>{getInitials(props.name)}</AvatarFallback>
-        {mutation.isPending ? (
-          <>
-            <div className="absolute size-full bg-black opacity-70" />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
-              <LoaderCircle className="animate-spin" />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="absolute size-full bg-black opacity-0 group-hover:opacity-70 transition-opacity" />
-            <Upload className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </>
-        )}
-        <Input
-          accept="image/png, image/jpeg"
-          className="hidden"
-          type="file"
-          onChange={handleFileUpload}
-        />
-      </label>
-    </Avatar>
   );
 }
 
@@ -387,7 +252,7 @@ function EditAccountDetails(props: {
           />
 
           <div className="flex w-full justify-end items-center gap-2 mt-4">
-            <Button variant="ghost" onClick={props.onCancel}>
+            <Button type="reset" variant="ghost" onClick={props.onCancel}>
               Cancel
             </Button>
             <Button disabled={mutation.isPending} type="submit">
