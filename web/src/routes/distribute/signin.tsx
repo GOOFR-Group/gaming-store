@@ -95,7 +95,7 @@ function Component() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <Card className="w-full max-w-md bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+      <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
@@ -136,19 +136,15 @@ function Component() {
                 )}
               />
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex items-center flex-col space-y-4">
               <Button
                 className="w-full text-primary-foreground font-semibold"
                 type="submit"
               >
                 Sign In
               </Button>
-              <Button
-                asChild
-                className="w-full text-primary-foreground font-semibold"
-                variant="secondary"
-              >
-                <Link to="/distribute/register">Register</Link>
+              <Button asChild variant="link">
+                <Link to="/distribute/register">Create account</Link>
               </Button>
             </CardFooter>
           </form>
