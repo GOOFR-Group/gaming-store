@@ -20,6 +20,7 @@ var (
 	ErrUserEmailAlreadyExists    = errors.New("email already exists")    // Returned when a user already exists with the same email.
 	ErrUserVatinAlreadyExists    = errors.New("vatin already exists")    // Returned when a user already exists with the same vatin.
 	ErrUserNotFound              = errors.New("user not found")          // Returned when a user is not found.
+	ErrUserNotOldEnough          = errors.New("user not old enough")     // Returned when a user is user not old enough to perform a certain action.
 )
 
 // UserDateOfBirth defines the user date of birth type.
@@ -111,35 +112,4 @@ type User struct {
 	PictureMultimedia *Multimedia
 	CreatedAt         time.Time
 	ModifiedAt        time.Time
-}
-
-// UserGameLibraryPaginatedSort defines the field of the user game library to sort.
-type UserGameLibraryPaginatedSort string
-
-const (
-	UserGameLibraryPaginatedSortGameTitle       UserGameLibraryPaginatedSort = "gameTitle"
-	UserGameLibraryPaginatedSortGamePrice       UserGameLibraryPaginatedSort = "gamePrice"
-	UserGameLibraryPaginatedSortGameReleaseDate UserGameLibraryPaginatedSort = "gameReleaseDate"
-)
-
-// Field returns the name of the field to sort by.
-func (s UserGameLibraryPaginatedSort) Field() UserGameLibraryPaginatedSort {
-	return s
-}
-
-// Valid returns true if the field is valid, false otherwise.
-func (s UserGameLibraryPaginatedSort) Valid() bool {
-	switch s {
-	case UserGameLibraryPaginatedSortGameTitle,
-		UserGameLibraryPaginatedSortGamePrice,
-		UserGameLibraryPaginatedSortGameReleaseDate:
-		return true
-	default:
-		return false
-	}
-}
-
-// UserGamesLibraryPaginatedFilter defines the user games library filter structure.
-type UserGamesLibraryPaginatedFilter struct {
-	PaginatedRequest[UserGameLibraryPaginatedSort]
 }
