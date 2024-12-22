@@ -9,26 +9,34 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card } from "@/components/ui/card";
-import { CardContent } from "@/components/ui/card";
-import { CardFooter } from "@/components/ui/card";
-import { CardHeader } from "@/components/ui/card";
-import { CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
-import { FormControl } from "@/components/ui/form";
-import { FormField } from "@/components/ui/form";
-import { FormItem } from "@/components/ui/form";
-import { FormLabel } from "@/components/ui/form";
-import { FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover } from "@/components/ui/popover";
-import { PopoverContent } from "@/components/ui/popover";
-import { PopoverTrigger } from "@/components/ui/popover";
-import { Select } from "@/components/ui/select";
-import { SelectContent } from "@/components/ui/select";
-import { SelectItem } from "@/components/ui/select";
-import { SelectTrigger } from "@/components/ui/select";
-import { SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
@@ -110,9 +118,11 @@ function Component() {
           case "user_username_already_exists":
             form.setError("username", { message: "Username already exists" });
             break;
+
           case "user_email_already_exists":
             form.setError("email", { message: "Email already exists" });
             break;
+
           case "user_vatin_already_exists":
             form.setError("vatin", { message: "VAT No. already exists" });
             break;
@@ -124,6 +134,10 @@ function Component() {
     },
   });
 
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
   function onSubmit(data: RegisterSchemaType) {
     mutation.mutate(data);
   }
@@ -153,6 +167,7 @@ function Component() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -170,6 +185,7 @@ function Component() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="displayName"
@@ -183,6 +199,7 @@ function Component() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -222,6 +239,7 @@ function Component() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="country"
@@ -238,17 +256,23 @@ function Component() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {COUNTRIES.map((country) => (
-                            <SelectItem key={country.code} value={country.code}>
-                              {country.name}
-                            </SelectItem>
-                          ))}
+                          {COUNTRIES.map((country) => {
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                value={country.code}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="vatin"
@@ -267,6 +291,7 @@ function Component() {
                   )}
                 />
               </div>
+
               <FormField
                 control={form.control}
                 name="address"
@@ -280,6 +305,7 @@ function Component() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -297,6 +323,7 @@ function Component() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="confirm"

@@ -6,17 +6,21 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CardContent } from "@/components/ui/card";
-import { CardFooter } from "@/components/ui/card";
-import { CardHeader } from "@/components/ui/card";
-import { CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
-import { FormControl } from "@/components/ui/form";
-import { FormField } from "@/components/ui/form";
-import { FormItem } from "@/components/ui/form";
-import { FormLabel } from "@/components/ui/form";
-import { FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signInUser } from "@/lib/api";
@@ -57,6 +61,7 @@ function Component() {
         password: data.password,
       });
       const payload = decodeTokenPayload(jwt.token);
+
       storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
@@ -81,6 +86,10 @@ function Component() {
     },
   });
 
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
   function onSubmit(data: SignInSchemaType) {
     mutation.mutate(data);
   }
@@ -112,6 +121,7 @@ function Component() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"

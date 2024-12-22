@@ -34,7 +34,7 @@ export const Route = createFileRoute("/distribute/_layout")({
 
 function SignOut() {
   /**
-   * Signs out a user and reloads the current page.
+   * Signs out a publisher and reloads the current page.
    */
   function handleClick() {
     clearToken();

@@ -1,32 +1,11 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { LogOut, Menu, ShoppingCart, User } from "lucide-react";
+import { Menu, ShoppingCart, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { clearToken } from "@/lib/auth";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
-
-function SignOut() {
-  function handleClick() {
-    clearToken();
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-    localStorage.removeItem("publisherConfig");
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = "/signin";
-  }
-  return (
-    <Button variant="ghost" onClick={handleClick}>
-      <LogOut /> Sign Out
-    </Button>
-  );
-}
 
 function Component() {
   return (
@@ -49,6 +28,7 @@ function Component() {
               >
                 <Link href="/browse">Browse</Link>
               </Button>
+
               <Button
                 asChild
                 className="font-medium hover:bg-transparent hover:text-primary"
@@ -56,6 +36,7 @@ function Component() {
               >
                 <Link href="/news">News</Link>
               </Button>
+
               <Button
                 asChild
                 className="font-medium hover:bg-transparent hover:text-primary"
@@ -63,6 +44,7 @@ function Component() {
               >
                 <Link href="/support">Support</Link>
               </Button>
+
               <Button
                 asChild
                 className="font-medium hover:bg-transparent hover:text-primary"
@@ -86,7 +68,7 @@ function Component() {
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
-              <SignOut />
+
               <Button className="md:hidden" size="icon" variant="ghost">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Menu</span>
