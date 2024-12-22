@@ -41,7 +41,12 @@ import { Publisher } from "@/domain/publisher";
 import { toast, useToast } from "@/hooks/use-toast";
 import { getPublisher, updatePublisher, uploadMultimedia } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES, COUNTRIES_MAP, TOAST_MESSAGES } from "@/lib/constants";
+import {
+  COUNTRIES,
+  COUNTRIES_MAP,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { publisherQueryKey } from "@/lib/query-keys";
@@ -81,7 +86,7 @@ function Component() {
   const publisher = query.data;
   const country =
     COUNTRIES_MAP[publisher.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? "-";
+      ?.name ?? MISSING_VALUE_SYMBOL;
 
   return (
     <Card className="flex flex-col h-full">
