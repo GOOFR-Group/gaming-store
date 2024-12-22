@@ -34,34 +34,14 @@ import { createPublisher, signInPublisher } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
-import { passwordRefinement } from "@/lib/zod";
+import { passwordRefinement, publisherAccountDetails } from "@/lib/zod";
 
 export const Route = createFileRoute("/distribute/register")({
   component: Component,
 });
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, {
-      message: "Name is required",
-    }),
-    email: z.string().email({
-      message: "Please enter a valid email address",
-    }),
-    country: z.string().min(1, {
-      message: "Country is required",
-    }),
-    address: z.string().min(1, {
-      message: "Address is required",
-    }),
-    vatin: z
-      .string()
-      .min(1, {
-        message: "VAT No. is required",
-      })
-      .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
-        message: "VAT No. must be 9 digits",
-      }),
+const formSchema = publisherAccountDetails
+  .extend({
     password: z
       .string()
       .min(14, {
