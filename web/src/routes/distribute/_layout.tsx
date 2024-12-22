@@ -42,8 +42,12 @@ function SignOut() {
   }
 
   return (
-    <Button variant="ghost" onClick={handleClick}>
-      <LogOut /> Sign Out
+    <Button
+      className="px-2 w-full h-8 rounded-sm justify-start"
+      variant="ghost"
+      onClick={handleClick}
+    >
+      <LogOut className="mr-2 size-4" /> Sign Out
     </Button>
   );
 }
@@ -54,6 +58,11 @@ function Component() {
   useEffect(() => {
     // Hide the global scrollbar when the user is in the distribution routes.
     document.body.style.overflow = "hidden";
+
+    return () => {
+      // Restore global scrollbar when user exits from the distribution routes.
+      document.body.style.removeProperty("overflow");
+    };
   }, []);
 
   return (
@@ -85,14 +94,14 @@ function Component() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild className="" id="menuitem">
-                <Link className="flex items-center" to="/distribute/account">
+              <DropdownMenuItem asChild>
+                <Link className="cursor-pointer" to="/distribute/account">
                   <User className="mr-2 size-4" />
-                  <span>Account</span>
+                  Account
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <SignOut />
               </DropdownMenuItem>
             </DropdownMenuContent>
