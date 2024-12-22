@@ -3,6 +3,7 @@ import { Game, GamesFilters, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import {
+  EditablePublisher,
   NewPublisher,
   Publisher,
   PublisherCredentials,
@@ -235,6 +236,83 @@ export async function signInPublisher(credentials: PublisherCredentials) {
   const jwt = (await response.json()) as Jwt;
 
   return jwt;
+}
+
+/**
+ * Retrieves a publisher given a publisher ID.
+ * @param id Publisher ID.
+ * @returns Publisher.
+ * @throws {NotFound} Publisher not found.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getPublisher(id: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/publishers/${id}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const publisher = (await response.json()) as Publisher;
+
+  return publisher;
+}
+
+/**
+ * Updates a publisher.
+ * @param id Publisher ID.
+ * @param details Publisher details.
+ * @returns Updated publisher.
+ * @throws {Unauthorized} Access token invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Publisher not found.
+ * @throws {Conflict} Email or vatin already exists. Or multimedia does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function updatePublisher(id: string, details: EditablePublisher) {
+  const token = getToken();
+
+  const response = await fetch(`/api/publishers/${id}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(details),
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const publisher = (await response.json()) as Publisher;
+
+  return publisher;
 }
 
 /**

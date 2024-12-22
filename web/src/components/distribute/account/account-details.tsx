@@ -3,12 +3,9 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -19,38 +16,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User } from "@/domain/user";
+import { Publisher } from "@/domain/publisher";
 import { useToast } from "@/hooks/use-toast";
-import { updateUser } from "@/lib/api";
-import {
-  COUNTRIES,
-  MISSING_VALUE_SYMBOL,
-  TOAST_MESSAGES,
-} from "@/lib/constants";
+import { updatePublisher } from "@/lib/api";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { userQueryKey } from "@/lib/query-keys";
-import { cn, getCountryName } from "@/lib/utils";
-import { userAccountDetailsSchema } from "@/lib/zod";
+import { publisherQueryKey } from "@/lib/query-keys";
+import { publisherAccountDetails } from "@/lib/zod";
 
-export function AccountDetails(props: { user: User }) {
+export function PublisherAccountDetails(props: {
+  publisher: Publisher;
+  country: string;
+}) {
   const [isEditMode, setEditMode] = useState(false);
 
   if (isEditMode) {
     return (
       <EditAccountDetails
-        user={props.user}
+        publisher={props.publisher}
         onCancel={() => setEditMode(false)}
         onSave={() => setEditMode(false)}
       />
@@ -58,108 +48,92 @@ export function AccountDetails(props: { user: User }) {
   }
 
   return (
-    <ViewAccountDetails user={props.user} onEdit={() => setEditMode(true)} />
+    <ViewAccountDetails
+      country={props.country} // TODO: Remove after publisher view game details is done.
+      publisher={props.publisher}
+      onEdit={() => setEditMode(true)}
+    />
   );
 }
 
-function ViewAccountDetails(props: { user: User; onEdit: () => void }) {
+function ViewAccountDetails(props: {
+  publisher: Publisher;
+  country: string;
+  onEdit: () => void;
+}) {
   return (
     <div className="space-y-4">
       <div className="flex h-10 justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Account Details</h3>
-        <Button variant="secondary" onClick={props.onEdit}>
-          Edit Profile
-        </Button>
+        <Button onClick={props.onEdit}>Edit Profile</Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">Username</p>
-          <p className="text-lg">{props.user.username}</p>
+          <p className="text-sm font-medium text-muted-foreground">Name</p>
+          <p className="text-lg">{props.publisher.name}</p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Email</p>
-          <p className="text-lg">{props.user.email}</p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Full Name</p>
-          <p className="text-lg">{props.user.displayName}</p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Date of Birth
-          </p>
-          <p className="text-lg">
-            {format(props.user.dateOfBirth, "dd/MM/yyyy")}
-          </p>
+          <p className="text-lg">{props.publisher.email}</p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Country</p>
-          <p className="text-lg">
-            {getCountryName(props.user.country) ?? MISSING_VALUE_SYMBOL}
-          </p>
+          <p className="text-lg"> {props.country}</p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">VAT No.</p>
-          <p className="text-lg">{props.user.vatin}</p>
+          <p className="text-lg">{props.publisher.vatin}</p>
         </div>
       </div>
       <div>
         <p className="text-sm font-medium text-muted-foreground">Address</p>
-        <p className="text-lg">{props.user.address}</p>
+        <p className="text-lg">{props.publisher.address}</p>
       </div>
     </div>
   );
 }
 
-type AccountDetailsSchemaType = z.infer<typeof userAccountDetailsSchema>;
+type AccountDetailsSchemaType = z.infer<typeof publisherAccountDetails>;
 
 function EditAccountDetails(props: {
-  user: User;
+  publisher: Publisher;
   onCancel: () => void;
   onSave: () => void;
 }) {
   const queryClient = useQueryClient();
   const form = useForm<AccountDetailsSchemaType>({
-    resolver: zodResolver(userAccountDetailsSchema),
+    resolver: zodResolver(publisherAccountDetails),
     defaultValues: {
-      username: props.user.username,
-      email: props.user.email,
-      displayName: props.user.displayName,
-      dateOfBirth: new Date(props.user.dateOfBirth),
-      country: props.user.country.toUpperCase(),
-      address: props.user.address,
-      vatin: props.user.vatin,
+      name: props.publisher.name,
+      email: props.publisher.email,
+      country: props.publisher.country.toUpperCase(),
+      address: props.publisher.address,
+      vatin: props.publisher.vatin,
     },
   });
   const { toast } = useToast();
   const mutation = useMutation({
     async mutationFn(data: AccountDetailsSchemaType) {
-      await updateUser(props.user.id, {
-        username: data.username,
+      await updatePublisher(props.publisher.id, {
+        name: data.name,
         email: data.email,
-        displayName: data.displayName,
-        dateOfBirth: format(data.dateOfBirth, "yyyy-MM-dd"),
         country: data.country.toUpperCase(),
         address: data.address,
         vatin: data.vatin,
       });
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: userQueryKey });
+      await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
       props.onSave();
     },
     onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
-          case "user_username_already_exists":
-            form.setError("username", { message: "Username already exists" });
-            break;
-
-          case "user_email_already_exists":
+          case "publisher_email_already_exists":
             form.setError("email", { message: "Email already exists" });
             break;
 
-          case "user_vatin_already_exists":
+          case "publisher_vatin_already_exists":
             form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
@@ -188,12 +162,12 @@ function EditAccountDetails(props: {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your username" {...field} />
+                    <Input placeholder="Enter your name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,60 +183,6 @@ function EditAccountDetails(props: {
                   <FormControl>
                     <Input placeholder="Enter your email" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
-                          ) : (
-                            <span>Enter your date of birth</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-auto p-0">
-                      <Calendar
-                        initialFocus
-                        disabled={(date) => date > new Date()}
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
