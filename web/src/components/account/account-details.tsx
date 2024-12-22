@@ -101,7 +101,7 @@ function ViewAccountDetails(props: {
           <p className="text-lg">{props.country}</p>
         </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">VAT</p>
+          <p className="text-sm font-medium text-muted-foreground">VAT No.</p>
           <p className="text-lg">{props.user.vatin}</p>
         </div>
       </div>
@@ -162,7 +162,7 @@ function EditAccountDetails(props: {
             break;
 
           case "user_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
@@ -309,11 +309,11 @@ function EditAccountDetails(props: {
               name="vatin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT</FormLabel>
+                  <FormLabel>VAT No.</FormLabel>
                   <FormControl>
                     <Input
                       maxLength={9}
-                      placeholder="Enter your VAT"
+                      placeholder="Enter your VAT No."
                       {...field}
                     />
                   </FormControl>
