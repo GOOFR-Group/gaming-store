@@ -83,7 +83,7 @@ const formSchema = z
 type RegisterSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
