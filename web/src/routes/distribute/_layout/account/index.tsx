@@ -264,10 +264,6 @@ function EditAccountDetails(props: {
     onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
-          case "publisher_name_already_exists":
-            form.setError("name", { message: "Name already exists" });
-            break;
-
           case "publisher_email_already_exists":
             form.setError("email", { message: "Email already exists" });
             break;
