@@ -107,12 +107,6 @@ function Component() {
               >
                 <Link to="/distribute/register">Register</Link>
               </Button>
-              <Button
-                className="text-primary hover:text-primary/90"
-                variant="link"
-              >
-                Forgot your password?
-              </Button>
             </CardFooter>
           </form>
         </Form>

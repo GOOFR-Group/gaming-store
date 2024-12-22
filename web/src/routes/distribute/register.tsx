@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { createPublisher, signInPublisher } from "@/lib/api";
+import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import { Conflict } from "@/lib/errors";
+import { passwordRefinement } from "@/lib/zod";
 
 export const Route = createFileRoute("/distribute/register")({
   component: Component,
@@ -47,15 +54,23 @@ const formSchema = z
     address: z.string().min(1, {
       message: "Address is required",
     }),
-    vat: z.string().min(1, {
-      message: "VAT is required",
-    }),
-    picture: z.instanceof(File, {
-      message: "Picture is required",
-    }),
-    password: z.string().min(8, {
-      message: "Password must be at least 8 characters long",
-    }),
+    vatin: z
+      .string()
+      .min(1, {
+        message: "VAT No. is required",
+      })
+      .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+        message: "VAT No. must be 9 digits",
+      }),
+    password: z
+      .string()
+      .min(14, {
+        message: "Password must be at least 14 characters long",
+      })
+      .max(72, {
+        message: "Password must be shorter than 72 characters",
+      })
+      .superRefine(passwordRefinement),
     confirm: z.string().min(1, {
       message: "Passwords don't match",
     }),
@@ -65,22 +80,70 @@ const formSchema = z
     path: ["confirm"],
   });
 
+type RegisterSchemaType = z.infer<typeof formSchema>;
+
 function Component() {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
       country: "",
       address: "",
-      vat: "",
-      picture: undefined,
+      vatin: "",
       password: "",
       confirm: "",
     },
   });
 
-  function onSubmit() {}
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    async mutationFn(data: RegisterSchemaType) {
+      await createPublisher({
+        name: data.name,
+        email: data.email,
+        country: data.country,
+        address: data.address,
+        vatin: data.vatin,
+        password: data.password,
+      });
+
+      const jwt = await signInPublisher({
+        email: data.email,
+        password: data.password,
+      });
+      const payload = decodeTokenPayload(jwt.token);
+      storeToken(jwt.token, payload.exp);
+    },
+    async onSuccess() {
+      await navigate({ to: "/distribute/games" });
+    },
+    onError(error) {
+      if (error instanceof Conflict) {
+        switch (error.code) {
+          case "publisher_email_already_exists":
+            form.setError("email", { message: "Email already exists" });
+            break;
+
+          case "publisher_vatin_already_exists":
+            form.setError("vatin", { message: "VAT No. already exists" });
+            break;
+        }
+        return;
+      }
+
+      toast(TOAST_MESSAGES.unexpectedError);
+    },
+  });
+
+  /**
+   * Handles form submission.
+   * @param data Form data.
+   */
+  function onSubmit(data: RegisterSchemaType) {
+    mutation.mutate(data);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
@@ -138,14 +201,20 @@ function Component() {
                       >
                         <FormControl>
                           <SelectTrigger className="border-input">
-                            <SelectValue placeholder="Select a country" />
+                            <SelectValue placeholder="Select your country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="us">United States</SelectItem>
-                          <SelectItem value="uk">United Kingdom</SelectItem>
-                          <SelectItem value="ca">Canada</SelectItem>
-                          <SelectItem value="au">Australia</SelectItem>
+                          {COUNTRIES.map((country) => {
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                value={country.code}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -169,32 +238,15 @@ function Component() {
 
                 <FormField
                   control={form.control}
-                  name="vat"
+                  name="vatin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>VAT</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="picture"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Picture</FormLabel>
+                      <FormLabel>VAT No.</FormLabel>
                       <FormControl>
                         <Input
-                          accept="image/*"
-                          type="file"
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            form.setValue("picture", files[0]);
-                          }}
+                          maxLength={9}
+                          placeholder="Enter your VAT No."
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
