@@ -126,7 +126,7 @@ function Component() {
                     </Link>
                     <div className="p-4 flex items-center justify-between flex-wrap">
                       <div>
-                        <p className="text-sm text-gray-400">Stellar Games</p>
+                        <p className="text-sm text-gray-300">Stellar Games</p>
                         <h3 className="text-xl font-semibold">{game}</h3>
                       </div>
                       <Button size="icon" variant="secondary">

@@ -64,7 +64,7 @@ function Component() {
           <div>
             <Label className="mb-2 block">Genre</Label>
             <div className="flex flex-wrap gap-2">
-              {["All", "Action", "RPG", "Strategy", "Sports", "Puzzle"].map(
+              {["All", "Action", "RPG", "Strategy", "Sport", "Puzzle"].map(
                 (genre) => (
                   <button
                     key={genre}

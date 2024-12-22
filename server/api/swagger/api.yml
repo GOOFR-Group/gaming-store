@@ -5,6 +5,10 @@ info:
 tags:
   - name: User
     description: User operations
+  - name: User Cart
+    description: User cart operations
+  - name: User Library
+    description: User library operations
   - name: Publisher
     description: Publisher operations
   - name: Game
@@ -176,13 +180,127 @@ paths:
         500:
           $ref: "#/components/responses/InternalServerError"
 
+  /users/{userId}/cart/games:
+    get:
+      summary: List user cart games.
+      operationId: listUserCartGames
+      description: Returns the user's shopping cart with the specified filter.
+      tags:
+        - User Cart
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - name: sort
+          in: query
+          description: Name of the field to sort by.
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - gameTitle
+            default: createdAt
+        - $ref: "#/components/parameters/OrderQueryParam"
+        - $ref: "#/components/parameters/LimitQueryParam"
+        - $ref: "#/components/parameters/OffsetQueryParam"
+      responses:
+        200:
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamesPaginated"
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+  /users/{userId}/cart/games/{gameId}:
+    post:
+      summary: Create a user cart game association.
+      operationId: createUserCartGame
+      description: Adds a game to the user shopping cart.
+      tags:
+        - User Cart
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: User or game not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: Association already exists, or the game is not active, or the game has not been released, or the user is not old enough to play the game, or the user already has the game in their library.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a user cart game association.
+      operationId: deleteUserCartGame
+      description: Removes a game from the user shopping cart.
+      tags:
+        - User Cart
+      security:
+        - BearerAuth: [user]
+      parameters:
+        - $ref: "#/components/parameters/UserIdPathParam"
+        - $ref: "#/components/parameters/GameIdPathParam"
+      responses:
+        204:
+          description: Successful operation.
+        400:
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        409:
+          description: Association does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
   /users/{userId}/games:
     get:
-      summary: List user's game library.
+      summary: List user game library.
       operationId: listUserGames
       description: Returns the user's game library with the specified filter.
       tags:
-        - User
+        - User Library
       security:
         - BearerAuth: [user]
       parameters:
@@ -449,7 +567,7 @@ paths:
   /games/recommended:
     get:
       summary: List recommended games.
-      operationId: listRecommendedGames
+      operationId: listGamesRecommended
       description: Returns the recommended games with the specified filter.
       tags:
         - Game
