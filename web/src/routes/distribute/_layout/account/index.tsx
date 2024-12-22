@@ -126,9 +126,7 @@ function ViewAccountDetails(props: {
     <div className="space-y-4">
       <div className="flex h-10 justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Account Details</h3>
-        <Button variant="default" onClick={props.onEdit}>
-          Edit Profile
-        </Button>
+        <Button onClick={props.onEdit}>Edit Profile</Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -185,12 +183,12 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
    * @param event Input change event.
    */
   function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (!files) {
+    const selectedFile = event.target.files?.item(0);
+    if (!selectedFile) {
       return;
     }
 
-    mutation.mutate(files[0]);
+    mutation.mutate(selectedFile);
   }
 
   return (
@@ -259,7 +257,7 @@ function EditAccountDetails(props: {
       await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
           case "publisher_name_already_exists":
@@ -278,7 +276,7 @@ function EditAccountDetails(props: {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**
@@ -362,7 +360,11 @@ function EditAccountDetails(props: {
                 <FormItem>
                   <FormLabel>VAT No.</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your VAT No." {...field} />
+                    <Input
+                      maxLength={9}
+                      placeholder="Enter your VAT No."
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

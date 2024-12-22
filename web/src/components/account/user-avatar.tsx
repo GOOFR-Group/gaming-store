@@ -45,12 +45,12 @@ export function UserAvatar(props: {
    * @param event Input change event.
    */
   function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (!files) {
+    const selectedFile = event.target.files?.item(0);
+    if (!selectedFile) {
       return;
     }
 
-    mutation.mutate(files[0]);
+    mutation.mutate(selectedFile);
   }
 
   return (
