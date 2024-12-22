@@ -124,7 +124,7 @@ function Component() {
             break;
 
           case "user_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
@@ -252,7 +252,7 @@ function Component() {
                       >
                         <FormControl>
                           <SelectTrigger className="border-input">
-                            <SelectValue placeholder="Select a country" />
+                            <SelectValue placeholder="Select your country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -278,9 +278,13 @@ function Component() {
                   name="vatin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>VAT</FormLabel>
+                      <FormLabel>VAT No.</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
+                        <Input
+                          maxLength={9}
+                          placeholder="Enter your VAT No."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

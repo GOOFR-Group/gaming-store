@@ -1,6 +1,6 @@
 import { TokenPayload } from "@/domain/jwt";
 
-import { PayloadMissing, TokenMissing } from "./errors";
+import { TokenMissing, TokenPayloadMissing } from "./errors";
 
 /**
  * Cookie name for the JWT token.
@@ -30,13 +30,13 @@ export function getToken(): string {
  * Decodes payload from token.
  * @param token JWT token.
  * @returns Decoded payload.
- * @throws {PayloadMissing} When payload is not found within the token.
+ * @throws {TokenPayloadMissing} When payload is not found within the token.
  */
 export function decodeTokenPayload(token: string): TokenPayload {
   const [, payloadBase64] = token.split(".");
 
   if (!payloadBase64) {
-    throw new PayloadMissing();
+    throw new TokenPayloadMissing();
   }
 
   const decodedPayloadStr = atob(payloadBase64);
