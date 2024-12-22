@@ -154,6 +154,9 @@ const formSchema = z
       )
       .min(1, {
         message: "At least one screenshot must be uploaded",
+      })
+      .max(20, {
+        message: "The game can only have a maximum of 20 screenshots",
       }),
     ageRating: z.string({
       message: "Age rating is required",
@@ -787,8 +790,10 @@ export function GameForm(props: GameProps) {
                     )}
                     onBlur={onBlur}
                     onChange={(e) => {
-                      const file = Array.from(e.target.files ?? [])[0];
-                      form.setValue("downloadMultimedia", file);
+                      const selectedFile = e.target.files?.item(0);
+                      if (selectedFile) {
+                        form.setValue("downloadMultimedia", selectedFile);
+                      }
                     }}
                   >
                     {(gameFiles) =>
@@ -885,6 +890,9 @@ export function GameForm(props: GameProps) {
                     }
 
                     form.setValue("multimedia", updatedMultimedia);
+
+                    // Clear file input value to allow uploads of the same files.
+                    e.currentTarget.value = "";
                   }}
                 >
                   {(screenshots) => {

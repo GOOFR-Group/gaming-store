@@ -1,7 +1,12 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useParams,
+} from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
+import { Download, Edit } from "lucide-react";
 
 import { ErrorPage } from "@/components/distribute/error";
 import { GamePreview } from "@/components/distribute/games/game-preview";
@@ -123,6 +128,12 @@ function Component() {
               </TooltipContent>
             </Tooltip>
           )}
+          <Button asChild>
+            <Link params={params} to="/distribute/games/$gameId/edit">
+              <Edit />
+              Edit
+            </Link>
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
