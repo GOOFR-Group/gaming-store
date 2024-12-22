@@ -95,7 +95,7 @@ function Component() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link className="cursor-pointer" to="/distribute/account">
+                <Link className="cursor-pointer">
                   <User className="mr-2 size-4" />
                   Account
                 </Link>
