@@ -39,6 +39,7 @@ import {
   TOAST_MESSAGES,
 } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { cn, getCountryName } from "@/lib/utils";
 import { accountDetailsSchema } from "@/lib/zod";
@@ -147,7 +148,7 @@ function EditAccountDetails(props: {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
           case "user_username_already_exists":
@@ -166,7 +167,7 @@ function EditAccountDetails(props: {
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**
@@ -283,7 +284,7 @@ function EditAccountDetails(props: {
                   >
                     <FormControl>
                       <SelectTrigger className="border-input">
-                        <SelectValue placeholder="Select a country" />
+                        <SelectValue placeholder="Select your country" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -308,7 +309,11 @@ function EditAccountDetails(props: {
                 <FormItem>
                   <FormLabel>VAT</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your VAT" {...field} />
+                    <Input
+                      maxLength={9}
+                      placeholder="Enter your VAT"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

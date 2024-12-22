@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
 import { TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
@@ -56,9 +57,9 @@ export function AddFunds(props: { id: string; balance: number }) {
       form.resetField("amount");
       setOpen(false);
     },
-    onError() {
+    onError: withAuthErrors(() => {
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**

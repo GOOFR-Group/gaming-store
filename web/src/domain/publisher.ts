@@ -14,3 +14,24 @@ export interface Publisher {
   createdAt: string;
   modifiedAt: string;
 }
+
+/**
+ * Represents a new publisher.
+ */
+export interface NewPublisher {
+  email: string;
+  password: string;
+  name: string;
+  address: string;
+  country: string;
+  vatin: string;
+  pictureMultimediaId?: string;
+}
+
+/**
+ * Represents the publisher credentials to sign in.
+ */
+export interface PublisherCredentials {
+  email: string;
+  password: string;
+}
