@@ -17,7 +17,7 @@ import { gameQueryKey } from "@/lib/query-keys";
 function gameQueryOptions(gameId: string) {
   return queryOptions({
     queryKey: gameQueryKey(gameId),
-    queryFn: () => {
+    queryFn() {
       return {
         id: gameId,
         title: "Epic Adventure",
