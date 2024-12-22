@@ -24,6 +24,7 @@ import { Route as LayoutCartImport } from "./routes/_layout/cart";
 import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
 import { Route as LayoutAccountImport } from "./routes/_layout/account";
 import { Route as DistributeLayoutIndexImport } from "./routes/distribute/_layout/index";
+import { Route as DistributeLayoutAccountImport } from "./routes/distribute/_layout/account";
 import { Route as LayoutGamesGameIdImport } from "./routes/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesIndexImport } from "./routes/distribute/_layout/games/index";
 import { Route as DistributeLayoutGamesAddImport } from "./routes/distribute/_layout/games/add";
@@ -93,6 +94,11 @@ const LayoutAccountRoute = LayoutAccountImport.update({
 
 const DistributeLayoutIndexRoute = DistributeLayoutIndexImport.update({
   path: "/",
+  getParentRoute: () => DistributeLayoutRoute,
+} as any);
+
+const DistributeLayoutAccountRoute = DistributeLayoutAccountImport.update({
+  path: "/account",
   getParentRoute: () => DistributeLayoutRoute,
 } as any);
 
@@ -213,6 +219,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutGamesGameIdImport;
       parentRoute: typeof LayoutImport;
     };
+    "/distribute/_layout/account": {
+      id: "/distribute/_layout/account";
+      path: "/account";
+      fullPath: "/distribute/account";
+      preLoaderRoute: typeof DistributeLayoutAccountImport;
+      parentRoute: typeof DistributeLayoutImport;
+    };
     "/distribute/_layout/": {
       id: "/distribute/_layout/";
       path: "/";
@@ -277,6 +290,7 @@ const LayoutRouteWithChildren =
   LayoutRoute._addFileChildren(LayoutRouteChildren);
 
 interface DistributeLayoutRouteChildren {
+  DistributeLayoutAccountRoute: typeof DistributeLayoutAccountRoute;
   DistributeLayoutIndexRoute: typeof DistributeLayoutIndexRoute;
   DistributeLayoutGamesGameIdRoute: typeof DistributeLayoutGamesGameIdRoute;
   DistributeLayoutGamesAddRoute: typeof DistributeLayoutGamesAddRoute;
@@ -285,6 +299,7 @@ interface DistributeLayoutRouteChildren {
 }
 
 const DistributeLayoutRouteChildren: DistributeLayoutRouteChildren = {
+  DistributeLayoutAccountRoute: DistributeLayoutAccountRoute,
   DistributeLayoutIndexRoute: DistributeLayoutIndexRoute,
   DistributeLayoutGamesGameIdRoute: DistributeLayoutGamesGameIdRoute,
   DistributeLayoutGamesAddRoute: DistributeLayoutGamesAddRoute,
@@ -323,6 +338,7 @@ export interface FileRoutesByFullPath {
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
+  "/distribute/account": typeof DistributeLayoutAccountRoute;
   "/distribute/": typeof DistributeLayoutIndexRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
@@ -341,6 +357,7 @@ export interface FileRoutesByTo {
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
+  "/distribute/account": typeof DistributeLayoutAccountRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
@@ -361,6 +378,7 @@ export interface FileRoutesById {
   "/distribute/signin": typeof DistributeSigninRoute;
   "/_layout/": typeof LayoutIndexRoute;
   "/_layout/games/$gameId": typeof LayoutGamesGameIdRoute;
+  "/distribute/_layout/account": typeof DistributeLayoutAccountRoute;
   "/distribute/_layout/": typeof DistributeLayoutIndexRoute;
   "/distribute/_layout/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/_layout/games/add": typeof DistributeLayoutGamesAddRoute;
@@ -382,6 +400,7 @@ export interface FileRouteTypes {
     | "/distribute/signin"
     | "/"
     | "/games/$gameId"
+    | "/distribute/account"
     | "/distribute/"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
@@ -399,6 +418,7 @@ export interface FileRouteTypes {
     | "/distribute/signin"
     | "/"
     | "/games/$gameId"
+    | "/distribute/account"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
     | "/distribute/games"
@@ -417,6 +437,7 @@ export interface FileRouteTypes {
     | "/distribute/signin"
     | "/_layout/"
     | "/_layout/games/$gameId"
+    | "/distribute/_layout/account"
     | "/distribute/_layout/"
     | "/distribute/_layout/games/$gameId"
     | "/distribute/_layout/games/add"
@@ -495,6 +516,7 @@ export const routeTree = rootRoute
       "filePath": "distribute/_layout.tsx",
       "parent": "/distribute",
       "children": [
+        "/distribute/_layout/account",
         "/distribute/_layout/",
         "/distribute/_layout/games/$gameId",
         "/distribute/_layout/games/add",
@@ -517,6 +539,10 @@ export const routeTree = rootRoute
     "/_layout/games/$gameId": {
       "filePath": "_layout/games/$gameId.tsx",
       "parent": "/_layout"
+    },
+    "/distribute/_layout/account": {
+      "filePath": "distribute/_layout/account.tsx",
+      "parent": "/distribute/_layout"
     },
     "/distribute/_layout/": {
       "filePath": "distribute/_layout/index.tsx",

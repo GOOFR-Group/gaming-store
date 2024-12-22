@@ -43,13 +43,13 @@ import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { COUNTRIES, MINIMUM_USER_AGE, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import { accountDetailsSchema, passwordRefinement } from "@/lib/zod";
+import { passwordRefinement, userAccountDetailsSchema } from "@/lib/zod";
 
 export const Route = createFileRoute("/_layout/register")({
   component: Component,
 });
 
-const formSchema = accountDetailsSchema
+const formSchema = userAccountDetailsSchema
   .extend({
     password: z
       .string()
