@@ -3,14 +3,12 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  QueryKey,
   queryOptions,
   useMutation,
   useQueryClient,
-  useQueryClient as useQueryPublisher,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { LoaderCircle, Upload } from "lucide-react";
 import { z } from "zod";
 
@@ -43,11 +41,10 @@ import { Publisher } from "@/domain/publisher";
 import { toast, useToast } from "@/hooks/use-toast";
 import { getPublisher, updatePublisher, uploadMultimedia } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES, COUNTRIES_MAP } from "@/lib/constants";
+import { COUNTRIES, COUNTRIES_MAP, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
+import { publisherQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
-
-const publisherQueryKey: QueryKey = ["publisher"];
 
 /**
  * Query options for retrieving the signed in publisher.
@@ -72,13 +69,6 @@ export const Route = createFileRoute("/distribute/_layout/account/")({
   component: Component,
   loader(opts) {
     return opts.context.queryClient.ensureQueryData(publisherQueryOptions());
-  },
-  onError() {
-    redirect({
-      to: "/distribute/signin",
-      replace: true,
-      throw: true,
-    });
   },
 });
 
@@ -152,7 +142,7 @@ function ViewAccountDetails(props: {
           <p className="text-lg"> {props.country}</p>
         </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">VAT</p>
+          <p className="text-sm font-medium text-muted-foreground">VAT No.</p>
           <p className="text-lg">{props.publisher.vatin}</p>
         </div>
       </div>
@@ -165,7 +155,7 @@ function ViewAccountDetails(props: {
 }
 
 function PublisherAvatar(props: { id: string; name: string; url?: string }) {
-  const queryPublisher = useQueryClient();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     async mutationFn(file: File) {
       const multimedia = await uploadMultimedia(file);
@@ -173,7 +163,7 @@ function PublisherAvatar(props: { id: string; name: string; url?: string }) {
       await updatePublisher(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {
-      await queryPublisher.invalidateQueries({ queryKey: publisherQueryKey });
+      await queryClient.invalidateQueries({ queryKey: publisherQueryKey });
     },
     onError(error) {
       if (error instanceof ContentTooLarge) {
@@ -269,10 +259,10 @@ const formSchema = z.object({
   vatin: z
     .string()
     .min(1, {
-      message: "VAT is required",
+      message: "VAT No. is required",
     })
     .max(20, {
-      message: "VAT must be shorter than 20 characters",
+      message: "VAT No. must be shorter than 20 characters",
     }),
 });
 
@@ -283,7 +273,7 @@ function EditAccountDetails(props: {
   onCancel: () => void;
   onSave: () => void;
 }) {
-  const queryClient = useQueryPublisher();
+  const queryClient = useQueryClient();
   const form = useForm<AccountDetailsSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -321,17 +311,13 @@ function EditAccountDetails(props: {
             break;
 
           case "publisher_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 
@@ -418,9 +404,9 @@ function EditAccountDetails(props: {
               name="vatin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT</FormLabel>
+                  <FormLabel>VAT No.</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your VAT" {...field} />
+                    <Input placeholder="Enter your VAT No." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
