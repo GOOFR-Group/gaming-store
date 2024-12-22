@@ -1,4 +1,4 @@
-import { PayloadMissing, TokenMissing, Unauthorized } from "./errors";
+import { TokenMissing, TokenPayloadMissing, Unauthorized } from "./errors";
 
 /**
  * Handles useMutation authentication errors.
@@ -6,21 +6,13 @@ import { PayloadMissing, TokenMissing, Unauthorized } from "./errors";
  * @returns useMutation onError function.
  */
 export function withAuthErrors<TError, TVariables, TContext>(
-  fn: (
-    error: TError,
-    variables: TVariables,
-    context: TContext | undefined,
-  ) => unknown,
+  fn?: (error: TError, variables?: TVariables, context?: TContext) => unknown,
 ) {
-  return (
-    error: TError,
-    variables: TVariables,
-    context: TContext | undefined,
-  ) => {
+  return (error: TError, variables?: TVariables, context?: TContext) => {
     if (
       error instanceof Unauthorized ||
       error instanceof TokenMissing ||
-      error instanceof PayloadMissing
+      error instanceof TokenPayloadMissing
     ) {
       window.location.replace(
         window.location.pathname.startsWith("/distribute")
@@ -30,6 +22,6 @@ export function withAuthErrors<TError, TVariables, TContext>(
       return;
     }
 
-    fn(error, variables, context);
+    fn?.(error, variables, context);
   };
 }

@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { Toaster } from "@/components/ui/toaster";
-import { PayloadMissing, TokenMissing, Unauthorized } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -26,18 +26,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: RootComponent,
   errorComponent(props) {
-    if (
-      props.error instanceof Unauthorized ||
-      props.error instanceof TokenMissing ||
-      props.error instanceof PayloadMissing
-    ) {
-      window.location.replace(
-        window.location.pathname.startsWith("/distribute")
-          ? "/distribute/signin"
-          : "/signin",
-      );
-      return;
-    }
+    withAuthErrors()(props.error);
   },
 });
 
