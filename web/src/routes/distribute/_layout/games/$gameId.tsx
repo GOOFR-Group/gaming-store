@@ -216,12 +216,16 @@ function Component() {
           <h3 className="text-lg font-semibold mb-2">Screenshots</h3>
           <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(0,32rem))] justify-center gap-4">
             {game.multimedia.map((multimedia, index) => (
-              <img
-                key={multimedia.id}
-                alt={`Screenshot ${index + 1}`}
-                className="w-full object-cover aspect-video rounded-md"
-                src={multimedia.url}
-              />
+              <div key={multimedia.id} className="relative isolate">
+                <img
+                  alt={`Screenshot ${index + 1}`}
+                  className=" w-full object-cover aspect-video rounded-md"
+                  src={multimedia.url}
+                />
+                <span className="absolute z-10 bottom-2 left-2 bg-muted size-8 text-center leading-8 rounded-md text-sm drop-shadow-md">
+                  {index + 1}
+                </span>
+              </div>
             ))}
           </div>
         </div>
