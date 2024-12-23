@@ -1,4 +1,9 @@
-import { TokenMissing, TokenPayloadMissing, Unauthorized } from "./errors";
+import {
+  Forbidden,
+  TokenMissing,
+  TokenPayloadMissing,
+  Unauthorized,
+} from "./errors";
 
 /**
  * Handles useMutation authentication errors.
@@ -11,6 +16,7 @@ export function withAuthErrors<TError, TVariables, TContext>(
   return (error: TError, variables?: TVariables, context?: TContext) => {
     if (
       error instanceof Unauthorized ||
+      error instanceof Forbidden ||
       error instanceof TokenMissing ||
       error instanceof TokenPayloadMissing
     ) {
