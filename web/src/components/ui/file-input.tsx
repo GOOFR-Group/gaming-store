@@ -64,7 +64,7 @@ function FileInputRoot<T>(
           </div>
         ) : (
           <>
-            <div className="w-full flex items-center gap-2 mr-1">
+            <div className="w-full flex items-center gap-2 mr-1 truncate">
               {props.multiple && <Upload />}
 
               <span className="flex-1 truncate">
