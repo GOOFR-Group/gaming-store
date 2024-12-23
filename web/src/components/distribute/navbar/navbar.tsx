@@ -91,7 +91,7 @@ function PublisherAccount() {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <button
-              className="px-2 w-full h-8 rounded-sm justify-start"
+              className="px-2 w-full h-8 rounded-sm justify-start cursor-pointer"
               onClick={handleSignOut}
             >
               <LogOut className="mr-2 size-4" /> Sign Out
