@@ -4,7 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronsUpDown, Download } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronsUpDown,
+  Download,
+  LoaderCircle,
+} from "lucide-react";
 import * as z from "zod";
 
 import { Badge } from "@/components/ui/badge";
@@ -970,6 +975,7 @@ export function GameForm(props: GameProps) {
             Cancel
           </Button>
           <Button disabled={mutation.isPending} type="submit">
+            {mutation.isPending && <LoaderCircle className="animate-spin" />}
             {props.mode === "add" ? "Add Game" : "Edit Game"}
           </Button>
         </div>
