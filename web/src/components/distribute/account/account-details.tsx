@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoaderCircle } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -256,6 +257,7 @@ function EditAccountDetails(props: {
               Cancel
             </Button>
             <Button disabled={mutation.isPending} type="submit">
+              {mutation.isPending && <LoaderCircle className="animate-spin" />}
               Save
             </Button>
           </div>
