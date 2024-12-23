@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
+import { DistributeNavbar } from "@/components/distribute/navbar/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -95,24 +96,7 @@ function Component() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-primary to-secondary">
-      <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
-        <div className="flex items-center space-x-6">
-          <Link href="/">
-            <img
-              alt="GOOFR Gaming Store Logo"
-              className="w-28"
-              src="/images/logo.png"
-            />
-          </Link>
-
-          <Link
-            className="flex items-center gap-4 space-x-2"
-            href="/distribute"
-          >
-            <h1 className="font-semibold text-xl">Distribution Center</h1>
-          </Link>
-        </div>
-      </header>
+      <DistributeNavbar variant="simple" />
 
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
