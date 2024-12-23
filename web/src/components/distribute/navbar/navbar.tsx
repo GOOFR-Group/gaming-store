@@ -1,8 +1,10 @@
 import { useState } from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ChartArea,
+  ChevronDown,
   Gamepad2,
   LogOut,
   Menu,
@@ -11,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,27 +23,82 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { clearToken } from "@/lib/auth";
+import { getPublisher } from "@/lib/api";
+import { clearToken, decodeTokenPayload, getToken } from "@/lib/auth";
+import { Forbidden } from "@/lib/errors";
+import { publisherQueryKey } from "@/lib/query-keys";
+import { getInitials } from "@/lib/utils";
 
 import { NavLink } from "./nav-link";
 
-function SignOut() {
+function PublisherAccount() {
+  const query = useQuery({
+    queryKey: publisherQueryKey,
+    throwOnError: true,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const publisherId = payload.sub;
+      if (!payload.roles.includes("publisher")) {
+        throw new Forbidden("roles_invalid", "invalid subject roles");
+      }
+
+      const publisher = await getPublisher(publisherId);
+
+      return publisher;
+    },
+  });
+
   /**
    * Signs out a publisher and reloads the current page.
    */
-  function handleClick() {
+  function handleSignOut() {
     clearToken();
     window.location.reload();
   }
 
+  const publisher = query.data;
+  if (!publisher) {
+    return;
+  }
+
   return (
-    <Button
-      className="px-2 w-full h-8 rounded-sm justify-start"
-      variant="ghost"
-      onClick={handleClick}
-    >
-      <LogOut className="mr-2 size-4" /> Sign Out
-    </Button>
+    <div className="flex items-center space-x-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="group" variant="ghost">
+            <Avatar className="size-8 group cursor-pointer border">
+              <AvatarImage
+                alt="Publisher Avatar"
+                className="object-cover"
+                src={publisher.pictureMultimedia?.url}
+              />
+              <AvatarFallback>{getInitials(publisher.name)}</AvatarFallback>
+            </Avatar>
+            <span>{publisher.name}</span>
+            <ChevronDown className="group-data-[state=open]:rotate-180" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link className="cursor-pointer" to="/distribute/account">
+              <User className="mr-2 size-4" />
+              Account
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <button
+              className="px-2 w-full h-8 rounded-sm justify-start"
+              onClick={handleSignOut}
+            >
+              <LogOut className="mr-2 size-4" /> Sign Out
+            </button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -49,7 +107,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
 
   if (props.variant === "simple") {
     return (
-      <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
+      <header className="flex px-4 py-4 items-center justify-between border-b bg-background">
         <div className="flex items-center space-x-6">
           <Link href="/">
             <img
@@ -66,7 +124,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
   }
 
   return (
-    <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
+    <header className="flex px-4 py-4 items-center justify-between border-b bg-background">
       <div className="flex items-center space-x-6">
         <Link href="/">
           <img
@@ -127,28 +185,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
           </SheetContent>
         </Sheet>
 
-        <div className="flex items-center space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="relative size-8" size="icon" variant="ghost">
-                <User className="size-4" />
-                <span className="sr-only">Open user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link className="cursor-pointer" to="/distribute/account">
-                  <User className="mr-2 size-4" />
-                  Account
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <SignOut />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <PublisherAccount />
       </div>
     </header>
   );
