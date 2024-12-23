@@ -85,27 +85,71 @@ function Component() {
             <h1 className="font-semibold text-xl">Distribution Center</h1>
           </Link>
         </div>
-        <div className="flex items-center space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="relative size-8" size="icon" variant="ghost">
-                <User className="size-4" />
-                <span className="sr-only">Open user menu</span>
+
+        <div className="flex gap-2">
+          {/* Mobile sidebar */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="md:hidden size-8" size="icon" variant="ghost">
+                <Menu className="size-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link className="cursor-pointer" to="/distribute/account">
-                  <User className="mr-2 size-4" />
-                  Account
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <SignOut />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SheetTrigger>
+            <SheetContent className="w-64" side="left">
+              <nav className="flex flex-col space-y-2 mt-4">
+                <NavLink
+                  active={location.pathname.includes("/distribute/games")}
+                  href="/distribute/games"
+                >
+                  <Gamepad2 className="mr-2 size-4" />
+                  Games
+                </NavLink>
+                <NavLink
+                  active={location.pathname.includes("/distribute/campaigns")}
+                  href="/distribute/campaigns"
+                >
+                  <PercentSquare className="mr-2 size-4" />
+                  Campaigns
+                </NavLink>
+                <NavLink
+                  active={location.pathname.includes("/distribute/news")}
+                  href="/distribute/news"
+                >
+                  <Newspaper className="mr-2 size-4" />
+                  News
+                </NavLink>
+                <NavLink
+                  active={location.pathname.includes("/distribute/statistics")}
+                  href="/distribute/statistics"
+                >
+                  <ChartArea className="mr-2 size-4" />
+                  Statistics
+                </NavLink>
+              </nav>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="relative size-8" size="icon" variant="ghost">
+                  <User className="size-4" />
+                  <span className="sr-only">Open user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link className="cursor-pointer" to="/distribute/account">
+                    <User className="mr-2 size-4" />
+                    Account
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <SignOut />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 
@@ -143,47 +187,6 @@ function Component() {
             </NavLink>
           </nav>
         </aside>
-
-        {/* Mobile sidebar */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button className="md:hidden m-4" size="icon" variant="outline">
-              <Menu className="size-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-64" side="left">
-            <nav className="flex flex-col space-y-2 mt-4">
-              <NavLink
-                active={location.pathname.includes("/distribute/games")}
-                href="/distribute/games"
-              >
-                <Gamepad2 className="mr-2 size-4" />
-                Games
-              </NavLink>
-              <NavLink
-                active={location.pathname.includes("/distribute/campaigns")}
-                href="/distribute/campaigns"
-              >
-                <PercentSquare className="mr-2 size-4" />
-                Campaigns
-              </NavLink>
-              <NavLink
-                active={location.pathname.includes("/distribute/news")}
-                href="/distribute/news"
-              >
-                <Newspaper className="mr-2 size-4" />
-                News
-              </NavLink>
-              <NavLink
-                active={location.pathname.includes("/distribute/statistics")}
-                href="/distribute/statistics"
-              >
-                <ChartArea className="mr-2 size-4" />
-                Statistics
-              </NavLink>
-            </nav>
-          </SheetContent>
-        </Sheet>
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto p-4 bg-background">
