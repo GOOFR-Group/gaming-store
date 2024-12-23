@@ -22,7 +22,7 @@ tags:
   - name: Multimedia
     description: Multimedia operations
 servers:
-  - url: https://TODO/api
+  - url: https://server-383115893224.us-east1.run.app/api
     description: Production server.
   - url: http://localhost:8080/api
     description: Local server.

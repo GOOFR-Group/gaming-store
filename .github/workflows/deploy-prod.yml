@@ -59,6 +59,7 @@ jobs:
           sed -i "s/SMTP_USERNAME/${{ secrets.SMTP_USERNAME }}/" server/deployments/prod/config.yml
           sed -i "s/SMTP_PASSWORD/${{ secrets.SMTP_PASSWORD }}/" server/deployments/prod/config.yml
           sed -i "s/SMTP_FROM/${{ secrets.SMTP_FROM }}/" server/deployments/prod/config.yml
+          echo ${{ secrets.GCP_CREDENTIALS }} > server/gcp-key.json
 
       - name: Build app
         run: |
