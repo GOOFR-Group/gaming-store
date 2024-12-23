@@ -182,14 +182,16 @@ function Component() {
           </div>
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-2">About the Game</h3>
-          <p>{game.description}</p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">About the Game</h3>
+            <p>{game.description}</p>
+          </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Game Features</h3>
-          <p className="whitespace-pre-wrap">{game.features}</p>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Game Features</h3>
+            <p className="whitespace-pre-wrap">{game.features}</p>
+          </div>
         </div>
 
         <div>
