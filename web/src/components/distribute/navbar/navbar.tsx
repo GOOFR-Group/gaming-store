@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Link } from "@tanstack/react-router";
 import {
   ChartArea,
@@ -43,6 +45,8 @@ function SignOut() {
 }
 
 export function DistributeNavbar(props: { variant: "simple" | "full" }) {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   if (props.variant === "simple") {
     return (
       <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
@@ -79,7 +83,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
 
       <div className="flex gap-2">
         {/* Mobile sidebar */}
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button className="md:hidden size-8" size="icon" variant="ghost">
               <Menu className="size-4" />
@@ -90,6 +94,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               <NavLink
                 active={location.pathname.includes("/distribute/games")}
                 href="/distribute/games"
+                onClick={() => setIsSheetOpen(false)}
               >
                 <Gamepad2 className="mr-2 size-4" />
                 Games
@@ -97,6 +102,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               <NavLink
                 active={location.pathname.includes("/distribute/campaigns")}
                 href="/distribute/campaigns"
+                onClick={() => setIsSheetOpen(false)}
               >
                 <PercentSquare className="mr-2 size-4" />
                 Campaigns
@@ -104,6 +110,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               <NavLink
                 active={location.pathname.includes("/distribute/news")}
                 href="/distribute/news"
+                onClick={() => setIsSheetOpen(false)}
               >
                 <Newspaper className="mr-2 size-4" />
                 News
@@ -111,6 +118,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               <NavLink
                 active={location.pathname.includes("/distribute/statistics")}
                 href="/distribute/statistics"
+                onClick={() => setIsSheetOpen(false)}
               >
                 <ChartArea className="mr-2 size-4" />
                 Statistics
