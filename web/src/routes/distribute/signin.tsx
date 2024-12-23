@@ -94,62 +94,83 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardHeader className="space-y-1 flex flex-col items-center">
-              <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In to Distribution Center
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-primary to-secondary">
+      <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
+        <div className="flex items-center space-x-6">
+          <Link href="/">
+            <img
+              alt="GOOFR Gaming Store Logo"
+              className="w-28"
+              src="/images/logo.png"
+            />
+          </Link>
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex items-center flex-col space-y-4">
-              <Button
-                className="w-full text-primary-foreground font-semibold"
-                type="submit"
-              >
-                Sign In
-              </Button>
-              <Button asChild variant="link">
-                <Link to="/distribute/register">Create account</Link>
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+          <Link
+            className="flex items-center gap-4 space-x-2"
+            href="/distribute"
+          >
+            <h1 className="font-semibold text-xl">Distribution Center</h1>
+          </Link>
+        </div>
+      </header>
+
+      <div className="flex-1 flex items-center justify-center">
+        <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardHeader className="space-y-1 flex flex-col items-center">
+                <CardTitle className="text-3xl font-bold tracking-tight">
+                  Sign In to Distribution Center
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter className="flex items-center flex-col space-y-4">
+                <Button
+                  className="w-full text-primary-foreground font-semibold"
+                  type="submit"
+                >
+                  Sign In
+                </Button>
+                <Button asChild variant="link">
+                  <Link to="/distribute/register">Create account</Link>
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 }
