@@ -1,0 +1,91 @@
+name: Deploy production
+
+on:
+  # TODO: remove
+  pull_request:
+    branches:
+      - main
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "web/**"
+  #     - "server/**"
+  #     - "Dockerfile"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: ./web/package-lock.json
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+          cache-dependency-path: ./server/go.sum
+
+      - name: Set up Google Authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          token_format: access_token
+
+      - name: Login to Google Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGION }}-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up server configs
+        run: |
+          sed -i "s/DB_USER/${{ secrets.DB_USER }}/" server/deployments/prod/config.yml
+          sed -i "s/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/" server/deployments/prod/config.yml
+          sed -i "s/DB_HOST/${{ secrets.DB_HOST }}/" server/deployments/prod/config.yml
+          sed -i "s/DB_PORT/${{ secrets.DB_PORT }}/" server/deployments/prod/config.yml
+          sed -i "s/DB_NAME/${{ secrets.DB_NAME }}/" server/deployments/prod/config.yml
+          sed -i "s/SMTP_HOST/${{ secrets.SMTP_HOST }}/" server/deployments/prod/config.yml
+          sed -i "s/SMTP_PORT/${{ secrets.SMTP_PORT }}/" server/deployments/prod/config.yml
+          sed -i "s/SMTP_USERNAME/${{ secrets.SMTP_USERNAME }}/" server/deployments/prod/config.yml
+          sed -i "s/SMTP_PASSWORD/${{ secrets.SMTP_PASSWORD }}/" server/deployments/prod/config.yml
+          sed -i "s/SMTP_FROM/${{ secrets.SMTP_FROM }}/" server/deployments/prod/config.yml
+
+      - name: Build app
+        run: |
+          make -C server generate
+          npm --prefix web ci
+          npm run --prefix web build
+          mkdir -p server/dist
+          mv web/dist server/dist/web
+
+      - name: Build image
+        run: |
+          export IMAGE_TAG=${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/${{ vars.SERVICE_NAME_SERVER }}:${{ github.sha }}
+          export BUILD_GIT_HASH=$(git describe --always --dirty)
+          export BUILD_TIMESTAMP=$(TZ="GMT" LC_TIME="en_US.utf8" date)
+          docker build -t $IMAGE_TAG -f server.Dockerfile --build-arg BUILD_GIT_HASH="$BUILD_GIT_HASH" --build-arg BUILD_TIMESTAMP="$BUILD_TIMESTAMP" .
+          echo "IMAGE=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Push image
+        run: docker push ${{ env.IMAGE }}
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ vars.SERVICE_NAME_SERVER }}
+          region: ${{ vars.REGION }}
+          image: ${{ env.IMAGE }}
+
+      - name: Show deployment URL
+        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
