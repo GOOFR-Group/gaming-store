@@ -140,7 +140,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
         </Link>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         {/* Mobile sidebar */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
