@@ -69,7 +69,7 @@ function Component() {
     <div className="flex h-screen flex-col overflow-hidden">
       {/* Top bar */}
       <header className="flex px-6 py-4 items-center justify-between border-b bg-background">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           <Link href="/">
             <img
               alt="GOOFR Gaming Store Logo"
