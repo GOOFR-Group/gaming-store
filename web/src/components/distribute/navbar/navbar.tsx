@@ -34,6 +34,7 @@ import { NavLink } from "./nav-link";
 function PublisherAccount() {
   const query = useQuery({
     queryKey: publisherQueryKey,
+    retry: false,
     throwOnError: true,
     async queryFn() {
       const token = getToken();
