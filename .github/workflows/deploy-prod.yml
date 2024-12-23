@@ -1,17 +1,13 @@
 name: Deploy production
 
 on:
-  # TODO: remove
-  pull_request:
+  push:
     branches:
       - main
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "web/**"
-  #     - "server/**"
-  #     - "Dockerfile"
+    paths:
+      - "web/**"
+      - "server/**"
+      - "Dockerfile"
 
 jobs:
   deploy:
