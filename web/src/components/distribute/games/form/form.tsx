@@ -67,13 +67,18 @@ import { cn, getMultimediaName } from "@/lib/utils";
 import { GamePreview } from "../game-preview";
 import { MultimediaUploadList } from "./multimedia-uploader";
 
-const multimediaSchema = z.object({
-  id: z.string(),
-  checksum: z.number(),
-  mediaType: z.string(),
-  url: z.string(),
-  createdAt: z.string(),
-});
+const multimediaSchema = z.object(
+  {
+    id: z.string(),
+    checksum: z.number(),
+    mediaType: z.string(),
+    url: z.string(),
+    createdAt: z.string(),
+  },
+  {
+    message: "Image preview is required",
+  },
+);
 
 const formSchema = z
   .object({
@@ -137,9 +142,7 @@ const formSchema = z
             "Recommended requirements must be shorter than 200 characters",
         }),
     }),
-    previewMultimedia: z.union([multimediaSchema, z.instanceof(File)], {
-      message: "Image preview is required",
-    }),
+    previewMultimedia: z.union([multimediaSchema, z.instanceof(File)]),
     downloadMultimedia: z.union(
       [multimediaSchema, z.instanceof(File).optional()],
       {
@@ -509,7 +512,6 @@ export function GameForm(props: GameProps) {
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       initialFocus
-                      disabled={(date) => date < new Date()}
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
@@ -706,6 +708,63 @@ export function GameForm(props: GameProps) {
 
           <FormField
             control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Active</FormLabel>
+                <div className="flex items-center h-10">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
+                <FormDescription>
+                  Indicates whether the game is displayed in the store
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>About the Game</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Enter a description of the game"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="features"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Game Features</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Enter key features of the game"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="previewMultimedia"
             render={({ field: { ref, name, onBlur, disabled, value } }) => {
               const formValues = form.getValues();
@@ -806,62 +865,7 @@ export function GameForm(props: GameProps) {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Active</FormLabel>
-                <div className="flex items-center h-10">
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </div>
-                <FormDescription>
-                  Indicates whether the game is displayed in the store
-                </FormDescription>
-              </FormItem>
-            )}
-          />
         </div>
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>About the Game</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter a description of the game"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="features"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Game Features</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter key features of the game"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
@@ -952,6 +956,7 @@ export function GameForm(props: GameProps) {
 
         <div className="w-full flex justify-end gap-2">
           <Button
+            type="reset"
             variant="ghost"
             onClick={() =>
               navigate({
