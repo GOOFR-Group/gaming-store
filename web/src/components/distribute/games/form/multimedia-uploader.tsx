@@ -42,6 +42,7 @@ function MultimediaItem(props: {
 
       <Button
         size="icon"
+        type="button"
         variant="destructive"
         onClick={() => props.onRemove(props.index)}
       >
