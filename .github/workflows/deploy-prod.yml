@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Set up server gcp-key.json
-        run: echo ${{ secrets.GCP_CREDENTIALS }} > server/gcp-key.json
+        run: echo "${{ secrets.GCP_CREDENTIALS }}" > server/gcp-key.json
 
       - name: Set up server configs
         run: |
