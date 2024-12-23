@@ -64,9 +64,13 @@ function FileInputRoot<T>(
           </div>
         ) : (
           <>
-            <span className="w-full truncate mr-1">
-              {typeof children === "function" ? children(value) : children}
-            </span>
+            <div className="w-full flex items-center gap-2 mr-1">
+              {props.multiple && <Upload />}
+
+              <span className="flex-1 truncate">
+                {typeof children === "function" ? children(value) : children}
+              </span>
+            </div>
             {action && (
               <div className="ml-auto w-fit">
                 {typeof action === "function" ? action(value) : action}
