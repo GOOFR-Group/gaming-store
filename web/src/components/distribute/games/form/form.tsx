@@ -52,6 +52,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { EditableGame, NewGame } from "@/domain/game";
 import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
+import { usePublisher } from "@/hooks/use-publisher";
 import { useTags } from "@/hooks/use-tags";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -236,6 +237,7 @@ export function GameForm(props: GameProps) {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  const publisherQuery = usePublisher();
 
   const mutation = useMutation({
     async mutationFn(data: GameFormSchemaType) {
@@ -788,7 +790,7 @@ export function GameForm(props: GameProps) {
                       action={(multimedia) => (
                         <GamePreview
                           price={formValues.price}
-                          publisherName="" // TODO: Add publisher name once publisher tasks are done.
+                          publisherName={publisherQuery.data!.name}
                           title={formValues.title}
                           previewMultimediaUrl={
                             "url" in multimedia

@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ChartArea,
@@ -23,33 +22,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { getPublisher } from "@/lib/api";
-import { clearToken, decodeTokenPayload, getToken } from "@/lib/auth";
-import { Forbidden } from "@/lib/errors";
-import { publisherQueryKey } from "@/lib/query-keys";
+import { usePublisher } from "@/hooks/use-publisher";
+import { clearToken } from "@/lib/auth";
 import { getInitials } from "@/lib/utils";
 
 import { NavLink } from "./nav-link";
 
 function PublisherAccount() {
-  const query = useQuery({
-    queryKey: publisherQueryKey,
-    retry: false,
-    throwOnError: true,
-    async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-
-      const publisherId = payload.sub;
-      if (!payload.roles.includes("publisher")) {
-        throw new Forbidden("roles_invalid", "invalid subject roles");
-      }
-
-      const publisher = await getPublisher(publisherId);
-
-      return publisher;
-    },
-  });
+  const query = usePublisher();
 
   /**
    * Signs out a publisher and reloads the current page.
