@@ -3,15 +3,14 @@ import { Publisher } from "./publisher";
 import { Tag } from "./tag";
 
 /**
- * Represents a game.
+ * Represents a game that is not announced.
  */
-export interface Game {
+interface ToBeAnnouncedGame {
   id: string;
   publisher: Publisher;
   title: string;
   price: number;
   isActive: boolean;
-  releaseDate?: string;
   description: string;
   ageRating: string;
   features: string;
@@ -21,12 +20,24 @@ export interface Game {
     recommended: string;
   };
   previewMultimedia: Multimedia;
-  downloadMultimedia?: Multimedia;
   multimedia: Multimedia[];
   tags: Tag[];
   createdAt: string;
   modifiedAt: string;
 }
+
+/**
+ * Represents a game that is announced.
+ */
+interface AnnouncedGame extends ToBeAnnouncedGame {
+  releaseDate: string;
+  downloadMultimedia: Multimedia;
+}
+
+/**
+ * Represents a game.
+ */
+export type Game = AnnouncedGame | ToBeAnnouncedGame;
 
 /**
  * Represents games with pagination.
