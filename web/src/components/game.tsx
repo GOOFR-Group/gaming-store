@@ -8,7 +8,6 @@ export function Game(props: {
   image: string;
 }) {
   return (
-    // TODO: Do we want this in the preview?
     <article className="group max-w-80">
       <img
         alt="Game cover"
