@@ -192,29 +192,39 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Legal</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <a className="hover:underline" href="/termsService">
                     Terms of Service
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <a className="hover:underline" href="/privacyPolicy">
                     Privacy Policy
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <a className="hover:underline" href="/cookiePolicy">
                     Cookie Policy
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <a
+                    className="hover:underline"
+                    href="https://www.livroreclamacoes.pt"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     Complaints Book
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <a
+                    className="hover:underline"
+                    href="https://www.cniacc.pt"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     Dispute Resolution
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>

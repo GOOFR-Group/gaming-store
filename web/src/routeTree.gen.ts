@@ -18,8 +18,11 @@ import { Route as LayoutIndexImport } from "./routes/_layout/index";
 import { Route as DistributeSigninImport } from "./routes/distribute/signin";
 import { Route as DistributeRegisterImport } from "./routes/distribute/register";
 import { Route as DistributeLayoutImport } from "./routes/distribute/_layout";
+import { Route as LayoutTermsServiceImport } from "./routes/_layout/termsService";
 import { Route as LayoutSigninImport } from "./routes/_layout/signin";
 import { Route as LayoutRegisterImport } from "./routes/_layout/register";
+import { Route as LayoutPrivacyPolicyImport } from "./routes/_layout/privacyPolicy";
+import { Route as LayoutCookiePolicyImport } from "./routes/_layout/cookiePolicy";
 import { Route as LayoutCartImport } from "./routes/_layout/cart";
 import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
 import { Route as LayoutAccountImport } from "./routes/_layout/account";
@@ -67,6 +70,11 @@ const DistributeLayoutRoute = DistributeLayoutImport.update({
   getParentRoute: () => DistributeRoute,
 } as any);
 
+const LayoutTermsServiceRoute = LayoutTermsServiceImport.update({
+  path: "/termsService",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
 const LayoutSigninRoute = LayoutSigninImport.update({
   path: "/signin",
   getParentRoute: () => LayoutRoute,
@@ -74,6 +82,16 @@ const LayoutSigninRoute = LayoutSigninImport.update({
 
 const LayoutRegisterRoute = LayoutRegisterImport.update({
   path: "/register",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutPrivacyPolicyRoute = LayoutPrivacyPolicyImport.update({
+  path: "/privacyPolicy",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutCookiePolicyRoute = LayoutCookiePolicyImport.update({
+  path: "/cookiePolicy",
   getParentRoute: () => LayoutRoute,
 } as any);
 
@@ -163,6 +181,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCartImport;
       parentRoute: typeof LayoutImport;
     };
+    "/_layout/cookiePolicy": {
+      id: "/_layout/cookiePolicy";
+      path: "/cookiePolicy";
+      fullPath: "/cookiePolicy";
+      preLoaderRoute: typeof LayoutCookiePolicyImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/privacyPolicy": {
+      id: "/_layout/privacyPolicy";
+      path: "/privacyPolicy";
+      fullPath: "/privacyPolicy";
+      preLoaderRoute: typeof LayoutPrivacyPolicyImport;
+      parentRoute: typeof LayoutImport;
+    };
     "/_layout/register": {
       id: "/_layout/register";
       path: "/register";
@@ -175,6 +207,13 @@ declare module "@tanstack/react-router" {
       path: "/signin";
       fullPath: "/signin";
       preLoaderRoute: typeof LayoutSigninImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/termsService": {
+      id: "/_layout/termsService";
+      path: "/termsService";
+      fullPath: "/termsService";
+      preLoaderRoute: typeof LayoutTermsServiceImport;
       parentRoute: typeof LayoutImport;
     };
     "/distribute": {
@@ -270,8 +309,11 @@ interface LayoutRouteChildren {
   LayoutAccountRoute: typeof LayoutAccountRoute;
   LayoutBrowseRoute: typeof LayoutBrowseRoute;
   LayoutCartRoute: typeof LayoutCartRoute;
+  LayoutCookiePolicyRoute: typeof LayoutCookiePolicyRoute;
+  LayoutPrivacyPolicyRoute: typeof LayoutPrivacyPolicyRoute;
   LayoutRegisterRoute: typeof LayoutRegisterRoute;
   LayoutSigninRoute: typeof LayoutSigninRoute;
+  LayoutTermsServiceRoute: typeof LayoutTermsServiceRoute;
   LayoutIndexRoute: typeof LayoutIndexRoute;
   LayoutGamesGameIdRoute: typeof LayoutGamesGameIdRoute;
 }
@@ -280,8 +322,11 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAccountRoute: LayoutAccountRoute,
   LayoutBrowseRoute: LayoutBrowseRoute,
   LayoutCartRoute: LayoutCartRoute,
+  LayoutCookiePolicyRoute: LayoutCookiePolicyRoute,
+  LayoutPrivacyPolicyRoute: LayoutPrivacyPolicyRoute,
   LayoutRegisterRoute: LayoutRegisterRoute,
   LayoutSigninRoute: LayoutSigninRoute,
+  LayoutTermsServiceRoute: LayoutTermsServiceRoute,
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutGamesGameIdRoute: LayoutGamesGameIdRoute,
 };
@@ -331,8 +376,11 @@ export interface FileRoutesByFullPath {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
+  "/cookiePolicy": typeof LayoutCookiePolicyRoute;
+  "/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
+  "/termsService": typeof LayoutTermsServiceRoute;
   "/distribute": typeof DistributeLayoutRouteWithChildren;
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
@@ -350,8 +398,11 @@ export interface FileRoutesByTo {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
+  "/cookiePolicy": typeof LayoutCookiePolicyRoute;
+  "/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
+  "/termsService": typeof LayoutTermsServiceRoute;
   "/distribute": typeof DistributeLayoutIndexRoute;
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
@@ -370,8 +421,11 @@ export interface FileRoutesById {
   "/_layout/account": typeof LayoutAccountRoute;
   "/_layout/browse": typeof LayoutBrowseRoute;
   "/_layout/cart": typeof LayoutCartRoute;
+  "/_layout/cookiePolicy": typeof LayoutCookiePolicyRoute;
+  "/_layout/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
   "/_layout/register": typeof LayoutRegisterRoute;
   "/_layout/signin": typeof LayoutSigninRoute;
+  "/_layout/termsService": typeof LayoutTermsServiceRoute;
   "/distribute": typeof DistributeRouteWithChildren;
   "/distribute/_layout": typeof DistributeLayoutRouteWithChildren;
   "/distribute/register": typeof DistributeRegisterRoute;
@@ -393,8 +447,11 @@ export interface FileRouteTypes {
     | "/account"
     | "/browse"
     | "/cart"
+    | "/cookiePolicy"
+    | "/privacyPolicy"
     | "/register"
     | "/signin"
+    | "/termsService"
     | "/distribute"
     | "/distribute/register"
     | "/distribute/signin"
@@ -411,8 +468,11 @@ export interface FileRouteTypes {
     | "/account"
     | "/browse"
     | "/cart"
+    | "/cookiePolicy"
+    | "/privacyPolicy"
     | "/register"
     | "/signin"
+    | "/termsService"
     | "/distribute"
     | "/distribute/register"
     | "/distribute/signin"
@@ -429,8 +489,11 @@ export interface FileRouteTypes {
     | "/_layout/account"
     | "/_layout/browse"
     | "/_layout/cart"
+    | "/_layout/cookiePolicy"
+    | "/_layout/privacyPolicy"
     | "/_layout/register"
     | "/_layout/signin"
+    | "/_layout/termsService"
     | "/distribute"
     | "/distribute/_layout"
     | "/distribute/register"
@@ -478,8 +541,11 @@ export const routeTree = rootRoute
         "/_layout/account",
         "/_layout/browse",
         "/_layout/cart",
+        "/_layout/cookiePolicy",
+        "/_layout/privacyPolicy",
         "/_layout/register",
         "/_layout/signin",
+        "/_layout/termsService",
         "/_layout/",
         "/_layout/games/$gameId"
       ]
@@ -496,12 +562,24 @@ export const routeTree = rootRoute
       "filePath": "_layout/cart.tsx",
       "parent": "/_layout"
     },
+    "/_layout/cookiePolicy": {
+      "filePath": "_layout/cookiePolicy.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/privacyPolicy": {
+      "filePath": "_layout/privacyPolicy.tsx",
+      "parent": "/_layout"
+    },
     "/_layout/register": {
       "filePath": "_layout/register.tsx",
       "parent": "/_layout"
     },
     "/_layout/signin": {
       "filePath": "_layout/signin.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/termsService": {
+      "filePath": "_layout/termsService.tsx",
       "parent": "/_layout"
     },
     "/distribute": {

@@ -8,7 +8,7 @@ export function Game(props: {
   image: string;
 }) {
   return (
-    <article className="max-w-80">
+    <article className="group max-w-80">
       <img
         alt="Game cover"
         className="object-cover aspect-[3/4] rounded-lg w-80 group-hover:brightness-90"
