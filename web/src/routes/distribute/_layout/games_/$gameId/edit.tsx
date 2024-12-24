@@ -5,8 +5,8 @@ import {
   useParams,
 } from "@tanstack/react-router";
 
-import { ErrorPage } from "@/components/distribute/error";
 import { GameForm } from "@/components/distribute/games/form/form";
+import { ErrorPage } from "@/components/error";
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { NotFound } from "@/lib/errors";
+import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 
 /**
@@ -47,7 +47,12 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
     );
   },
   errorComponent(errorProps) {
-    if (errorProps.error instanceof NotFound) {
+    // If the game ID is not a valid UUID, a BadRequest is thrown.
+    // This error is visually identical to a NotFound error.
+    if (
+      errorProps.error instanceof BadRequest ||
+      errorProps.error instanceof NotFound
+    ) {
       return (
         <ErrorPage
           showBack

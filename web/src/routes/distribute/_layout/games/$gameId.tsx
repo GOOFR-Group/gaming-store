@@ -3,8 +3,8 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 
-import { ErrorPage } from "@/components/distribute/error";
 import { GamePreview } from "@/components/distribute/games/game-preview";
+import { ErrorPage } from "@/components/error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
