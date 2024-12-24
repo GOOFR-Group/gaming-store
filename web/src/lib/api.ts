@@ -430,8 +430,6 @@ export async function getGames(filters: GamesFilters) {
  * @param publisherId Publisher ID.
  * @returns Game of a publisher.
  * @throws {BadRequest} Invalid parameters.
- * @throws {Unauthorized} Access token is invalid.
- * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game not found.
  * @throws {InternalServerError} Server internal error.
  */
@@ -453,10 +451,6 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
     switch (response.status) {
       case 400:
         throw new BadRequest(error.code, error.message);
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
       default:
