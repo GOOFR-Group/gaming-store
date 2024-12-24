@@ -230,7 +230,7 @@ function Component() {
             </div>
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-300">
               © {new Date().getFullYear()} GOOFR. All rights reserved.
             </p>
           </div>
