@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 
@@ -94,7 +94,7 @@ function Component() {
           <CardDescription>{game.publisher.name}</CardDescription>
         </div>
         <div className="flex-1 flex gap-2 first:*:ml-auto">
-          {"downloadMultimedia" in game ? (
+          {game.downloadMultimedia ? (
             <Button asChild variant="secondary">
               <a download href={game.downloadMultimedia.url}>
                 <Download />
