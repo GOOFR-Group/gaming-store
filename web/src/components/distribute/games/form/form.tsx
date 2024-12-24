@@ -92,9 +92,14 @@ const multimediaSchema = z.object(
 
 const formSchema = z
   .object({
-    title: z.string().min(1, {
-      message: "Title is required",
-    }),
+    title: z
+      .string()
+      .min(1, {
+        message: "Title is required",
+      })
+      .max(150, {
+        message: "Title must be shorter than 150 characters",
+      }),
     tags: z
       .array(
         z.object({
@@ -122,16 +127,16 @@ const formSchema = z
       .min(1, {
         message: "Game features are required",
       })
-      .max(200, {
-        message: "Game features must be shorter than 200 characters",
+      .max(250, {
+        message: "Game features must be shorter than 250 characters",
       }),
     languages: z
       .array(z.string())
       .min(1, {
         message: "At least one language must be selected",
       })
-      .max(20, {
-        message: "Languages exceed the maximum value of 20 languages",
+      .max(200, {
+        message: "Languages exceed the maximum value of 200 languages",
       }),
     requirements: z.object({
       minimum: z
@@ -139,17 +144,17 @@ const formSchema = z
         .min(1, {
           message: "Minimum requirements are required",
         })
-        .max(200, {
-          message: "Minimum requirements must be shorter than 200 characters",
+        .max(500, {
+          message: "Minimum requirements must be shorter than 500 characters",
         }),
       recommended: z
         .string()
         .min(1, {
           message: "Recommended requirements are required",
         })
-        .max(200, {
+        .max(500, {
           message:
-            "Recommended requirements must be shorter than 200 characters",
+            "Recommended requirements must be shorter than 500 characters",
         }),
     }),
     previewMultimedia: z.union([multimediaSchema, z.instanceof(File)]),
