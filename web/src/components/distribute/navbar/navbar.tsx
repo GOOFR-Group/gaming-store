@@ -140,7 +140,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/campaigns")}
-                href="/distribute/campaigns"
+                href="/distribute/underConstruction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <PercentSquare className="mr-2 size-4" />
@@ -148,7 +148,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/news")}
-                href="/distribute/news"
+                href="/distribute/underConstruction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <Newspaper className="mr-2 size-4" />
@@ -156,7 +156,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/statistics")}
-                href="/distribute/statistics"
+                href="/distribute/underConstruction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <ChartArea className="mr-2 size-4" />
