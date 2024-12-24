@@ -1,7 +1,6 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
-  redirect,
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { NotFound, TokenMissing, Unauthorized } from "@/lib/errors";
+import { NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 
 /**
@@ -46,15 +45,6 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
     return opts.context.queryClient.ensureQueryData(
       publisherGameQueryOptions(opts.params.gameId),
     );
-  },
-  onError(error) {
-    if (error instanceof TokenMissing || error instanceof Unauthorized) {
-      redirect({
-        to: "/distribute/signin",
-        replace: true,
-        throw: true,
-      });
-    }
   },
   errorComponent(errorProps) {
     if (errorProps.error instanceof NotFound) {
@@ -98,8 +88,7 @@ function Component() {
             title: game.title,
             requirements: game.requirements,
             isActive: game.isActive,
-            downloadMultimedia:
-              "releaseDate" in game ? game.downloadMultimedia : undefined,
+            downloadMultimedia: game.downloadMultimedia,
             previewMultimedia: game.previewMultimedia,
             multimedia: game.multimedia,
           }}
