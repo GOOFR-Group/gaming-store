@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_layout/terms")({
+export const Route = createFileRoute("/_layout/termsService")({
   component: Component,
 });
 
@@ -8,7 +8,7 @@ function Component() {
   return (
     <div className="container w-full max-w-4xl mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
-      <p>
+      <p className="mb-4">
         <strong className="font-bold">Effective Date:</strong> December 25, 2024
       </p>
       <p>
@@ -54,7 +54,7 @@ function Component() {
           <strong className="font-bold">Prohibited Activities:</strong> You
           agree not to engage in any illegal, harmful, or abusive activities,
           including but not limited to:
-          <ul className="list-disc list-inside pl-6">
+          <ul className="list-disc list-inside pl-5">
             <li>Uploading malicious software.</li>
             <li>Violating intellectual property rights.</li>
             <li>
