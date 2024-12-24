@@ -1,5 +1,5 @@
 import { ApiError } from "@/domain/error";
-import { GamesFilters, PaginatedGames } from "@/domain/game";
+import { Game, GamesFilters, PaginatedGames } from "@/domain/game";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
 import {
@@ -13,6 +13,7 @@ import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
 
 import { getToken } from "./auth";
 import {
+  BadRequest,
   Conflict,
   ContentTooLarge,
   Forbidden,
@@ -415,6 +416,50 @@ export async function getGames(filters: GamesFilters) {
   const paginatedGames = (await response.json()) as PaginatedGames;
 
   return paginatedGames;
+}
+
+/**
+ * Retrieves a game from a publisher.
+ * @param publisherId Publisher ID.
+ * @returns Game of a publisher.
+ * @throws {BadRequest} Invalid parameters.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Game not found.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getPublisherGame(publisherId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const game = (await response.json()) as Game;
+
+  return game;
 }
 
 /**

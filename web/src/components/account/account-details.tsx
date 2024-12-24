@@ -33,14 +33,18 @@ import {
 import { User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
-import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import {
+  COUNTRIES,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
-import { cn } from "@/lib/utils";
+import { cn, getCountryName } from "@/lib/utils";
 import { userAccountDetailsSchema } from "@/lib/zod";
 
-export function AccountDetails(props: { user: User; country: string }) {
+export function AccountDetails(props: { user: User }) {
   const [isEditMode, setEditMode] = useState(false);
 
   if (isEditMode) {
@@ -54,19 +58,11 @@ export function AccountDetails(props: { user: User; country: string }) {
   }
 
   return (
-    <ViewAccountDetails
-      country={props.country}
-      user={props.user}
-      onEdit={() => setEditMode(true)}
-    />
+    <ViewAccountDetails user={props.user} onEdit={() => setEditMode(true)} />
   );
 }
 
-function ViewAccountDetails(props: {
-  user: User;
-  country: string;
-  onEdit: () => void;
-}) {
+function ViewAccountDetails(props: { user: User; onEdit: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex h-10 justify-between items-center mb-4">
@@ -98,7 +94,9 @@ function ViewAccountDetails(props: {
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Country</p>
-          <p className="text-lg">{props.country}</p>
+          <p className="text-lg">
+            {getCountryName(props.user.country) ?? MISSING_VALUE_SYMBOL}
+          </p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">VAT No.</p>

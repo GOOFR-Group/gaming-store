@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
@@ -156,13 +156,14 @@ function Component() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }, (_, idx) => {
             return (
-              <Game
-                key={idx}
-                image="/images/game.jpg"
-                price={59.99}
-                publisher="Stellar Games"
-                title={`Game ${idx}`}
-              />
+              <Link key={idx} href="/games/1">
+                <Game
+                  image="/images/game.jpg"
+                  price={59.99}
+                  publisher="Stellar Games"
+                  title={`Game ${idx}`}
+                />
+              </Link>
             );
           })}
         </div>
