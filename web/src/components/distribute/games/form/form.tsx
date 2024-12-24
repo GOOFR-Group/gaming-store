@@ -65,7 +65,11 @@ import {
   uploadMultimedia,
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
+import {
+  LANGUAGES,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { cn, getMultimediaName } from "@/lib/utils";
@@ -774,7 +778,7 @@ export function GameForm(props: GameProps) {
             control={form.control}
             name="previewMultimedia"
             render={({ field: { ref, name, onBlur, disabled, value } }) => {
-              const formValues = form.getValues();
+              const formValues = form.watch();
 
               return (
                 <FormItem>
@@ -790,12 +794,14 @@ export function GameForm(props: GameProps) {
                       action={(multimedia) => (
                         <GamePreview
                           price={formValues.price}
-                          publisherName={publisherQuery.data!.name}
                           title={formValues.title}
                           previewMultimediaUrl={
                             "url" in multimedia
                               ? multimedia.url
                               : URL.createObjectURL(multimedia)
+                          }
+                          publisherName={
+                            publisherQuery.data?.name ?? MISSING_VALUE_SYMBOL
                           }
                         />
                       )}
