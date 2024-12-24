@@ -814,9 +814,7 @@ export function GameForm(props: GameProps) {
                       }}
                     >
                       {(multimedia) => {
-                        return "url" in multimedia
-                          ? multimedia.url
-                          : multimedia.name;
+                        return getMultimediaName(multimedia);
                       }}
                     </FileInput>
                   </FormControl>
@@ -869,9 +867,9 @@ export function GameForm(props: GameProps) {
                       }
                     }}
                   >
-                    {(gameFiles) =>
-                      "url" in gameFiles ? gameFiles.url : gameFiles.name
-                    }
+                    {(gameFiles) => {
+                      return getMultimediaName(gameFiles);
+                    }}
                   </FileInput>
                 </FormControl>
                 <FormMessage />
