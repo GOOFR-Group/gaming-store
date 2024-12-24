@@ -70,7 +70,7 @@ function Component() {
     <Card className="flex flex-col min-h-full">
       <CardHeader>
         <CardTitle>{game.title}</CardTitle>
-        <CardDescription>Edit a game from your game catalog</CardDescription>
+        <CardDescription>Edit a game in your game catalog</CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
         <GameForm
