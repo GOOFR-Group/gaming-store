@@ -22,7 +22,7 @@ tags:
   - name: Multimedia
     description: Multimedia operations
 servers:
-  - url: https://TODO/api
+  - url: https://server-m3fc5sbdwa-ue.a.run.app/api
     description: Production server.
   - url: http://localhost:8080/api
     description: Local server.

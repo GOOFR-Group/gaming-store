@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 

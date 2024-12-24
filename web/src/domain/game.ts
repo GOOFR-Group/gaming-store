@@ -20,7 +20,6 @@ interface ToBeAnnouncedGame {
     recommended: string;
   };
   previewMultimedia: Multimedia;
-  downloadMultimedia?: Multimedia;
   multimedia: Multimedia[];
   tags: Tag[];
   createdAt: string;
