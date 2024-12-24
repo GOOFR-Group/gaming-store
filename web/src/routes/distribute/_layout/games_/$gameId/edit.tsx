@@ -5,7 +5,7 @@ import {
   useParams,
 } from "@tanstack/react-router";
 
-import { GameForm } from "@/components/form/game";
+import { GameForm } from "@/components/distribute/games/form/form";
 import {
   Card,
   CardContent,
@@ -73,19 +73,6 @@ function Component() {
       <CardContent className="flex-1">
         <GameForm
           mode="edit"
-          defaultValues={{
-            about: data.about,
-            ageRating: data.ageRating,
-            features: data.features,
-            genres: data.genres,
-            languages: data.languages,
-            price: data.price,
-            releaseDate: data.releaseDate,
-            title: data.title,
-            systemRequirements: data.systemRequirements,
-            isActive: data.isActive,
-            screenshots: [],
-          }}
           onSave={() =>
             navigate({
               to: "/distribute/games/$gameId",
