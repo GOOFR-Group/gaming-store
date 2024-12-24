@@ -14,7 +14,9 @@ function Component() {
       <p>
         Welcome to our Privacy Policy. Your privacy is critically important to
         us. This document outlines how we collect, use, and protect your
-        personal information while using our platform.
+        personal information while using our platform. We process your personal
+        data in accordance with the General Data Protection Regulation (GDPR)
+        and other applicable data protection laws.
       </p>
       <hr className="mt-8"></hr>
 
@@ -45,6 +47,23 @@ function Component() {
         <li>To process transactions and manage your account.</li>
         <li>To communicate with you about updates, promotions, and support.</li>
         <li>To analyze and improve the performance of our platform.</li>
+        <li>To comply with legal obligations.</li>
+      </ul>
+
+      <h2 className="text-2xl font-bold mt-8 mb-4">
+        Legal Basis for Processing
+      </h2>
+      <p>We process your personal data under the following legal bases:</p>
+      <ul className="list-disc list-inside pl-5">
+        <li>Your consent, where explicitly provided.</li>
+        <li>
+          To fulfill contractual obligations, such as processing your orders.
+        </li>
+        <li>To comply with legal and regulatory requirements.</li>
+        <li>
+          Legitimate interests, such as improving our services and ensuring
+          security.
+        </li>
       </ul>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Sharing Your Information</h2>
@@ -56,7 +75,7 @@ function Component() {
         <li>To comply with legal obligations.</li>
         <li>
           To trusted third-party service providers who assist in operating our
-          platform.
+          platform, under strict confidentiality agreements.
         </li>
         <li>
           In connection with a business transaction, such as a merger or
@@ -67,20 +86,35 @@ function Component() {
       <h2 className="text-2xl font-bold mt-8 mb-4">Data Protection</h2>
       <p>
         We implement security measures to protect your data, including
-        encryption, secure servers, and regular audits. However, no system is
-        entirely secure, and we cannot guarantee absolute security.
+        encryption, secure servers, and regular audits. While we strive to
+        ensure maximum security, no system can guarantee absolute protection.
       </p>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Your Rights</h2>
-      <p>You have the right to:</p>
+      <p>As a data subject under GDPR, you have the following rights:</p>
       <ul className="list-disc list-inside pl-5">
-        <li>Access, update, or delete your personal information.</li>
-        <li>Withdraw consent for data processing at any time.</li>
         <li>
-          File a complaint with a data protection authority if you believe your
-          rights have been violated.
+          The right to access, update, or delete your personal information.
+        </li>
+        <li>The right to withdraw consent for data processing at any time.</li>
+        <li>
+          The right to restrict processing or object to certain data uses.
+        </li>
+        <li>
+          The right to data portability, enabling you to transfer your data to
+          another service.
+        </li>
+        <li>
+          The right to file a complaint with a data protection authority if you
+          believe your rights have been violated.
         </li>
       </ul>
+
+      <h2 className="text-2xl font-bold mt-8 mb-4">Data Retention</h2>
+      <p>
+        We retain your personal data only for as long as necessary to fulfill
+        the purposes outlined in this policy or as required by law.
+      </p>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Changes to This Policy</h2>
       <p>
@@ -91,8 +125,8 @@ function Component() {
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Contact Us</h2>
       <p>
-        If you have any questions or concerns about this policy, please contact
-        us at{" "}
+        If you have any questions or concerns about this policy, or if you wish
+        to exercise your rights, please contact us at{" "}
         <a
           className="text-primary hover:underline"
           href="mailto:help.goofrportugal@gmail.com"
