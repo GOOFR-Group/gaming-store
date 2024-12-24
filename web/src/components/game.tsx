@@ -23,7 +23,7 @@ export function Game(props: {
         </h3>
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           <p>
-            {!Number.isNaN(props.price)
+            {!Number.isNaN(Number(props.price))
               ? formatCurrency(props.price)
               : MISSING_VALUE_SYMBOL}
           </p>
