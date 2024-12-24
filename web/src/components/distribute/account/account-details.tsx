@@ -26,16 +26,18 @@ import {
 import { Publisher } from "@/domain/publisher";
 import { useToast } from "@/hooks/use-toast";
 import { updatePublisher } from "@/lib/api";
-import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import {
+  COUNTRIES,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { publisherQueryKey } from "@/lib/query-keys";
+import { getCountryName } from "@/lib/utils";
 import { publisherAccountDetails } from "@/lib/zod";
 
-export function PublisherAccountDetails(props: {
-  publisher: Publisher;
-  country: string;
-}) {
+export function PublisherAccountDetails(props: { publisher: Publisher }) {
   const [isEditMode, setEditMode] = useState(false);
 
   if (isEditMode) {
@@ -50,7 +52,6 @@ export function PublisherAccountDetails(props: {
 
   return (
     <ViewAccountDetails
-      country={props.country} // TODO: Remove after publisher view game details is done.
       publisher={props.publisher}
       onEdit={() => setEditMode(true)}
     />
@@ -59,7 +60,6 @@ export function PublisherAccountDetails(props: {
 
 function ViewAccountDetails(props: {
   publisher: Publisher;
-  country: string;
   onEdit: () => void;
 }) {
   return (
@@ -79,7 +79,9 @@ function ViewAccountDetails(props: {
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Country</p>
-          <p className="text-lg"> {props.country}</p>
+          <p className="text-lg">
+            {getCountryName(props.publisher.country) ?? MISSING_VALUE_SYMBOL}
+          </p>
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">VAT No.</p>
