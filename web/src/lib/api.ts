@@ -566,6 +566,7 @@ export async function updateGame(
  * @param publisherId Publisher ID.
  * @param gameId Game ID.
  * @param multimediaId Multimedia ID.
+ * @param data Association details.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game or multimedia not found.
