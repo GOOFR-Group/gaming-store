@@ -16,10 +16,10 @@ export function Game(props: {
       />
       <div className="py-2 flex flex-col gap-1">
         <p className="text-sm text-gray-300">
-          {props.publisher ?? MISSING_VALUE_SYMBOL}
+          {props.publisher || MISSING_VALUE_SYMBOL}
         </p>
         <h3 className="text-xl font-semibold">
-          {props.title ?? MISSING_VALUE_SYMBOL}
+          {props.title || MISSING_VALUE_SYMBOL}
         </h3>
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           <p>
