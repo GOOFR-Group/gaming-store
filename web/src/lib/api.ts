@@ -618,7 +618,7 @@ export async function createGameMultimedia(
  * @param multimediaId Multimedia ID.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
- * @throws {Conflict} Association or position already exists.
+ * @throws {Conflict} Association already exists.
  * @throws {InternalServerError} Server internal error.
  */
 export async function deleteGameMultimedia(
@@ -707,7 +707,7 @@ export async function createGameTag(
  * @param tagId Tag ID.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
- * @throws {Conflict} Association already exists.
+ * @throws {Conflict} Association does not exist.
  * @throws {InternalServerError} Server internal error.
  */
 export async function deleteGameTag(
