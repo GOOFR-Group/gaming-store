@@ -4,7 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronsUpDown,
+  Download,
+  LoaderCircle,
+} from "lucide-react";
 import * as z from "zod";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +24,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { FileInput } from "@/components/ui/file-input";
 import {
   Form,
   FormControl,
@@ -44,29 +50,56 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { NewGame } from "@/domain/game";
-import { Multimedia } from "@/domain/multimedia";
+import { EditableGame, NewGame } from "@/domain/game";
+import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
+import { usePublisher } from "@/hooks/use-publisher";
 import { useTags } from "@/hooks/use-tags";
 import { useToast } from "@/hooks/use-toast";
 import {
   createGame,
   createGameMultimedia,
   createGameTag,
+  deleteGameMultimedia,
+  deleteGameTag,
+  updateGame,
   uploadMultimedia,
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { LANGUAGES, TOAST_MESSAGES } from "@/lib/constants";
+import {
+  LANGUAGES,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { cn } from "@/lib/utils";
+import { cn, getMultimediaName } from "@/lib/utils";
 
+import { GamePreview } from "../game-preview";
 import { MultimediaUploadList } from "./multimedia-uploader";
+
+const multimediaSchema = z.object(
+  {
+    id: z.string(),
+    checksum: z.number(),
+    mediaType: z.string(),
+    url: z.string(),
+    createdAt: z.string(),
+  },
+  {
+    message: "Image preview is required",
+  },
+);
 
 const formSchema = z
   .object({
-    title: z.string().min(1, {
-      message: "Title is required",
-    }),
+    title: z
+      .string()
+      .min(1, {
+        message: "Title is required",
+      })
+      .max(150, {
+        message: "Title must be shorter than 150 characters",
+      }),
     tags: z
       .array(
         z.object({
@@ -94,16 +127,16 @@ const formSchema = z
       .min(1, {
         message: "Game features are required",
       })
-      .max(200, {
-        message: "Game features must be shorter than 200 characters",
+      .max(250, {
+        message: "Game features must be shorter than 250 characters",
       }),
     languages: z
       .array(z.string())
       .min(1, {
         message: "At least one language must be selected",
       })
-      .max(20, {
-        message: "Languages exceed the maximum value of 20 languages",
+      .max(200, {
+        message: "Languages exceed the maximum value of 200 languages",
       }),
     requirements: z.object({
       minimum: z
@@ -111,31 +144,38 @@ const formSchema = z
         .min(1, {
           message: "Minimum requirements are required",
         })
-        .max(200, {
-          message: "Minimum requirements must be shorter than 200 characters",
+        .max(500, {
+          message: "Minimum requirements must be shorter than 500 characters",
         }),
       recommended: z
         .string()
         .min(1, {
           message: "Recommended requirements are required",
         })
-        .max(200, {
+        .max(500, {
           message:
-            "Recommended requirements must be shorter than 200 characters",
+            "Recommended requirements must be shorter than 500 characters",
         }),
     }),
-    previewMultimedia: z.instanceof(File, {
-      message: "Image preview is required",
-    }),
-    downloadMultimedia: z
-      .instanceof(File, {
+    previewMultimedia: z.union([multimediaSchema, z.instanceof(File)]),
+    downloadMultimedia: z.union(
+      [multimediaSchema, z.instanceof(File).optional()],
+      {
         message: "Game files are required",
-      })
-      .optional(),
+      },
+    ),
     multimedia: z
-      .array(z.object({ id: z.string(), file: z.instanceof(File) }))
+      .array(
+        z.union([
+          multimediaSchema,
+          z.object({ id: z.string(), file: z.instanceof(File) }),
+        ]),
+      )
       .min(1, {
         message: "At least one screenshot must be uploaded",
+      })
+      .max(20, {
+        message: "The game can only have a maximum of 20 screenshots",
       }),
     ageRating: z.string({
       message: "Age rating is required",
@@ -165,51 +205,70 @@ const formSchema = z
 
 type GameFormSchemaType = z.infer<typeof formSchema>;
 
-export function GameForm(props: {
-  mode: "add" | "edit";
-  defaultValues?: GameFormSchemaType;
+interface AddGameFormProps {
+  mode: "add";
   onSave: () => void;
-}) {
+}
+
+interface EditGameFormProps {
+  mode: "edit";
+  gameId: string;
+  defaultValues: GameFormSchemaType;
+  onSave: () => void;
+}
+
+type GameProps = AddGameFormProps | EditGameFormProps;
+
+export function GameForm(props: GameProps) {
   const form = useForm<GameFormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: props.defaultValues ?? {
-      title: "",
-      tags: [],
-      releaseDate: undefined,
-      description: "",
-      features: "",
-      languages: [],
-      requirements: {
-        minimum: "",
-        recommended: "",
-      },
-      downloadMultimedia: undefined,
-      previewMultimedia: undefined,
-      multimedia: [],
-      ageRating: undefined,
-      price: undefined,
-      isActive: false,
-    },
+    defaultValues:
+      props.mode === "edit"
+        ? props.defaultValues
+        : {
+            title: "",
+            tags: [],
+            releaseDate: undefined,
+            description: "",
+            features: "",
+            languages: [],
+            requirements: {
+              minimum: "",
+              recommended: "",
+            },
+            downloadMultimedia: undefined,
+            previewMultimedia: undefined,
+            multimedia: [],
+            ageRating: undefined,
+            price: undefined,
+            isActive: false,
+          },
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  const publisherQuery = usePublisher();
 
   const mutation = useMutation({
     async mutationFn(data: GameFormSchemaType) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const publisherId = payload.sub;
+
+      let previewMultimedia: Multimedia;
+      if (data.previewMultimedia instanceof File) {
+        previewMultimedia = await uploadMultimedia(data.previewMultimedia);
+      } else {
+        previewMultimedia = data.previewMultimedia;
+      }
+
+      let downloadMultimedia: Multimedia | undefined;
+      if (data.downloadMultimedia instanceof File) {
+        downloadMultimedia = await uploadMultimedia(data.downloadMultimedia);
+      } else {
+        downloadMultimedia = data.downloadMultimedia;
+      }
+
       if (props.mode === "add") {
-        const token = getToken();
-        const payload = decodeTokenPayload(token);
-        const publisherId = payload.sub;
-
-        const previewMultimedia = await uploadMultimedia(
-          data.previewMultimedia,
-        );
-
-        let downloadMultimedia: Multimedia | undefined;
-        if (data.downloadMultimedia) {
-          downloadMultimedia = await uploadMultimedia(data.downloadMultimedia);
-        }
-
         const newGame: NewGame = {
           title: data.title,
           price: data.price,
@@ -235,7 +294,7 @@ export function GameForm(props: {
         // Upload multimedia files.
         const multimediaResults = await Promise.all(
           data.multimedia.map((multimedia) =>
-            uploadMultimedia(multimedia.file),
+            uploadMultimedia((multimedia as TemporaryMultimedia).file),
           ),
         );
 
@@ -260,11 +319,109 @@ export function GameForm(props: {
             createGameTag(publisherId, createdGame.id, tag.id),
           ),
         );
+
+        return;
       }
+
+      const editableGame: EditableGame = {
+        title: data.title,
+        price: data.price,
+        isActive: data.isActive,
+        description: data.description,
+        ageRating: data.ageRating,
+        features: data.features,
+        languages: data.languages,
+        requirements: data.requirements,
+        previewMultimediaId: previewMultimedia.id,
+      };
+
+      if (data.releaseDate) {
+        editableGame.releaseDate = format(data.releaseDate, "yyyy-MM-dd");
+      }
+
+      if (downloadMultimedia) {
+        editableGame.downloadMultimediaId = downloadMultimedia.id;
+      }
+
+      const updatedGame = await updateGame(
+        publisherId,
+        props.gameId,
+        editableGame,
+      );
+
+      const files: {
+        index: number;
+        data: TemporaryMultimedia;
+      }[] = [];
+      data.multimedia.forEach((multimedia, index) => {
+        if ("file" in multimedia) {
+          files.push({ index, data: multimedia });
+        }
+      });
+
+      // Upload multimedia files.
+      const multimediaResults = await Promise.all(
+        files.map((file) => {
+          return new Promise<{ index: number; multimedia: Multimedia }>(
+            (resolve, reject) => {
+              uploadMultimedia(file.data.file)
+                .then((multimedia) =>
+                  resolve({
+                    index: file.index,
+                    multimedia,
+                  }),
+                )
+                .catch(reject);
+            },
+          );
+        }),
+      );
+
+      // Retrieve existing multimedia.
+      const updatedMultimedia = data.multimedia.filter(
+        (multimedia) => "url" in multimedia,
+      );
+      multimediaResults.forEach((result) => {
+        // Insert uploaded multimedia in the correct position.
+        updatedMultimedia.splice(result.index, 0, result.multimedia);
+      });
+
+      // Delete previous game multimedia association.
+      await Promise.all(
+        updatedGame.multimedia.map((multimedia) =>
+          deleteGameMultimedia(publisherId, updatedGame.id, multimedia.id),
+        ),
+      );
+
+      // Delete previous game tag association.
+      await Promise.all(
+        updatedGame.tags.map((tag) =>
+          deleteGameTag(publisherId, updatedGame.id, tag.id),
+        ),
+      );
+
+      // Create game multimedia association.
+      await Promise.all(
+        updatedMultimedia.map((multimedia, idx) =>
+          createGameMultimedia(publisherId, updatedGame.id, multimedia.id, {
+            position: idx,
+          }),
+        ),
+      );
+
+      // Create game tag association.
+      await Promise.all(
+        data.tags.map((tag) =>
+          createGameTag(publisherId, updatedGame.id, tag.id),
+        ),
+      );
     },
     onSuccess() {
       toast({
-        title: "Game added successfully",
+        title:
+          props.mode === "add"
+            ? "Game added successfully"
+            : "Game updated successfully",
       });
       props.onSave();
     },
@@ -371,7 +528,6 @@ export function GameForm(props: {
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       initialFocus
-                      disabled={(date) => date < new Date()}
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
@@ -552,64 +708,15 @@ export function GameForm(props: {
                     <div className="flex flex-wrap gap-1 mt-2">
                       {field.value.map((lang) => (
                         <Badge key={lang} variant="secondary">
-                          {LANGUAGES.find((l) => l.code === lang)?.name}
+                          {
+                            LANGUAGES.find((l) => l.code === lang.toUpperCase())
+                              ?.name
+                          }
                         </Badge>
                       ))}
                     </div>
                   )}
                 </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="previewMultimedia"
-            render={({ field: { ref, name, onBlur, disabled } }) => (
-              <FormItem>
-                <FormLabel>Image Preview</FormLabel>
-                <FormControl>
-                  <Input
-                    ref={ref}
-                    accept="image/*"
-                    disabled={disabled}
-                    name={name}
-                    type="file"
-                    onBlur={onBlur}
-                    onChange={(e) => {
-                      const file = Array.from(e.target.files ?? [])[0];
-                      form.setValue("previewMultimedia", file);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="downloadMultimedia"
-            render={({ field: { ref, name, onBlur, disabled } }) => (
-              <FormItem>
-                <FormLabel optional={!form.getValues().releaseDate}>
-                  Game Files
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    ref={ref}
-                    accept="application/zip"
-                    disabled={disabled}
-                    name={name}
-                    type="file"
-                    onBlur={onBlur}
-                    onChange={(e) => {
-                      const file = Array.from(e.target.files ?? [])[0];
-                      form.setValue("downloadMultimedia", file);
-                    }}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -671,37 +778,153 @@ export function GameForm(props: {
           )}
         />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="previewMultimedia"
+            render={({ field: { ref, name, onBlur, disabled, value } }) => {
+              const formValues = form.watch();
+
+              return (
+                <FormItem>
+                  <FormLabel>Image Preview</FormLabel>
+                  <FormControl>
+                    <FileInput
+                      ref={ref}
+                      accept="image/*"
+                      className="w-full"
+                      disabled={disabled}
+                      name={name}
+                      value={value}
+                      action={(multimedia) => (
+                        <GamePreview
+                          price={formValues.price}
+                          title={formValues.title}
+                          previewMultimediaUrl={
+                            "url" in multimedia
+                              ? multimedia.url
+                              : URL.createObjectURL(multimedia)
+                          }
+                          publisherName={
+                            publisherQuery.data?.name ?? MISSING_VALUE_SYMBOL
+                          }
+                        />
+                      )}
+                      onBlur={onBlur}
+                      onChange={(e) => {
+                        const selectedFile = e.target.files?.item(0);
+                        if (selectedFile) {
+                          form.setValue("previewMultimedia", selectedFile);
+                        }
+                      }}
+                    >
+                      {(multimedia) => {
+                        return getMultimediaName(multimedia);
+                      }}
+                    </FileInput>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          <FormField
+            control={form.control}
+            name="downloadMultimedia"
+            render={({ field: { ref, name, onBlur, disabled, value } }) => (
+              <FormItem>
+                <FormLabel optional={!form.getValues().releaseDate}>
+                  Game Files
+                </FormLabel>
+                <FormControl>
+                  <FileInput
+                    ref={ref}
+                    accept="application/zip"
+                    disabled={disabled}
+                    name={name}
+                    type="file"
+                    value={value}
+                    action={(gameFiles) => (
+                      <Button
+                        asChild
+                        className="relative size-8 flex items-center left-2 text-muted-foreground hover:bg-primary/30"
+                        size="icon"
+                        variant="ghost"
+                      >
+                        <a
+                          download={getMultimediaName(gameFiles)}
+                          href={
+                            "url" in gameFiles
+                              ? gameFiles.url
+                              : URL.createObjectURL(gameFiles)
+                          }
+                        >
+                          <Download />
+                        </a>
+                      </Button>
+                    )}
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      const selectedFile = e.target.files?.item(0);
+                      if (selectedFile) {
+                        form.setValue("downloadMultimedia", selectedFile);
+                      }
+                    }}
+                  >
+                    {(gameFiles) => {
+                      return getMultimediaName(gameFiles);
+                    }}
+                  </FileInput>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="multimedia"
-          render={({ field: { ref, name, onBlur, disabled } }) => (
+          render={({ field: { ref, name, onBlur, disabled, value } }) => (
             <FormItem>
               <FormLabel>Screenshots</FormLabel>
               <FormControl>
-                <Input
+                <FileInput
                   ref={ref}
                   multiple
                   accept="image/*"
                   disabled={disabled}
                   name={name}
-                  type="file"
+                  value={value}
                   onBlur={onBlur}
                   onChange={(e) => {
                     const files = Array.from(e.target.files ?? []);
-                    form.setValue(
-                      "multimedia",
-                      files.map((file, index) => ({
-                        id: `${index}`,
+                    const updatedMultimedia = [...form.getValues("multimedia")];
+
+                    for (let i = 0; i < files.length; i++) {
+                      const file = files[i];
+                      updatedMultimedia.push({
+                        id: `${updatedMultimedia.length + i}`,
                         file,
-                      })),
-                    );
+                      });
+                    }
+
+                    form.setValue("multimedia", updatedMultimedia);
+
+                    // Clear file input value to allow uploads of the same files.
+                    e.currentTarget.value = "";
                   }}
-                />
+                >
+                  {(screenshots) => {
+                    return `${screenshots.length} selected`;
+                  }}
+                </FileInput>
               </FormControl>
               <FormMessage />
               <MultimediaUploadList
                 multimedia={form.getValues("multimedia")}
-                onOrderChange={(multimedia) =>
+                onChange={(multimedia) =>
                   form.setValue("multimedia", multimedia)
                 }
               />
@@ -749,6 +972,7 @@ export function GameForm(props: {
 
         <div className="w-full flex justify-end gap-2">
           <Button
+            type="reset"
             variant="ghost"
             onClick={() =>
               navigate({
@@ -762,6 +986,7 @@ export function GameForm(props: {
             Cancel
           </Button>
           <Button disabled={mutation.isPending} type="submit">
+            {mutation.isPending && <LoaderCircle className="animate-spin" />}
             {props.mode === "add" ? "Add Game" : "Edit Game"}
           </Button>
         </div>

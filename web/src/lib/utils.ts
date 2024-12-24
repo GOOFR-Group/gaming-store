@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
+
 import { COUNTRIES_MAP, LANGUAGES_MAP } from "./constants";
 
 /**
@@ -77,4 +79,31 @@ export function getLanguageName(code: string) {
   }
 
   return null;
+}
+
+/**
+ * Retrieves the name of a given multimedia.
+ * @param multimedia Multimedia.
+ * @returns Multimedia name.
+ */
+export function getMultimediaName(
+  multimedia: Multimedia | TemporaryMultimedia | File,
+) {
+  if ("url" in multimedia) {
+    const paths = multimedia.url.split("/");
+    const lastPath = paths[paths.length - 1];
+
+    const searchParamsIndex = lastPath.indexOf("?");
+    if (searchParamsIndex > -1) {
+      return lastPath.substring(0, searchParamsIndex);
+    }
+
+    return lastPath;
+  }
+
+  if (multimedia instanceof File) {
+    return multimedia.name;
+  }
+
+  return multimedia.file.name;
 }

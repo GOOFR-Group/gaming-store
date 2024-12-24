@@ -165,7 +165,7 @@ function Section(props: {
         <ChevronRight size={24} />
       </Link>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 *:mx-auto">
         {props.children}
       </div>
     </section>

@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
+import { DistributeNavbar } from "@/components/distribute/navbar/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -94,62 +95,66 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardHeader className="space-y-1 flex flex-col items-center">
-              <CardTitle className="text-3xl font-bold tracking-tight">
-                Sign In to Distribution Center
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-primary to-secondary">
+      <DistributeNavbar variant="simple" />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex items-center flex-col space-y-4">
-              <Button
-                className="w-full text-primary-foreground font-semibold"
-                type="submit"
-              >
-                Sign In
-              </Button>
-              <Button asChild variant="link">
-                <Link to="/distribute/register">Create account</Link>
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+      <div className="flex-1 flex items-center justify-center">
+        <Card className="w-full max-w-xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardHeader className="space-y-1 flex flex-col items-center">
+                <CardTitle className="text-3xl font-bold tracking-tight">
+                  Sign In to Distribution Center
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter className="flex items-center flex-col space-y-4">
+                <Button
+                  className="w-full text-primary-foreground font-semibold"
+                  type="submit"
+                >
+                  Sign In
+                </Button>
+                <Button asChild variant="link">
+                  <Link to="/distribute/register">Create account</Link>
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 }

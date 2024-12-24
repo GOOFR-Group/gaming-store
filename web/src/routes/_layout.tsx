@@ -1,13 +1,25 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { useState } from "react";
+
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useLocation,
+} from "@tanstack/react-router";
 import { Menu, ShoppingCart, User } from "lucide-react";
 
+import { NavLink } from "@/components/distribute/navbar/nav-link";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
 
 function Component() {
+  const location = useLocation();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   return (
     <div className="overflow-auto">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,10 +80,46 @@ function Component() {
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
-              <Button className="md:hidden" size="icon" variant="ghost">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Menu</span>
-              </Button>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button className="md:hidden" size="icon" variant="ghost">
+                    <Menu className="size-5" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-64" side="left">
+                  <nav className="flex flex-col space-y-2 mt-4">
+                    <NavLink
+                      active={location.pathname.includes("/browse")}
+                      href="/browse"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      Browse
+                    </NavLink>
+                    <NavLink
+                      active={location.pathname.includes("/news")}
+                      href="/news"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      News
+                    </NavLink>
+                    <NavLink
+                      active={location.pathname.includes("/support")}
+                      href="/support"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      Support
+                    </NavLink>
+                    <NavLink
+                      active={location.pathname.includes("/distribute")}
+                      href="/distribute"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      Distribute
+                    </NavLink>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </nav>
           </div>
         </div>

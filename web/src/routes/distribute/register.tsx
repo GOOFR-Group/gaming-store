@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
+import { DistributeNavbar } from "@/components/distribute/navbar/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -126,106 +127,128 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
-      <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardHeader className="space-y-1 flex flex-col items-center">
-              <CardTitle className="text-3xl font-bold tracking-tight">
-                Create Publisher Account
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-primary to-secondary">
+      <DistributeNavbar variant="simple" />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter your email"
-                          type="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
+      <div className="flex-1 flex items-center justify-center">
+        <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardHeader className="space-y-1 flex flex-col items-center">
+                <CardTitle className="text-3xl font-bold tracking-tight">
+                  Create Publisher Account
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="border-input">
-                            <SelectValue placeholder="Select your country" />
-                          </SelectTrigger>
+                          <Input placeholder="Enter your name" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {COUNTRIES.map((country) => {
-                            return (
-                              <SelectItem
-                                key={country.code}
-                                value={country.code}
-                              >
-                                {country.name}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your email"
+                            type="email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="border-input">
+                              <SelectValue placeholder="Select your country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {COUNTRIES.map((country) => {
+                              return (
+                                <SelectItem
+                                  key={country.code}
+                                  value={country.code}
+                                >
+                                  {country.name}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your address" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vatin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>VAT No.</FormLabel>
+                        <FormControl>
+                          <Input
+                            maxLength={9}
+                            placeholder="Enter your VAT No."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
-                  name="address"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="vatin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>VAT No.</FormLabel>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
                         <Input
-                          maxLength={9}
-                          placeholder="Enter your VAT No."
+                          placeholder="Enter your password"
+                          type="password"
                           {...field}
                         />
                       </FormControl>
@@ -233,57 +256,39 @@ function Component() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="confirm"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-              <Button
-                className="w-full text-primary-foreground font-semibold"
-                type="submit"
-              >
-                Create Account
-              </Button>
-              <div className="flex justify-center items-center gap-2 w-full">
-                <span className="text-sm">Already have an account?</span>
-                <Button asChild className="p-0" variant="link">
-                  <Link to="/distribute/signin">Sign in</Link>
+                <FormField
+                  control={form.control}
+                  name="confirm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button
+                  className="w-full text-primary-foreground font-semibold"
+                  type="submit"
+                >
+                  Create Account
                 </Button>
-              </div>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+                <div className="flex justify-center items-center gap-2 w-full">
+                  <span className="text-sm">Already have an account?</span>
+                  <Button asChild className="p-0" variant="link">
+                    <Link to="/distribute/signin">Sign in</Link>
+                  </Button>
+                </div>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 }

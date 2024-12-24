@@ -1,7 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
+import { Download, Edit } from "lucide-react";
 
 import { ErrorPage } from "@/components/distribute/error";
 import { GamePreview } from "@/components/distribute/games/game-preview";
@@ -94,7 +94,7 @@ function Component() {
           <CardDescription>{game.publisher.name}</CardDescription>
         </div>
         <div className="flex-1 flex gap-2 first:*:ml-auto">
-          {"downloadMultimedia" in game ? (
+          {game.downloadMultimedia ? (
             <Button asChild variant="secondary">
               <a download href={game.downloadMultimedia.url}>
                 <Download />
@@ -114,6 +114,12 @@ function Component() {
               </TooltipContent>
             </Tooltip>
           )}
+          <Button asChild>
+            <Link params={params} to="/distribute/games/$gameId/edit">
+              <Edit />
+              Edit
+            </Link>
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
@@ -176,14 +182,16 @@ function Component() {
           </div>
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-2">About the Game</h3>
-          <p>{game.description}</p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">About the Game</h3>
+            <p>{game.description}</p>
+          </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Game Features</h3>
-          <p className="whitespace-pre-wrap">{game.features}</p>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Game Features</h3>
+            <p className="whitespace-pre-wrap">{game.features}</p>
+          </div>
         </div>
 
         <div>
@@ -208,12 +216,16 @@ function Component() {
           <h3 className="text-lg font-semibold mb-2">Screenshots</h3>
           <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(0,32rem))] justify-center gap-4">
             {game.multimedia.map((multimedia, index) => (
-              <img
-                key={multimedia.id}
-                alt={`Screenshot ${index + 1}`}
-                className="w-full object-cover aspect-video rounded-md"
-                src={multimedia.url}
-              />
+              <div key={multimedia.id} className="relative isolate">
+                <img
+                  alt={`Screenshot ${index + 1}`}
+                  className=" w-full object-cover aspect-video rounded-md"
+                  src={multimedia.url}
+                />
+                <span className="absolute z-10 bottom-2 left-2 bg-muted size-8 text-center leading-8 rounded-md text-sm drop-shadow-md">
+                  {index + 1}
+                </span>
+              </div>
             ))}
           </div>
         </div>

@@ -27,6 +27,13 @@ const buttonVariants = cva(
         icon: "h-10 w-10",
       },
     },
+    compoundVariants: [
+      {
+        variant: "destructive",
+        size: "icon",
+        className: "bg-transparent text-destructive hover:bg-destructive/30",
+      },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

@@ -1,5 +1,11 @@
 import { ApiError } from "@/domain/error";
-import { Game, GamesFilters, NewGame, PaginatedGames } from "@/domain/game";
+import {
+  EditableGame,
+  Game,
+  GamesFilters,
+  NewGame,
+  PaginatedGames,
+} from "@/domain/game";
 import { CreateGameMultimedia } from "@/domain/game-multimedia";
 import { Jwt } from "@/domain/jwt";
 import { Multimedia } from "@/domain/multimedia";
@@ -424,8 +430,6 @@ export async function getGames(filters: GamesFilters) {
  * @param publisherId Publisher ID.
  * @returns Game of a publisher.
  * @throws {BadRequest} Invalid parameters.
- * @throws {Unauthorized} Access token is invalid.
- * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game not found.
  * @throws {InternalServerError} Server internal error.
  */
@@ -447,10 +451,6 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
     switch (response.status) {
       case 400:
         throw new BadRequest(error.code, error.message);
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
       default:
@@ -509,10 +509,64 @@ export async function createGame(publisherId: string, newGame: NewGame) {
 }
 
 /**
+ * Updates a game from a publisher.
+ * @param publisherId Publisher ID.
+ * @param gameId Game ID.
+ * @param details Game details.
+ * @returns Updated game.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} Game not found.
+ * @throws {Conflict} Multimedia does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function updateGame(
+  publisherId: string,
+  gameId: string,
+  details: EditableGame,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(details),
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const game = (await response.json()) as Game;
+
+  return game;
+}
+
+/**
  * Creates a game multimedia association.
  * @param publisherId Publisher ID.
  * @param gameId Game ID.
  * @param multimediaId Multimedia ID.
+ * @param data Association details.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
  * @throws {NotFound} Game or multimedia not found.
@@ -549,6 +603,49 @@ export async function createGameMultimedia(
         throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Deletes a game multimedia association.
+ * @param publisherId Publisher ID.
+ * @param gameId Game ID.
+ * @param multimediaId Multimedia ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {Conflict} Association does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function deleteGameMultimedia(
+  publisherId: string,
+  gameId: string,
+  multimediaId: string,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}/multimedia/${multimediaId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
       case 409:
         throw new Conflict(error.code, error.message);
       default:
@@ -595,6 +692,49 @@ export async function createGameTag(
         throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Deletes a game tag association.
+ * @param publisherId Publisher ID.
+ * @param gameId Game ID.
+ * @param tagId Tag ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {Conflict} Association does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function deleteGameTag(
+  publisherId: string,
+  gameId: string,
+  tagId: string,
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/publishers/${publisherId}/games/${gameId}/tags/${tagId}`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
       case 409:
         throw new Conflict(error.code, error.message);
       default:
