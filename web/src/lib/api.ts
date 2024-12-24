@@ -516,7 +516,7 @@ export async function createGame(publisherId: string, newGame: NewGame) {
  * @returns Updated game.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
- * @throws {NotFound} Publisher not found.
+ * @throws {NotFound} Game not found.
  * @throws {Conflict} Multimedia does not exist.
  * @throws {InternalServerError} Server internal error.
  */
