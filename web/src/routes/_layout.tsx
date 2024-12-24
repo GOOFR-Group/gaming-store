@@ -209,7 +209,7 @@ function Component() {
                 <li>
                   <a
                     className="hover:underline"
-                    href="https://www.livroreclamacoes.pt/"
+                    href="https://www.livroreclamacoes.pt"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
