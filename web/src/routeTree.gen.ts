@@ -72,11 +72,6 @@ const DistributeLayoutRoute = DistributeLayoutImport.update({
   getParentRoute: () => DistributeRoute,
 } as any);
 
-const LayoutTermsServiceRoute = LayoutTermsServiceImport.update({
-  path: "/termsService",
-  getParentRoute: () => LayoutRoute,
-} as any);
-
 const LayoutUnderConstructionRoute = LayoutUnderConstructionImport.update({
   path: "/underConstruction",
   getParentRoute: () => LayoutRoute,
@@ -94,16 +89,6 @@ const LayoutSigninRoute = LayoutSigninImport.update({
 
 const LayoutRegisterRoute = LayoutRegisterImport.update({
   path: "/register",
-  getParentRoute: () => LayoutRoute,
-} as any);
-
-const LayoutPrivacyPolicyRoute = LayoutPrivacyPolicyImport.update({
-  path: "/privacyPolicy",
-  getParentRoute: () => LayoutRoute,
-} as any);
-
-const LayoutCookiePolicyRoute = LayoutCookiePolicyImport.update({
-  path: "/cookiePolicy",
   getParentRoute: () => LayoutRoute,
 } as any);
 
