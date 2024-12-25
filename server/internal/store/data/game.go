@@ -128,7 +128,7 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 
 	var (
 		sortField          = "g.title"
-		sortFieldSecondary *string
+		sortFieldSecondary = "g.created_at DESC"
 	)
 
 	switch domainSortField {
@@ -140,8 +140,6 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 		sortField = "g.release_date"
 	case domain.GamePaginatedSortUserCount:
 		sortField = "count(ul.user_id)"
-		temp := "g.title"
-		sortFieldSecondary = &temp
 	}
 
 	rows, err := tx.Query(ctx, `
@@ -163,7 +161,7 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 			ON ul.game_id = g.id
 	`+sqlWhere+`
 		GROUP BY g.id, p.id, pm.id, gpm.id, gdm.id
-	`+listSQLOrder(sortField, filter.Order, sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset),
+	`+listSQLOrder(sortField, filter.Order, &sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset),
 		argsWhere...,
 	)
 	if err != nil {
@@ -278,7 +276,7 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 			ON ul.game_id = g.id
 	`+sqlWhere+`
 		GROUP BY g.id, p.id, pm.id, gpm.id, gdm.id
-		ORDER BY count(ul.user_id) DESC, g.release_date DESC
+		ORDER BY count(ul.user_id) DESC, g.release_date DESC, g.created_at DESC
 	`+listSQLLimitOffset(filter.Limit, filter.Offset),
 		argsWhere...,
 	)
