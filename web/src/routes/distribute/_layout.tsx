@@ -40,21 +40,21 @@ function Component() {
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/campaigns")}
-              href="/distribute/campaigns"
+              href="/distribute/underConstruction"
             >
               <PercentSquare className="mr-2 size-4" />
               Campaigns
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/news")}
-              href="/distribute/news"
+              href="/distribute/underConstruction"
             >
               <Newspaper className="mr-2 size-4" />
               News
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/statistics")}
-              href="/distribute/statistics"
+              href="/distribute/underConstruction"
             >
               <ChartArea className="mr-2 size-4" />
               Statistics

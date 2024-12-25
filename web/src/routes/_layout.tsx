@@ -46,7 +46,7 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/news">News</Link>
+                <Link href="/underConstruction">News</Link>
               </Button>
 
               <Button
@@ -54,7 +54,7 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/support">Support</Link>
+                <Link href="/underConstruction">Support</Link>
               </Button>
 
               <Button
@@ -152,12 +152,12 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">News</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     Latest
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     Hot Topics
                   </Link>
                 </li>
@@ -167,22 +167,22 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Support</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     Returns
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/underConstruction">
                     FAQs
                   </Link>
                 </li>
@@ -209,7 +209,7 @@ function Component() {
                 <li>
                   <a
                     className="hover:underline"
-                    href="https://www.livroreclamacoes.pt/"
+                    href="https://www.livroreclamacoes.pt"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -230,7 +230,7 @@ function Component() {
             </div>
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-300">
               © {new Date().getFullYear()} GOOFR. All rights reserved.
             </p>
           </div>

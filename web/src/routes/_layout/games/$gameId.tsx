@@ -1,3 +1,8 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingCart, Star } from "lucide-react";
 
@@ -101,9 +106,20 @@ function Component() {
                 <ShoppingCart className="mr-2" />
                 Add to Cart
               </Button>
-              <Button className="w-full text-lg py-6 mt-2" variant="secondary">
-                Add to Wishlist
-              </Button>
+              <Tooltip>
+                <TooltipTrigger className="w-full">
+                  <Button
+                    disabled
+                    className="w-full text-lg py-6 mt-2"
+                    variant="secondary"
+                  >
+                    Add to Wishlist
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>This feature is under construction</p>
+                </TooltipContent>
+              </Tooltip>
               <p className="text-muted-foreground mt-2 text-center">
                 Release Date: June 15, 2023
               </p>
