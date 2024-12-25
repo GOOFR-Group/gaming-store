@@ -132,17 +132,24 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" href="/browse">
                     Featured & Recommended
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  {/* TODO: Is active true by default? */}
+                  <Link
+                    className="hover:underline"
+                    href="/browse?isActive=true&sort=releaseDate&order=desc"
+                  >
                     Upcoming Releases
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link
+                    className="hover:underline"
+                    href="/browse?isActive=true&sort=userCount&order=desc"
+                  >
                     Best Sellers
                   </Link>
                 </li>
