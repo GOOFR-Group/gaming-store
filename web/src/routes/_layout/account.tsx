@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, UserIcon } from "lucide-react";
+import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UnderConstruction } from "@/components/under-construction";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
@@ -87,7 +88,7 @@ function Component() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
                 Library
@@ -95,6 +96,10 @@ function Component() {
               <TabsTrigger value="account">
                 <UserIcon className="mr-2 h-4 w-4" />
                 Account
+              </TabsTrigger>
+              <TabsTrigger value="wishlist">
+                <Heart className="mr-2 h-4 w-4" />
+                Wishlist
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
@@ -109,7 +114,7 @@ function Component() {
                   "Game 6",
                 ].map((game) => (
                   <div key={game}>
-                    <Link href="/games/1">
+                    <Link params={{ gameId: "1" }} to="/games/$gameId">
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
@@ -133,6 +138,10 @@ function Component() {
 
             <TabsContent className="mt-4" value="account">
               <AccountDetails user={user} />
+            </TabsContent>
+
+            <TabsContent className="mt-4" value="wishlist">
+              <UnderConstruction />
             </TabsContent>
           </Tabs>
         </CardContent>

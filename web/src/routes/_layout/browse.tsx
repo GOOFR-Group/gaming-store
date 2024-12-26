@@ -115,7 +115,11 @@ function Component() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.map((game) => (
-              <Link key={game.title} href="/games/1">
+              <Link
+                key={game.title}
+                params={{ gameId: "1" }}
+                to="/games/$gameId"
+              >
                 <Game
                   image={game.image}
                   price={game.price}

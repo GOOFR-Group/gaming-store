@@ -35,8 +35,8 @@ function RootComponent() {
     <Suspense>
       <ScrollRestoration />
       <Outlet />
-      <ReactQueryDevtools buttonPosition="bottom-right" />
-      <TanStackRouterDevtools position="bottom-right" />
+      <ReactQueryDevtools buttonPosition="bottom-left" />
+      <TanStackRouterDevtools position="bottom-left" />
       <Toaster />
     </Suspense>
   );

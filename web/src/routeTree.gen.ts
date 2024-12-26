@@ -18,15 +18,17 @@ import { Route as LayoutIndexImport } from "./routes/_layout/index";
 import { Route as DistributeSigninImport } from "./routes/distribute/signin";
 import { Route as DistributeRegisterImport } from "./routes/distribute/register";
 import { Route as DistributeLayoutImport } from "./routes/distribute/_layout";
-import { Route as LayoutTermsServiceImport } from "./routes/_layout/termsService";
+import { Route as LayoutUnderConstructionImport } from "./routes/_layout/under-construction";
+import { Route as LayoutTermsServiceImport } from "./routes/_layout/terms-service";
 import { Route as LayoutSigninImport } from "./routes/_layout/signin";
 import { Route as LayoutRegisterImport } from "./routes/_layout/register";
-import { Route as LayoutPrivacyPolicyImport } from "./routes/_layout/privacyPolicy";
-import { Route as LayoutCookiePolicyImport } from "./routes/_layout/cookiePolicy";
+import { Route as LayoutPrivacyPolicyImport } from "./routes/_layout/privacy-policy";
+import { Route as LayoutCookiePolicyImport } from "./routes/_layout/cookie-policy";
 import { Route as LayoutCartImport } from "./routes/_layout/cart";
 import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
 import { Route as LayoutAccountImport } from "./routes/_layout/account";
 import { Route as DistributeLayoutIndexImport } from "./routes/distribute/_layout/index";
+import { Route as DistributeLayoutUnderConstructionImport } from "./routes/distribute/_layout/under-construction";
 import { Route as DistributeLayoutAccountImport } from "./routes/distribute/_layout/account";
 import { Route as LayoutGamesGameIdImport } from "./routes/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesIndexImport } from "./routes/distribute/_layout/games/index";
@@ -70,8 +72,13 @@ const DistributeLayoutRoute = DistributeLayoutImport.update({
   getParentRoute: () => DistributeRoute,
 } as any);
 
+const LayoutUnderConstructionRoute = LayoutUnderConstructionImport.update({
+  path: "/under-construction",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
 const LayoutTermsServiceRoute = LayoutTermsServiceImport.update({
-  path: "/termsService",
+  path: "/terms-service",
   getParentRoute: () => LayoutRoute,
 } as any);
 
@@ -86,12 +93,12 @@ const LayoutRegisterRoute = LayoutRegisterImport.update({
 } as any);
 
 const LayoutPrivacyPolicyRoute = LayoutPrivacyPolicyImport.update({
-  path: "/privacyPolicy",
+  path: "/privacy-policy",
   getParentRoute: () => LayoutRoute,
 } as any);
 
 const LayoutCookiePolicyRoute = LayoutCookiePolicyImport.update({
-  path: "/cookiePolicy",
+  path: "/cookie-policy",
   getParentRoute: () => LayoutRoute,
 } as any);
 
@@ -114,6 +121,12 @@ const DistributeLayoutIndexRoute = DistributeLayoutIndexImport.update({
   path: "/",
   getParentRoute: () => DistributeLayoutRoute,
 } as any);
+
+const DistributeLayoutUnderConstructionRoute =
+  DistributeLayoutUnderConstructionImport.update({
+    path: "/under-construction",
+    getParentRoute: () => DistributeLayoutRoute,
+  } as any);
 
 const DistributeLayoutAccountRoute = DistributeLayoutAccountImport.update({
   path: "/account",
@@ -181,17 +194,17 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutCartImport;
       parentRoute: typeof LayoutImport;
     };
-    "/_layout/cookiePolicy": {
-      id: "/_layout/cookiePolicy";
-      path: "/cookiePolicy";
-      fullPath: "/cookiePolicy";
+    "/_layout/cookie-policy": {
+      id: "/_layout/cookie-policy";
+      path: "/cookie-policy";
+      fullPath: "/cookie-policy";
       preLoaderRoute: typeof LayoutCookiePolicyImport;
       parentRoute: typeof LayoutImport;
     };
-    "/_layout/privacyPolicy": {
-      id: "/_layout/privacyPolicy";
-      path: "/privacyPolicy";
-      fullPath: "/privacyPolicy";
+    "/_layout/privacy-policy": {
+      id: "/_layout/privacy-policy";
+      path: "/privacy-policy";
+      fullPath: "/privacy-policy";
       preLoaderRoute: typeof LayoutPrivacyPolicyImport;
       parentRoute: typeof LayoutImport;
     };
@@ -209,11 +222,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutSigninImport;
       parentRoute: typeof LayoutImport;
     };
-    "/_layout/termsService": {
-      id: "/_layout/termsService";
-      path: "/termsService";
-      fullPath: "/termsService";
+    "/_layout/terms-service": {
+      id: "/_layout/terms-service";
+      path: "/terms-service";
+      fullPath: "/terms-service";
       preLoaderRoute: typeof LayoutTermsServiceImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/under-construction": {
+      id: "/_layout/under-construction";
+      path: "/under-construction";
+      fullPath: "/under-construction";
+      preLoaderRoute: typeof LayoutUnderConstructionImport;
       parentRoute: typeof LayoutImport;
     };
     "/distribute": {
@@ -265,6 +285,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DistributeLayoutAccountImport;
       parentRoute: typeof DistributeLayoutImport;
     };
+    "/distribute/_layout/under-construction": {
+      id: "/distribute/_layout/under-construction";
+      path: "/under-construction";
+      fullPath: "/distribute/under-construction";
+      preLoaderRoute: typeof DistributeLayoutUnderConstructionImport;
+      parentRoute: typeof DistributeLayoutImport;
+    };
     "/distribute/_layout/": {
       id: "/distribute/_layout/";
       path: "/";
@@ -314,6 +341,7 @@ interface LayoutRouteChildren {
   LayoutRegisterRoute: typeof LayoutRegisterRoute;
   LayoutSigninRoute: typeof LayoutSigninRoute;
   LayoutTermsServiceRoute: typeof LayoutTermsServiceRoute;
+  LayoutUnderConstructionRoute: typeof LayoutUnderConstructionRoute;
   LayoutIndexRoute: typeof LayoutIndexRoute;
   LayoutGamesGameIdRoute: typeof LayoutGamesGameIdRoute;
 }
@@ -327,6 +355,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutRegisterRoute: LayoutRegisterRoute,
   LayoutSigninRoute: LayoutSigninRoute,
   LayoutTermsServiceRoute: LayoutTermsServiceRoute,
+  LayoutUnderConstructionRoute: LayoutUnderConstructionRoute,
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutGamesGameIdRoute: LayoutGamesGameIdRoute,
 };
@@ -336,6 +365,7 @@ const LayoutRouteWithChildren =
 
 interface DistributeLayoutRouteChildren {
   DistributeLayoutAccountRoute: typeof DistributeLayoutAccountRoute;
+  DistributeLayoutUnderConstructionRoute: typeof DistributeLayoutUnderConstructionRoute;
   DistributeLayoutIndexRoute: typeof DistributeLayoutIndexRoute;
   DistributeLayoutGamesGameIdRoute: typeof DistributeLayoutGamesGameIdRoute;
   DistributeLayoutGamesAddRoute: typeof DistributeLayoutGamesAddRoute;
@@ -345,6 +375,8 @@ interface DistributeLayoutRouteChildren {
 
 const DistributeLayoutRouteChildren: DistributeLayoutRouteChildren = {
   DistributeLayoutAccountRoute: DistributeLayoutAccountRoute,
+  DistributeLayoutUnderConstructionRoute:
+    DistributeLayoutUnderConstructionRoute,
   DistributeLayoutIndexRoute: DistributeLayoutIndexRoute,
   DistributeLayoutGamesGameIdRoute: DistributeLayoutGamesGameIdRoute,
   DistributeLayoutGamesAddRoute: DistributeLayoutGamesAddRoute,
@@ -376,17 +408,19 @@ export interface FileRoutesByFullPath {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
-  "/cookiePolicy": typeof LayoutCookiePolicyRoute;
-  "/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
+  "/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
-  "/termsService": typeof LayoutTermsServiceRoute;
+  "/terms-service": typeof LayoutTermsServiceRoute;
+  "/under-construction": typeof LayoutUnderConstructionRoute;
   "/distribute": typeof DistributeLayoutRouteWithChildren;
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/account": typeof DistributeLayoutAccountRoute;
+  "/distribute/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/": typeof DistributeLayoutIndexRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
@@ -398,17 +432,19 @@ export interface FileRoutesByTo {
   "/account": typeof LayoutAccountRoute;
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
-  "/cookiePolicy": typeof LayoutCookiePolicyRoute;
-  "/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
+  "/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
-  "/termsService": typeof LayoutTermsServiceRoute;
+  "/terms-service": typeof LayoutTermsServiceRoute;
+  "/under-construction": typeof LayoutUnderConstructionRoute;
   "/distribute": typeof DistributeLayoutIndexRoute;
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
   "/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/account": typeof DistributeLayoutAccountRoute;
+  "/distribute/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
@@ -421,11 +457,12 @@ export interface FileRoutesById {
   "/_layout/account": typeof LayoutAccountRoute;
   "/_layout/browse": typeof LayoutBrowseRoute;
   "/_layout/cart": typeof LayoutCartRoute;
-  "/_layout/cookiePolicy": typeof LayoutCookiePolicyRoute;
-  "/_layout/privacyPolicy": typeof LayoutPrivacyPolicyRoute;
+  "/_layout/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/_layout/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/_layout/register": typeof LayoutRegisterRoute;
   "/_layout/signin": typeof LayoutSigninRoute;
-  "/_layout/termsService": typeof LayoutTermsServiceRoute;
+  "/_layout/terms-service": typeof LayoutTermsServiceRoute;
+  "/_layout/under-construction": typeof LayoutUnderConstructionRoute;
   "/distribute": typeof DistributeRouteWithChildren;
   "/distribute/_layout": typeof DistributeLayoutRouteWithChildren;
   "/distribute/register": typeof DistributeRegisterRoute;
@@ -433,6 +470,7 @@ export interface FileRoutesById {
   "/_layout/": typeof LayoutIndexRoute;
   "/_layout/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/_layout/account": typeof DistributeLayoutAccountRoute;
+  "/distribute/_layout/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/_layout/": typeof DistributeLayoutIndexRoute;
   "/distribute/_layout/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/_layout/games/add": typeof DistributeLayoutGamesAddRoute;
@@ -447,17 +485,19 @@ export interface FileRouteTypes {
     | "/account"
     | "/browse"
     | "/cart"
-    | "/cookiePolicy"
-    | "/privacyPolicy"
+    | "/cookie-policy"
+    | "/privacy-policy"
     | "/register"
     | "/signin"
-    | "/termsService"
+    | "/terms-service"
+    | "/under-construction"
     | "/distribute"
     | "/distribute/register"
     | "/distribute/signin"
     | "/"
     | "/games/$gameId"
     | "/distribute/account"
+    | "/distribute/under-construction"
     | "/distribute/"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
@@ -468,17 +508,19 @@ export interface FileRouteTypes {
     | "/account"
     | "/browse"
     | "/cart"
-    | "/cookiePolicy"
-    | "/privacyPolicy"
+    | "/cookie-policy"
+    | "/privacy-policy"
     | "/register"
     | "/signin"
-    | "/termsService"
+    | "/terms-service"
+    | "/under-construction"
     | "/distribute"
     | "/distribute/register"
     | "/distribute/signin"
     | "/"
     | "/games/$gameId"
     | "/distribute/account"
+    | "/distribute/under-construction"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
     | "/distribute/games"
@@ -489,11 +531,12 @@ export interface FileRouteTypes {
     | "/_layout/account"
     | "/_layout/browse"
     | "/_layout/cart"
-    | "/_layout/cookiePolicy"
-    | "/_layout/privacyPolicy"
+    | "/_layout/cookie-policy"
+    | "/_layout/privacy-policy"
     | "/_layout/register"
     | "/_layout/signin"
-    | "/_layout/termsService"
+    | "/_layout/terms-service"
+    | "/_layout/under-construction"
     | "/distribute"
     | "/distribute/_layout"
     | "/distribute/register"
@@ -501,6 +544,7 @@ export interface FileRouteTypes {
     | "/_layout/"
     | "/_layout/games/$gameId"
     | "/distribute/_layout/account"
+    | "/distribute/_layout/under-construction"
     | "/distribute/_layout/"
     | "/distribute/_layout/games/$gameId"
     | "/distribute/_layout/games/add"
@@ -541,11 +585,12 @@ export const routeTree = rootRoute
         "/_layout/account",
         "/_layout/browse",
         "/_layout/cart",
-        "/_layout/cookiePolicy",
-        "/_layout/privacyPolicy",
+        "/_layout/cookie-policy",
+        "/_layout/privacy-policy",
         "/_layout/register",
         "/_layout/signin",
-        "/_layout/termsService",
+        "/_layout/terms-service",
+        "/_layout/under-construction",
         "/_layout/",
         "/_layout/games/$gameId"
       ]
@@ -562,12 +607,12 @@ export const routeTree = rootRoute
       "filePath": "_layout/cart.tsx",
       "parent": "/_layout"
     },
-    "/_layout/cookiePolicy": {
-      "filePath": "_layout/cookiePolicy.tsx",
+    "/_layout/cookie-policy": {
+      "filePath": "_layout/cookie-policy.tsx",
       "parent": "/_layout"
     },
-    "/_layout/privacyPolicy": {
-      "filePath": "_layout/privacyPolicy.tsx",
+    "/_layout/privacy-policy": {
+      "filePath": "_layout/privacy-policy.tsx",
       "parent": "/_layout"
     },
     "/_layout/register": {
@@ -578,8 +623,12 @@ export const routeTree = rootRoute
       "filePath": "_layout/signin.tsx",
       "parent": "/_layout"
     },
-    "/_layout/termsService": {
-      "filePath": "_layout/termsService.tsx",
+    "/_layout/terms-service": {
+      "filePath": "_layout/terms-service.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/under-construction": {
+      "filePath": "_layout/under-construction.tsx",
       "parent": "/_layout"
     },
     "/distribute": {
@@ -595,6 +644,7 @@ export const routeTree = rootRoute
       "parent": "/distribute",
       "children": [
         "/distribute/_layout/account",
+        "/distribute/_layout/under-construction",
         "/distribute/_layout/",
         "/distribute/_layout/games/$gameId",
         "/distribute/_layout/games/add",
@@ -620,6 +670,10 @@ export const routeTree = rootRoute
     },
     "/distribute/_layout/account": {
       "filePath": "distribute/_layout/account.tsx",
+      "parent": "/distribute/_layout"
+    },
+    "/distribute/_layout/under-construction": {
+      "filePath": "distribute/_layout/under-construction.tsx",
       "parent": "/distribute/_layout"
     },
     "/distribute/_layout/": {
