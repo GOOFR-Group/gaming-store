@@ -11,7 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cartQueryKey } from "@/lib/query-keys";
+import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
+import { getUser } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { formatCurrency } from "@/lib/utils";
 
 function cartQueryOptions() {
   return queryOptions({
@@ -30,6 +33,25 @@ function cartQueryOptions() {
   });
 }
 
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+  return queryOptions({
+    queryKey: userQueryKey,
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const user = await getUser(userId);
+
+      return user;
+    },
+  });
+}
+
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
   loader(opts) {
@@ -40,7 +62,8 @@ export const Route = createFileRoute("/_layout/cart")({
 function Component() {
   const { data } = useSuspenseQuery(cartQueryOptions());
   const [cartItems, setCartItems] = useState(data);
-  const accountBalance = 500.0; // Placeholder account balance
+  const query = useSuspenseQuery(userQueryOptions());
+  const user = query.data;
 
   function removeItem(id: number) {
     setCartItems(cartItems.filter((item) => item.id !== id));
@@ -56,7 +79,7 @@ function Component() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
-          <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
+          <span className="font-semibold">{formatCurrency(user.balance)}</span>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

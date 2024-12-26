@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createFileRoute } from '@tanstack/react-router';
 import * as z from 'zod';
@@ -10,37 +11,48 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from "@/lib/utils";
+import { userQueryKey } from "@/lib/query-keys";
+import { getUser } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
 
 export const Route = createFileRoute('/_layout/payment')({
     component: () => PaymentPage(),
 })
 
-const formSchema = z.object({
-    fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    address: z.string().min(5, 'Address must be at least 5 characters'),
-    city: z.string().min(2, 'City must be at least 2 characters'),
-    country: z.string().min(2, 'Country must be at least 2 characters'),
-    vat: z.string().min(9, 'Vat must be 9 characters').max(9, 'Vat must be 9 characters'),
-})
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+    return queryOptions({
+        queryKey: userQueryKey,
+        async queryFn() {
+            const token = getToken();
+            const payload = decodeTokenPayload(token);
+
+            const userId = payload.sub;
+            const user = await getUser(userId);
+
+            return user;
+        },
+    });
+}
 
 const cartItems = [
     { name: 'Game Title 1', price: 79.99 },
     { name: 'Game Title 2', price: 19.99 },
+    { name: 'Game Title 1', price: 79.99 },
+    { name: 'Game Title 2', price: 19.99 },
+    { name: 'Game Title 1', price: 79.99 },
+    { name: 'Game Title 2', price: 19.99 },
+    { name: 'Game Title 1', price: 79.99 },
+    { name: 'Game Title 2', price: 19.99 },
 ]
 
-let userTestData = {
-    name: "Antonio",
-    email: "antonio@gmail.com",
-    address: "Rua da asjasjdoa",
-    city: "Barcelona",
-    country: "Spain",
-    vat: "123456789",
-}
-
-
 export default function PaymentPage() {
-    const accountBalance = 500.0; // Placeholder account balance
+    const query = useSuspenseQuery(userQueryOptions());
+    const user = query.data;
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -48,11 +60,11 @@ export default function PaymentPage() {
                 <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
                 <div className="text-lg mr-4">
                     Account Balance:{" "}
-                    <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
+                    <span className="font-semibold">{formatCurrency(user.balance)}</span>
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
                 <PaymentForm />
                 <PurchaseSummary />
             </div>
@@ -61,126 +73,42 @@ export default function PaymentPage() {
 }
 
 export function PaymentForm() {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            fullName: userTestData.name,
-            email: userTestData.email,
-            address: userTestData.address,
-            city: userTestData.city,
-            country: userTestData.country,
-            vat: userTestData.vat,
-        },
-    })
-
-
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        setIsSubmitting(true)
-        // Here you would typically send the form data to your server or a payment processor
-        console.log(values)
-        setTimeout(() => {
-            setIsSubmitting(false)
-            alert('Payment submitted successfully!')
-            form.reset()
-        }, 2000)
-    }
+    const query = useSuspenseQuery(userQueryOptions());
+    const user = query.data;
+    const country =
+        COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
+            ?.name ?? MISSING_VALUE_SYMBOL;
 
     return (
-        <Card className='ml-4'>
+        <Card className='ml-4 h-fit col-span-2'>
             <CardHeader>
                 <CardTitle>Billing Details</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    <Form {...form}>
-                        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                            <FormField
-                                control={form.control}
-                                name="fullName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="John Doe" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="johndoe@example.com" type="email" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="address"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Address</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="123 Gaming Street" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="city"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>City</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="New York" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="country"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Country</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="United States" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                            <FormField
-                                control={form.control}
-                                name="vat"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>VAT</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="999999999" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button className="w-full" disabled={isSubmitting} type="submit">
-                                {isSubmitting ? 'Processing...' : 'Complete Payment'}
-                            </Button>
-                        </form>
-                    </Form>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Username</p>
+                            <p className="text-lg">{user.username}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Email</p>
+                            <p className="text-lg">{user.email}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Country</p>
+                            <p className="text-lg">{country}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">VAT</p>
+                            <p className="text-lg">{user.vatin}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Address</p>
+                            <p className="text-lg">{user.address}</p>
+                        </div>
+                    </div>
+
                 </div>
             </CardContent>
         </Card>
@@ -189,8 +117,19 @@ export function PaymentForm() {
 
 export function PurchaseSummary() {
     const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0)
-    const tax = subtotal * 0.1; // Assuming 10% tax
-    const total = subtotal + tax
+    const tax = subtotal * 0.23;
+    const total = subtotal + tax;
+
+    /*     function onSubmit(values: z.infer<typeof formSchema>) {
+            setIsSubmitting(true)
+            // Here you would typically send the form data to your server or a payment processor
+            console.log(values)
+            setTimeout(() => {
+                setIsSubmitting(false)
+                alert('Payment submitted successfully!')
+                form.reset()
+            }, 2000)
+        } */
 
     return (
         <Card className='mr-4'>
@@ -220,6 +159,9 @@ export function PurchaseSummary() {
                         </div>
                     </div>
                 </div>
+                <Button className="w-full mt-4">
+                    Complete Payment
+                </Button>
             </CardContent>
         </Card>
     )
