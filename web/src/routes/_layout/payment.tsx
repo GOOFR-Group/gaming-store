@@ -67,21 +67,7 @@ export default function PaymentPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             {isPaymentComplete ? (
-                <>
-                    <div className='mx-4'>
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-3xl font-bold mb-6">Thank You!</h1>
-                        </div>
-                        <div>
-                            <p className="text-lg">Your purchase was successful.</p>
-                            <p className="text-lg">The invoice for your purchase has been sent to your email.</p>
-                            <p className="text-lg">You can now download your game from your library.</p>
-                            <Link className="w-full" href="/account">
-                                <Button className="w-full">Go to Your Library</Button>
-                            </Link>
-                        </div>
-                    </div>
-                </>
+                <ThankYouMessage />
             ) : (
                 <>
                     <div className="flex justify-between items-center mb-8">
@@ -189,5 +175,21 @@ export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
                 </Button>
             </CardContent>
         </Card>
+    )
+}
+
+export function ThankYouMessage() {
+    return (
+        <div className="container w-full max-w-4xl mx-auto px-4 py-8 bg-background text-foreground min-h-screen text-center">
+            <h1 className="text-4xl font-bold mb-2">Thank you for your purchase!</h1>
+            <p className="text-lg mb-8">The invoice for your purchase has been sent to your email.</p>
+            <div className="w-full flex items-center justify-center">
+                <Button asChild>
+                    <Link to="/account">
+                        Go to Your Library
+                    </Link>
+                </Button>
+            </div>
+        </div>
     )
 }
