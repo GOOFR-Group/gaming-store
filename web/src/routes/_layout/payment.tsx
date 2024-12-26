@@ -5,11 +5,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUser } from "@/lib/api";
+import { getUser, getCartGames, purchaseUserCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { TOAST_MESSAGES } from "@/lib/constants";
 
 export const Route = createFileRoute("/_layout/payment")({
   component: () => PaymentPage(),
@@ -41,14 +43,14 @@ function userQueryOptions() {
 function cartQueryOptions() {
   return queryOptions({
     queryKey: cartQueryKey,
-    queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
-        return {
-          id: idx + 1,
-          title: "Cosmic Explorers",
-          price: 59.99,
-        };
-      });
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const cartGames = await getCartGames(userId);
+
+      return cartGames;
     },
   });
 }
@@ -137,13 +139,20 @@ export function PaymentForm() {
 
 export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
   const { data } = useSuspenseQuery(cartQueryOptions());
+  const { data: user } = useSuspenseQuery(userQueryOptions());
   const [cartItems] = useState(data);
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
   const tax = subtotal * 0.23;
   const total = subtotal + tax;
+  const { toast } = useToast();
 
-  function onSubmit() {
-    props.onPaymentComplete();
+  async function onSubmit() {
+    try {
+      await purchaseUserCart(user.id);
+      props.onPaymentComplete();
+    } catch (error) {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }
   }
 
   return (
@@ -153,7 +162,7 @@ export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {cartItems.map((item, index) => (
+          {cartItems.games.map((item, index) => (
             <div key={index} className="flex justify-between">
               <span>{item.title}</span>
               <span>{formatCurrency(item.price)}</span>

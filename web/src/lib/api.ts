@@ -777,3 +777,75 @@ export async function getTags(filters: TagFilters) {
 
   return paginatedTags;
 }
+
+/**
+ * Retrieves the cart games.
+ * @param filters Tags filters.
+ * @returns Tags.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getCartGames(userId: string,
+  sort: string = "createdAt",
+  order: string = "asc",
+  limit: string = "100") {
+
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const cartGames = (await response.json()) as PaginatedGames;
+
+  return cartGames;
+}
+
+/**
+ * Retrieves the cart games.
+ * @param filters Tags filters.
+ * @returns Tags.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function purchaseUserCart(userId: string) {
+
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/purchase`,
+    {
+      method: "POST",
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}

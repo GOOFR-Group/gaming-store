@@ -11,24 +11,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUser } from "@/lib/api";
+import { getUser, getCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
+/**
+ * Query options for retrieving the games from user cart.
+ * @returns Query options.
+ */
 function cartQueryOptions() {
   return queryOptions({
     queryKey: cartQueryKey,
-    queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
-        return {
-          id: idx + 1,
-          title: "Cosmic Explorers",
-          price: 59.99,
-          developer: "Stellar Games",
-          image: "/images/game.jpg",
-        };
-      });
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const cartGames = await getCartGames(userId);
+
+      return cartGames;
     },
   });
 }
@@ -55,7 +57,7 @@ function userQueryOptions() {
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
   loader(opts) {
-    return opts.context.queryClient.ensureQueryData(cartQueryOptions());
+    return opts.context.queryClient.ensureQueryData(userQueryOptions());
   },
 });
 
@@ -65,12 +67,15 @@ function Component() {
   const query = useSuspenseQuery(userQueryOptions());
   const user = query.data;
 
-  function removeItem(id: number) {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  function removeItem(id: string) {
+    setCartItems({
+      ...cartItems,
+      games: cartItems.games.filter((item) => item.id !== id),
+    });
   }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
-  const tax = subtotal * 0.1; // Assuming 10% tax
+  const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
+  const tax = subtotal * 0.23;
   const total = subtotal + tax;
 
   return (
@@ -84,20 +89,20 @@ function Component() {
       </div>
       <div className="flex flex-wrap-reverse gap-8">
         <div className="flex-1 space-y-4">
-          {cartItems.map((item) => (
+          {cartItems.games.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
                 <img
                   alt={item.title}
                   className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
-                  src={item.image}
+                  src={item.previewMultimedia.url}
                   width={100}
                 />
                 <div className="flex-grow flex flex-col justify-between">
                   <div className="flex flex-wrap justify-between items-start">
                     <div>
                       <h2 className="text-lg font-semibold">{item.title}</h2>
-                      <p className="text-sm text-gray-300">{item.developer}</p>
+                      <p className="text-sm text-gray-300">{item.publisher.name}</p>
                     </div>
                     <p className="text-lg font-semibold">
                       €{item.price.toFixed(2)}
@@ -124,6 +129,11 @@ function Component() {
               </CardContent>
             </Card>
           ))}
+          {cartItems.games.length === 0 && (
+            <p className="text-center text-muted-foreground mt-8">
+              Your cart is empty.
+            </p>
+          )}
         </div>
         <div className="w-full sm:w-60 lg:w-96">
           <Card>
@@ -145,18 +155,13 @@ function Component() {
               </div>
             </CardContent>
             <CardFooter>
-              <Link className="w-full" href="/payment">
-                <Button className="w-full">Proceed to Checkout</Button>
-              </Link>
+              <Button asChild className="w-full" disabled={cartItems.games.length === 0}>
+                <Link className="w-full" to="/payment">Proceed to Checkout</Link>
+              </Button>
             </CardFooter>
           </Card>
         </div>
       </div>
-      {cartItems.length === 0 && (
-        <p className="text-center text-muted-foreground mt-8">
-          Your cart is empty.
-        </p>
-      )}
     </div>
   );
 }
