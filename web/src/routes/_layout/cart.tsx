@@ -11,9 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
 function cartQueryOptions() {
