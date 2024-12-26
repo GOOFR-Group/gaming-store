@@ -90,7 +90,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
     return (
       <header className="flex px-4 py-4 items-center justify-between border-b bg-background">
         <div className="flex items-center space-x-6">
-          <Link href="/">
+          <Link to="/">
             <img
               alt="GOOFR Gaming Store Logo"
               className="w-28"
@@ -107,7 +107,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
   return (
     <header className="flex px-4 py-4 items-center justify-between border-b bg-background">
       <div className="flex items-center space-x-6">
-        <Link href="/">
+        <Link to="/">
           <img
             alt="GOOFR Gaming Store Logo"
             className="w-28"
@@ -115,7 +115,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
           />
         </Link>
 
-        <Link className="flex items-center gap-4 space-x-2" href="/distribute">
+        <Link className="flex items-center gap-4 space-x-2" to="/distribute">
           <h1 className="font-semibold text-xl">Distribution Center</h1>
         </Link>
       </div>
@@ -132,7 +132,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
             <nav className="flex flex-col space-y-2 mt-4">
               <NavLink
                 active={location.pathname.includes("/distribute/games")}
-                href="/distribute/games"
+                to="/distribute/games"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <Gamepad2 className="mr-2 size-4" />
@@ -140,7 +140,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/campaigns")}
-                href="/distribute/underConstruction"
+                to="/distribute/under-construction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <PercentSquare className="mr-2 size-4" />
@@ -148,7 +148,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/news")}
-                href="/distribute/underConstruction"
+                to="/distribute/under-construction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <Newspaper className="mr-2 size-4" />
@@ -156,7 +156,7 @@ export function DistributeNavbar(props: { variant: "simple" | "full" }) {
               </NavLink>
               <NavLink
                 active={location.pathname.includes("/distribute/statistics")}
-                href="/distribute/underConstruction"
+                to="/distribute/under-construction"
                 onClick={() => setIsSheetOpen(false)}
               >
                 <ChartArea className="mr-2 size-4" />

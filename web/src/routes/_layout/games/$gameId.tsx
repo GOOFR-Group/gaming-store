@@ -1,16 +1,16 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@radix-ui/react-tooltip";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
 import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
@@ -103,7 +103,7 @@ function Component() {
                 </div>
               </div>
               <Button className="w-full text-lg py-6">
-                <ShoppingCart className="mr-2" />
+                <ShoppingCart />
                 Add to Cart
               </Button>
               <Tooltip>
@@ -113,11 +113,12 @@ function Component() {
                     className="w-full text-lg py-6 mt-2"
                     variant="secondary"
                   >
+                    <Heart />
                     Add to Wishlist
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>This feature is under construction</p>
+                <TooltipContent side="bottom">
+                  This feature is under construction
                 </TooltipContent>
               </Tooltip>
               <p className="text-muted-foreground mt-2 text-center">
@@ -172,7 +173,7 @@ function Component() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }, (_, idx) => {
             return (
-              <Link key={idx} href="/games/1">
+              <Link key={idx} params={{ gameId: "1" }} to="/games/$gameId">
                 <Game
                   image="/images/game.jpg"
                   price={59.99}

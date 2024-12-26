@@ -101,7 +101,7 @@ function Component() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Upload game files to enable downloading</p>
+                Upload game files to enable downloading
               </TooltipContent>
             </Tooltip>
           )}

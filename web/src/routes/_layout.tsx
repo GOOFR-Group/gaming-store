@@ -25,7 +25,7 @@ function Component() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center px-6 py-4 space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10">
-            <Link className="flex items-center space-x-2" href="/">
+            <Link className="flex items-center space-x-2" to="/">
               <img
                 alt="GOOFR Gaming Store Logo"
                 className="w-28"
@@ -38,7 +38,7 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/browse">Browse</Link>
+                <Link to="/browse">Browse</Link>
               </Button>
 
               <Button
@@ -46,7 +46,7 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/underConstruction">News</Link>
+                <Link to="/under-construction">News</Link>
               </Button>
 
               <Button
@@ -54,7 +54,7 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/underConstruction">Support</Link>
+                <Link to="/under-construction">Support</Link>
               </Button>
 
               <Button
@@ -62,20 +62,20 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link href="/distribute">Distribute</Link>
+                <Link to="/distribute">Distribute</Link>
               </Button>
             </nav>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
               <Button asChild size="icon" variant="ghost">
-                <Link href="/cart">
+                <Link to="/cart">
                   <ShoppingCart className="h-5 w-5" />
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
               <Button asChild size="icon" variant="ghost">
-                <Link href="/account">
+                <Link to="/account">
                   <User className="h-5 w-5" />
                   <span className="sr-only">Account</span>
                 </Link>
@@ -91,28 +91,28 @@ function Component() {
                   <nav className="flex flex-col space-y-2 mt-4">
                     <NavLink
                       active={location.pathname.includes("/browse")}
-                      href="/browse"
+                      to="/browse"
                       onClick={() => setIsSheetOpen(false)}
                     >
                       Browse
                     </NavLink>
                     <NavLink
                       active={location.pathname.includes("/news")}
-                      href="/news"
+                      to="/under-construction"
                       onClick={() => setIsSheetOpen(false)}
                     >
                       News
                     </NavLink>
                     <NavLink
                       active={location.pathname.includes("/support")}
-                      href="/support"
+                      to="/under-construction"
                       onClick={() => setIsSheetOpen(false)}
                     >
                       Support
                     </NavLink>
                     <NavLink
                       active={location.pathname.includes("/distribute")}
-                      href="/distribute"
+                      to="/distribute"
                       onClick={() => setIsSheetOpen(false)}
                     >
                       Distribute
@@ -158,12 +158,12 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">News</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     Latest
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     Hot Topics
                   </Link>
                 </li>
@@ -173,22 +173,22 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Support</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     Returns
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="/underConstruction">
+                  <Link className="hover:underline" to="/under-construction">
                     FAQs
                   </Link>
                 </li>
@@ -198,19 +198,19 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Legal</h3>
               <ul className="space-y-1">
                 <li>
-                  <a className="hover:underline" href="/termsService">
+                  <Link className="hover:underline" to="/terms-service">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="hover:underline" href="/privacyPolicy">
+                  <Link className="hover:underline" to="/privacy-policy">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="hover:underline" href="/cookiePolicy">
+                  <Link className="hover:underline" to="/cookie-policy">
                     Cookie Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a
