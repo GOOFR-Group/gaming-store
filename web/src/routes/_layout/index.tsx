@@ -1,10 +1,10 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, LinkProps } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 import { Game } from "@/components/game";
 import { Button } from "@/components/ui/button";
-import { PaginatedGames } from "@/domain/game";
+import { Game as GameDomain } from "@/domain/game";
 import { useTags } from "@/hooks/use-tags";
 import { getGames, getRecommendedGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
@@ -134,24 +134,26 @@ function Component() {
         </section>
 
         <Section
-          href="/browse"
+          games={homeGames.recommendedGames.games}
           id="recommended"
-          paginatedGames={homeGames.recommendedGames}
           title="Featured & Recommended"
+          to="/browse"
         />
 
         <Section
-          href="/browse?sort=releaseDate&order=desc"
+          games={homeGames.upcomingReleases.games}
           id="upcoming-releases"
-          paginatedGames={homeGames.upcomingReleases}
+          search={{ sort: "releaseDate", order: "desc" }}
           title="Upcoming Releases"
+          to="/browse"
         />
 
         <Section
-          href="/browse?sort=userCount&order=desc"
+          games={homeGames.bestSellers.games}
           id="best-sellers"
-          paginatedGames={homeGames.bestSellers}
+          search={{ sort: "userCount", order: "desc" }}
           title="Best Sellers"
+          to="/browse"
         />
 
         <section className="w-full py-12 px-6">
@@ -164,10 +166,10 @@ function Component() {
                 key={genre.label}
                 asChild
                 className="group h-20 text-lg font-semibold relative overflow-hidden"
-                disabled={genreIds[genre.label] === undefined}
+                disabled={!genreIds[genre.label]}
                 variant="outline"
               >
-                <Link href={"/browse?tags=" + genreIds[genre.label]}>
+                <Link search={{ tags: genreIds[genre.label] }} to="/browse">
                   <div
                     className="size-[10vw] sm:size-16 absolute -left-3 sm:bottom-0 bottom-1/2 sm:translate-y-0 translate-y-1/2 bg-contain bg-no-repeat group-hover:brightness-90"
                     style={{
@@ -186,21 +188,30 @@ function Component() {
 }
 
 function Section(props: {
-  title: string;
-  href: string;
   id: string;
-  paginatedGames: PaginatedGames;
+  title: string;
+  games: GameDomain[];
+  to: LinkProps["to"];
+  search?: Record<string, string>;
 }) {
   return (
     <section className="w-full py-8 px-6" id={props.id}>
-      <Link className="flex items-center gap-4 mb-8" href={props.href}>
+      <Link
+        className="flex items-center gap-4 mb-8"
+        search={props.search}
+        to={props.to}
+      >
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
       </Link>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 *:mx-auto">
-        {props.paginatedGames.games.map((game) => (
-          <Link key={game.title} href={"/games/" + game.id}>
+        {props.games.map((game) => (
+          <Link
+            key={game.title}
+            params={{ gameId: game.id }}
+            to="/games/$gameId"
+          >
             <Game
               image={game.previewMultimedia.url}
               price={game.price}

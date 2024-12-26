@@ -132,14 +132,15 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="/browse">
+                  <Link className="hover:underline" to="/browse">
                     Featured & Recommended
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="hover:underline"
-                    href="/browse?sort=releaseDate&order=desc"
+                    search={{ sort: "releaseDate", order: "desc" }}
+                    to="/browse"
                   >
                     Upcoming Releases
                   </Link>
@@ -147,7 +148,8 @@ function Component() {
                 <li>
                   <Link
                     className="hover:underline"
-                    href="/browse?sort=userCount&order=desc"
+                    search={{ sort: "userCount", order: "desc" }}
+                    to="/browse"
                   >
                     Best Sellers
                   </Link>
