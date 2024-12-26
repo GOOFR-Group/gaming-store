@@ -8,6 +8,11 @@ import { GamesFilters } from "@/domain/game";
 export const userQueryKey: QueryKey = ["user"];
 
 /**
+ * Query key used when fetching the home page.
+ */
+export const homeQueryKey: QueryKey = ["home"];
+
+/**
  * Query key used when fetching games.
  * @param [filters] Filters.
  * @returns Games query key.
