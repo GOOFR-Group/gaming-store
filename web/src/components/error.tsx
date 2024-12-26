@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
-export function ErrorPage(props: {
+export function Error(props: {
   title: string;
   description: string;
   showBack?: boolean;

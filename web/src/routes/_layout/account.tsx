@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UnderConstructionPage } from "@/components/under-construction";
+import { UnderConstruction } from "@/components/under-construction";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
@@ -141,7 +141,7 @@ function Component() {
             </TabsContent>
 
             <TabsContent className="mt-4" value="wishlist">
-              <UnderConstructionPage />
+              <UnderConstruction />
             </TabsContent>
           </Tabs>
         </CardContent>
