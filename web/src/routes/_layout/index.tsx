@@ -91,7 +91,7 @@ function Component() {
   // Maps the genre IDs by their label.
   const genreIds: Record<string, string | undefined> = {};
 
-  genres.map((genre) => {
+  genres.forEach((genre) => {
     const tag = tags.find(
       (tag) => tag.name.toLowerCase() === genre.label.toLowerCase(),
     );
@@ -141,14 +141,14 @@ function Component() {
         />
 
         <Section
-          href="/browse?isActive=true&sort=releaseDate&order=desc"
+          href="/browse?sort=releaseDate&order=desc"
           id="upcoming-releases"
           paginatedGames={homeGames.upcomingReleases}
           title="Upcoming Releases"
         />
 
         <Section
-          href="/browse?isActive=true&sort=userCount&order=desc"
+          href="/browse?sort=userCount&order=desc"
           id="best-sellers"
           paginatedGames={homeGames.bestSellers}
           title="Best Sellers"
@@ -167,9 +167,7 @@ function Component() {
                 disabled={genreIds[genre.label] === undefined}
                 variant="outline"
               >
-                <Link
-                  href={"/browse?isActive=true&tagIds=" + genreIds[genre.label]}
-                >
+                <Link href={"/browse?tags=" + genreIds[genre.label]}>
                   <div
                     className="size-[10vw] sm:size-16 absolute -left-3 sm:bottom-0 bottom-1/2 sm:translate-y-0 translate-y-1/2 bg-contain bg-no-repeat group-hover:brightness-90"
                     style={{

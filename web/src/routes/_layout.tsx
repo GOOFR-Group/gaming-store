@@ -137,10 +137,9 @@ function Component() {
                   </Link>
                 </li>
                 <li>
-                  {/* TODO: Is active true by default? */}
                   <Link
                     className="hover:underline"
-                    href="/browse?isActive=true&sort=releaseDate&order=desc"
+                    href="/browse?sort=releaseDate&order=desc"
                   >
                     Upcoming Releases
                   </Link>
@@ -148,7 +147,7 @@ function Component() {
                 <li>
                   <Link
                     className="hover:underline"
-                    href="/browse?isActive=true&sort=userCount&order=desc"
+                    href="/browse?sort=userCount&order=desc"
                   >
                     Best Sellers
                   </Link>
