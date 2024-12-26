@@ -35,17 +35,17 @@ function homeGamesQueryOptions() {
       const [recommendedGames, upcomingReleases, bestSellers] =
         await Promise.all([
           getRecommendedGames({
-            limit: 4,
+            limit: 6,
             userId,
           }),
           getGames({
-            limit: 4,
+            limit: 6,
             isActive: true,
             sort: "releaseDate",
             order: "desc",
           }),
           getGames({
-            limit: 4,
+            limit: 6,
             isActive: true,
             sort: "userCount",
             order: "desc",
@@ -156,8 +156,8 @@ function Component() {
           to="/browse"
         />
 
-        <section className="w-full py-12 px-6">
-          <h2 className="text-3xl font-bold tracking-tighter mb-8">
+        <section className="w-full py-6 px-6">
+          <h2 className="text-3xl font-bold tracking-tighter mb-6">
             Browse by Genre
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -195,9 +195,9 @@ function Section(props: {
   search?: Record<string, string>;
 }) {
   return (
-    <section className="w-full py-8 px-6" id={props.id}>
+    <section className="w-full py-6 px-6" id={props.id}>
       <Link
-        className="flex items-center gap-4 mb-8"
+        className="flex items-center gap-4 mb-6"
         search={props.search}
         to={props.to}
       >
@@ -205,7 +205,7 @@ function Section(props: {
         <ChevronRight size={24} />
       </Link>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 *:mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
         {props.games.map((game) => (
           <Link
             key={game.title}
