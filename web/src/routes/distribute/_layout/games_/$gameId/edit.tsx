@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 
 import { GameForm } from "@/components/distribute/games/form/form";
-import { ErrorPage } from "@/components/error";
+import { Error } from "@/components/error";
 import {
   Card,
   CardContent,
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
       errorProps.error instanceof NotFound
     ) {
       return (
-        <ErrorPage
+        <Error
           showBack
           description="The game you are looking for does not exist."
           title="Game Not Found"

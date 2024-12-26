@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 
 import { GamePreview } from "@/components/distribute/games/game-preview";
-import { ErrorPage } from "@/components/error";
+import { Error } from "@/components/error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
       errorProps.error instanceof NotFound
     ) {
       return (
-        <ErrorPage
+        <Error
           showBack
           description="The game you are looking for does not exist."
           title="Game Not Found"
