@@ -72,7 +72,7 @@ func listSQLOrder(field string, order domain.PaginationOrder, secondaryField *st
 	sql := " ORDER BY " + field + o
 
 	if secondaryField != nil {
-		sql += ", " + *secondaryField + " ASC"
+		sql += ", " + *secondaryField
 	}
 
 	return sql

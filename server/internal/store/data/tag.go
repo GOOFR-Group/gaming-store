@@ -30,7 +30,7 @@ func (s *store) ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPagin
 
 	var (
 		sortField          = "t.name"
-		sortFieldSecondary *string
+		sortFieldSecondary = "t.created_at"
 	)
 
 	switch domainSortField {
@@ -38,8 +38,6 @@ func (s *store) ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPagin
 		sortField = "t.name"
 	case domain.TagPaginatedSortGameCount:
 		sortField = "count(gt.game_id)"
-		temp := "t.name"
-		sortFieldSecondary = &temp
 	}
 
 	rows, err := tx.Query(ctx, `
@@ -47,7 +45,7 @@ func (s *store) ListTags(ctx context.Context, tx pgx.Tx, filter domain.TagsPagin
 		FROM tags t
 		LEFT JOIN games_tags gt ON gt.tag_id = t.id
 		GROUP BY t.id
-	`+listSQLOrder(sortField, filter.Order, sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset))
+	`+listSQLOrder(sortField, filter.Order, &sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset))
 	if err != nil {
 		return domain.PaginatedResponse[domain.Tag]{}, fmt.Errorf("%s: %w", descriptionFailedQuery, err)
 	}
