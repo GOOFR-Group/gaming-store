@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUser, getCartGames } from "@/lib/api";
+import { getUser, getCartGames, deleteGameCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
@@ -72,6 +72,7 @@ function Component() {
       ...cartItems,
       games: cartItems.games.filter((item) => item.id !== id),
     });
+    deleteGameCart(user.id, id);
   }
 
   const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
@@ -121,6 +122,7 @@ function Component() {
                       aria-label={`Move ${item.title} to wishlist`}
                       variant="ghost"
                       onClick={() => removeItem(item.id)}
+                      disabled
                     >
                       Move to wishlist
                     </Button>

@@ -849,3 +849,36 @@ export async function purchaseUserCart(userId: string) {
     }
   }
 }
+
+/**
+ * Deletes a game from the cart.
+ * @param filters Tags filters.
+ * @returns Tags.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function deleteGameCart(userId: string, gameId: string) {
+
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`,
+    {
+      method: "DELETE",
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
