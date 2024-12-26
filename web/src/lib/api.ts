@@ -784,20 +784,22 @@ export async function getTags(filters: TagFilters) {
  * @returns Tags.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getCartGames(userId: string,
+export async function getCartGames(
+  userId: string,
   sort: string = "createdAt",
   order: string = "asc",
-  limit: string = "100") {
-
+  limit: string = "100",
+) {
   const token = getToken();
 
-  const response = await fetch(`/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
+  const response = await fetch(
+    `/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
     {
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (response.status >= 400) {
@@ -824,18 +826,15 @@ export async function getCartGames(userId: string,
  * @throws {InternalServerError} Server internal error.
  */
 export async function purchaseUserCart(userId: string) {
-
   const token = getToken();
 
-  const response = await fetch(`/api/users/${userId}/cart/purchase`,
-    {
-      method: "POST",
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`/api/users/${userId}/cart/purchase`, {
+    method: "POST",
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
@@ -857,18 +856,15 @@ export async function purchaseUserCart(userId: string) {
  * @throws {InternalServerError} Server internal error.
  */
 export async function deleteGameCart(userId: string, gameId: string) {
-
   const token = getToken();
 
-  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`,
-    {
-      method: "DELETE",
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
+    method: "DELETE",
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;

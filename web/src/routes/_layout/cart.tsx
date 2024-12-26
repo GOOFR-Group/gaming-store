@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUser, getCartGames, deleteGameCart } from "@/lib/api";
+import { deleteGameCart, getCartGames, getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
@@ -67,12 +67,12 @@ function Component() {
   const query = useSuspenseQuery(userQueryOptions());
   const user = query.data;
 
-  function removeItem(id: string) {
+  async function removeItem(id: string) {
     setCartItems({
       ...cartItems,
       games: cartItems.games.filter((item) => item.id !== id),
     });
-    deleteGameCart(user.id, id);
+    await deleteGameCart(user.id, id);
   }
 
   const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
@@ -103,7 +103,9 @@ function Component() {
                   <div className="flex flex-wrap justify-between items-start">
                     <div>
                       <h2 className="text-lg font-semibold">{item.title}</h2>
-                      <p className="text-sm text-gray-300">{item.publisher.name}</p>
+                      <p className="text-sm text-gray-300">
+                        {item.publisher.name}
+                      </p>
                     </div>
                     <p className="text-lg font-semibold">
                       €{item.price.toFixed(2)}
@@ -119,10 +121,10 @@ function Component() {
                     </Button>
 
                     <Button
+                      disabled
                       aria-label={`Move ${item.title} to wishlist`}
                       variant="ghost"
                       onClick={() => removeItem(item.id)}
-                      disabled
                     >
                       Move to wishlist
                     </Button>
@@ -157,8 +159,14 @@ function Component() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" disabled={cartItems.games.length === 0}>
-                <Link className="w-full" to="/payment">Proceed to Checkout</Link>
+              <Button
+                asChild
+                className="w-full"
+                disabled={cartItems.games.length === 0}
+              >
+                <Link className="w-full" to="/payment">
+                  Proceed to Checkout
+                </Link>
               </Button>
             </CardFooter>
           </Card>

@@ -5,13 +5,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUser, getCartGames, purchaseUserCart } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { getCartGames, getUser, purchaseUserCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { TOAST_MESSAGES } from "@/lib/constants";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { TOAST_MESSAGES } from "@/lib/constants";
 
 export const Route = createFileRoute("/_layout/payment")({
   component: () => PaymentPage(),
@@ -150,7 +150,7 @@ export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
     try {
       await purchaseUserCart(user.id);
       props.onPaymentComplete();
-    } catch (error) {
+    } catch {
       toast(TOAST_MESSAGES.unexpectedError);
     }
   }
