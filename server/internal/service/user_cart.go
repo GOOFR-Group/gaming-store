@@ -209,6 +209,8 @@ func (s *service) PurchaseUserCart(ctx context.Context, userID uuid.UUID) error 
 			totalPrice += float64(game.Price)
 		}
 
+		totalPrice = totalPrice * (1 + domain.Tax)
+
 		newUserBalance := user.Balance - totalPrice
 		if newUserBalance < 0 {
 			return domain.ErrUserBalanceInsufficient
@@ -221,7 +223,7 @@ func (s *service) PurchaseUserCart(ctx context.Context, userID uuid.UUID) error 
 			return err
 		}
 
-		err = s.dataStore.PurchaseUserCart(ctx, tx, userID)
+		err = s.dataStore.PurchaseUserCart(ctx, tx, userID, domain.Tax)
 		if err != nil {
 			return err
 		}
