@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export function UnderConstructionPage(props: { showBack?: boolean }) {
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className="flex flex-col items-center text-center mt-16">
       <h3 className="mt-12 text-2xl font-semibold leading-none tracking-tight">
         Under Construction
       </h3>
