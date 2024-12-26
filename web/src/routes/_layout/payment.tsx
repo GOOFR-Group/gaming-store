@@ -3,15 +3,15 @@ import { useForm } from 'react-hook-form';
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import * as z from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from "@/lib/utils";
-import { userQueryKey } from "@/lib/query-keys";
+import { userQueryKey, cartQueryKey } from "@/lib/query-keys";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
@@ -39,35 +39,64 @@ function userQueryOptions() {
     });
 }
 
-const cartItems = [
-    { name: 'Game Title 1', price: 79.99 },
-    { name: 'Game Title 2', price: 19.99 },
-    { name: 'Game Title 1', price: 79.99 },
-    { name: 'Game Title 2', price: 19.99 },
-    { name: 'Game Title 1', price: 79.99 },
-    { name: 'Game Title 2', price: 19.99 },
-    { name: 'Game Title 1', price: 79.99 },
-    { name: 'Game Title 2', price: 19.99 },
-]
+/**
+ * Query options for retrieving the games from user cart.
+ * @returns Query options.
+ */
+function cartQueryOptions() {
+    return queryOptions({
+        queryKey: cartQueryKey,
+        async queryFn() {
+            return Array.from({ length: 5 }, (_, idx) => {
+                return {
+                    id: idx + 1,
+                    title: "Cosmic Explorers",
+                    price: 59.99,
+                };
+            });
+        },
+    });
+}
 
 export default function PaymentPage() {
     const query = useSuspenseQuery(userQueryOptions());
     const user = query.data;
+    const [isPaymentComplete, setIsPaymentComplete] = useState(false);
+
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
-                <div className="text-lg mr-4">
-                    Account Balance:{" "}
-                    <span className="font-semibold">{formatCurrency(user.balance)}</span>
-                </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-                <PaymentForm />
-                <PurchaseSummary />
-            </div>
+            {isPaymentComplete ? (
+                <>
+                    <div className='mx-4'>
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-3xl font-bold mb-6">Thank You!</h1>
+                        </div>
+                        <div>
+                            <p className="text-lg">Your purchase was successful.</p>
+                            <p className="text-lg">The invoice for your purchase has been sent to your email.</p>
+                            <p className="text-lg">You can now download your game from your library.</p>
+                            <Link className="w-full" href="/account">
+                                <Button className="w-full">Go to Your Library</Button>
+                            </Link>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold mb-6 ml-4">Complete Your Purchase</h1>
+                        <div className="text-lg mr-4">
+                            Account Balance:{" "}
+                            <span className="font-semibold">{formatCurrency(user.balance)}</span>
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <PaymentForm />
+                        <PurchaseSummary onPaymentComplete={() => setIsPaymentComplete(true)} />
+                    </div>
+                </>
+            )}
         </div>
     )
 }
@@ -115,21 +144,17 @@ export function PaymentForm() {
     )
 }
 
-export function PurchaseSummary() {
+export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
+
+    const { data } = useSuspenseQuery(cartQueryOptions());
+    const [cartItems] = useState(data);
     const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0)
     const tax = subtotal * 0.23;
     const total = subtotal + tax;
 
-    /*     function onSubmit(values: z.infer<typeof formSchema>) {
-            setIsSubmitting(true)
-            // Here you would typically send the form data to your server or a payment processor
-            console.log(values)
-            setTimeout(() => {
-                setIsSubmitting(false)
-                alert('Payment submitted successfully!')
-                form.reset()
-            }, 2000)
-        } */
+    function onSubmit() {
+        props.onPaymentComplete();
+    }
 
     return (
         <Card className='mr-4'>
@@ -140,7 +165,7 @@ export function PurchaseSummary() {
                 <div className="space-y-4">
                     {cartItems.map((item, index) => (
                         <div key={index} className="flex justify-between">
-                            <span>{item.name}</span>
+                            <span>{item.title}</span>
                             <span>{formatCurrency(item.price)}</span>
                         </div>
                     ))}
@@ -159,7 +184,7 @@ export function PurchaseSummary() {
                         </div>
                     </div>
                 </div>
-                <Button className="w-full mt-4">
+                <Button className="w-full mt-4" onClick={onSubmit}>
                     Complete Payment
                 </Button>
             </CardContent>
