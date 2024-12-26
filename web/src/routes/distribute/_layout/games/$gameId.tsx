@@ -186,7 +186,7 @@ function Component() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-lg font-semibold mb-2">About the Game</h3>
-            <p>{game.description}</p>
+            <p className="whitespace-pre-wrap">{game.description}</p>
           </div>
 
           <div>
