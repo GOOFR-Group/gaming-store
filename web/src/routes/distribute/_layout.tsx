@@ -33,28 +33,28 @@ function Component() {
           <nav className="flex-1 space-y-2 p-4">
             <NavLink
               active={location.pathname.includes("/distribute/games")}
-              href="/distribute/games"
+              to="/distribute/games"
             >
               <Gamepad2 className="mr-2 size-4" />
               Games
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/campaigns")}
-              href="/distribute/underConstruction"
+              to="/distribute/under-construction"
             >
               <PercentSquare className="mr-2 size-4" />
               Campaigns
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/news")}
-              href="/distribute/underConstruction"
+              to="/distribute/under-construction"
             >
               <Newspaper className="mr-2 size-4" />
               News
             </NavLink>
             <NavLink
               active={location.pathname.includes("/distribute/statistics")}
-              href="/distribute/underConstruction"
+              to="/distribute/under-construction"
             >
               <ChartArea className="mr-2 size-4" />
               Statistics

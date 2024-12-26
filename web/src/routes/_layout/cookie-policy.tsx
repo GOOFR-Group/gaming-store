@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/_layout/cookiePolicy")({
+export const Route = createFileRoute('/_layout/cookie-policy')({
   component: Component,
-});
+})
 
 function Component() {
   return (
@@ -53,7 +53,7 @@ function Component() {
       <h2 className="text-2xl font-bold mt-8 mb-4">Contact Us</h2>
       <p>
         If you have any questions or concerns about this policy, please contact
-        us at{" "}
+        us at{' '}
         <a
           className="text-primary hover:underline"
           href="mailto:help.goofrportugal@gmail.com"
@@ -63,5 +63,5 @@ function Component() {
         .
       </p>
     </div>
-  );
+  )
 }

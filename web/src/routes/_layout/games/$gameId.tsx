@@ -172,7 +172,7 @@ function Component() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }, (_, idx) => {
             return (
-              <Link key={idx} href="/games/1">
+              <Link key={idx} params={{ gameId: "1" }} to="/games/$gameId">
                 <Game
                   image="/images/game.jpg"
                   price={59.99}

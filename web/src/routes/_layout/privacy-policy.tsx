@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/_layout/privacyPolicy")({
+export const Route = createFileRoute('/_layout/privacy-policy')({
   component: Component,
-});
+})
 
 function Component() {
   return (
@@ -126,7 +126,7 @@ function Component() {
       <h2 className="text-2xl font-bold mt-8 mb-4">Contact Us</h2>
       <p>
         If you have any questions or concerns about this policy, or if you wish
-        to exercise your rights, please contact us at{" "}
+        to exercise your rights, please contact us at{' '}
         <a
           className="text-primary hover:underline"
           href="mailto:help.goofrportugal@gmail.com"
@@ -136,5 +136,5 @@ function Component() {
         .
       </p>
     </div>
-  );
+  )
 }

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { UnderConstructionPage } from "@/components/underConstruction";
+import { UnderConstructionPage } from "@/components/under-construction";
 
-export const Route = createFileRoute("/distribute/_layout/underConstruction")({
+export const Route = createFileRoute("/_layout/under-construction")({
   component: Component,
 });
 

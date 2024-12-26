@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UnderConstructionPage } from "@/components/underConstruction";
+import { UnderConstructionPage } from "@/components/under-construction";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
@@ -114,7 +114,7 @@ function Component() {
                   "Game 6",
                 ].map((game) => (
                   <div key={game}>
-                    <Link href="/games/1">
+                    <Link params={{ gameId: "1" }} to="/games/$gameId">
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"

@@ -2,15 +2,21 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export function UnderConstructionPage(props: { showBack?: boolean }) {
   return (
-    <Card className="flex flex-col items-center text-center min-h-full">
-      <CardTitle className="mt-12">Under Construction</CardTitle>
-      <CardDescription className={props.showBack ? "" : "mb-12"}>
+    <div className="flex flex-col items-center text-center">
+      <h3 className="mt-12 text-2xl font-semibold leading-none tracking-tight">
+        Under Construction
+      </h3>
+      <p
+        className={cn("text-sm text-muted-foreground", {
+          "mb-12": !props.showBack,
+        })}
+      >
         This page is under construction.
-      </CardDescription>
+      </p>
       {props.showBack && (
         <Button asChild className="w-fit mt-4 mb-12">
           <Link to="..">
@@ -18,6 +24,6 @@ export function UnderConstructionPage(props: { showBack?: boolean }) {
           </Link>
         </Button>
       )}
-    </Card>
+    </div>
   );
 }
