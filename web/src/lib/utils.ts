@@ -19,12 +19,12 @@ export function cn(...classes: ClassValue[]) {
  * @param value Value to be formatted.
  * @returns Formatted value.
  */
-export function formatCurrency(value: number) {
+export function formatCurrency(value: number, tax: number) {
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "EUR",
   });
-  return currencyFormat.format(value);
+  return currencyFormat.format(value * (1 + tax));
 }
 
 /**

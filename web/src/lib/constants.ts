@@ -309,3 +309,9 @@ export const TO_BE_ANNOUNCED = "To be announced";
  * Minimum age at which the user can be registered on the platform.
  */
 export const MINIMUM_USER_AGE = 16;
+
+/**
+ * Tax applied to the user cart purchase.
+ * It represents a number between 0 and 1.
+ */
+export const TAX = 0.23;
