@@ -101,7 +101,7 @@ function Component() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
-      <main className="container flex-1">
+      <main className="container flex-1 mb-20">
         <section className="w-full py-12 md:py-24">
           <div className="px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -205,7 +205,7 @@ function Section(props: {
         <ChevronRight size={24} />
       </Link>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
         {props.games.map((game) => (
           <Link
             key={game.title}
