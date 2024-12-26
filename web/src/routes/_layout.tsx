@@ -125,7 +125,7 @@ function Component() {
         </div>
       </header>
       <Outlet />
-      <footer className="w-full py-6">
+      <footer className="w-full py-6 bg-gray-900">
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
