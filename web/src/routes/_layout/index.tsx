@@ -5,10 +5,10 @@ import { ChevronRight } from "lucide-react";
 import { Game } from "@/components/game";
 import { Button } from "@/components/ui/button";
 import { Game as GameDomain } from "@/domain/game";
-import { useTags } from "@/hooks/use-tags";
-import { getGames, getRecommendedGames } from "@/lib/api";
+import { getGames, getRecommendedGames, getTags } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { homeQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 
 /**
  * Query options for retrieving the home page games.
@@ -32,7 +32,7 @@ function homeGamesQueryOptions() {
         // as the recommended games can still be fetched for visitors.
       }
 
-      const [recommendedGames, upcomingReleases, bestSellers] =
+      const [recommendedGames, upcomingReleases, bestSellers, tags] =
         await Promise.all([
           getRecommendedGames({
             limit: 6,
@@ -50,12 +50,20 @@ function homeGamesQueryOptions() {
             sort: "userCount",
             order: "desc",
           }),
+          getBatchPaginatedResponse(async (limit, offset) => {
+            const paginatedTags = await getTags({ limit, offset });
+            return {
+              total: paginatedTags.total,
+              items: paginatedTags.tags,
+            };
+          }),
         ]);
 
       return {
         recommendedGames,
         upcomingReleases,
         bestSellers,
+        tags,
       };
     },
   });
@@ -85,14 +93,10 @@ export const Route = createFileRoute("/_layout/")({
 function Component() {
   const { data: homeGames } = useSuspenseQuery(homeGamesQueryOptions());
 
-  const tagsQuery = useTags();
-  const tags = tagsQuery.data ?? [];
-
   // Maps the genre IDs by their label.
   const genreIds: Record<string, string | undefined> = {};
-
   genres.forEach((genre) => {
-    const tag = tags.find(
+    const tag = homeGames.tags.find(
       (tag) => tag.name.toLowerCase() === genre.label.toLowerCase(),
     );
 
