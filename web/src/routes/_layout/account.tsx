@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Download, Gamepad2, UserIcon } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
@@ -17,11 +17,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UnderConstruction } from "@/components/under-construction";
 import { getUser } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
  * Query options for retrieving the signed in user.
@@ -47,13 +48,6 @@ export const Route = createFileRoute("/_layout/account")({
   loader(opts) {
     return opts.context.queryClient.ensureQueryData(userQueryOptions());
   },
-  onError() {
-    redirect({
-      to: "/signin",
-      replace: true,
-      throw: true,
-    });
-  },
 });
 
 function Component() {
@@ -61,9 +55,6 @@ function Component() {
   const query = useSuspenseQuery(userQueryOptions());
 
   const user = query.data;
-  const country =
-    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? MISSING_VALUE_SYMBOL;
 
   return (
     <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
@@ -77,7 +68,9 @@ function Component() {
             />
             <div className="text-center sm:text-left">
               <CardTitle className="text-2xl">{user.displayName}</CardTitle>
-              <CardDescription>{country}</CardDescription>
+              <CardDescription>
+                {getCountryName(user.country) ?? MISSING_VALUE_SYMBOL}
+              </CardDescription>
             </div>
           </div>
           <div className="text-center sm:text-right">
@@ -95,7 +88,7 @@ function Component() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
                 Library
@@ -103,6 +96,10 @@ function Component() {
               <TabsTrigger value="account">
                 <UserIcon className="mr-2 h-4 w-4" />
                 Account
+              </TabsTrigger>
+              <TabsTrigger value="wishlist">
+                <Heart className="mr-2 h-4 w-4" />
+                Wishlist
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
@@ -117,7 +114,7 @@ function Component() {
                   "Game 6",
                 ].map((game) => (
                   <div key={game}>
-                    <Link href="/games/1">
+                    <Link params={{ gameId: "1" }} to="/games/$gameId">
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
@@ -126,7 +123,7 @@ function Component() {
                     </Link>
                     <div className="p-4 flex items-center justify-between flex-wrap">
                       <div>
-                        <p className="text-sm text-gray-400">Stellar Games</p>
+                        <p className="text-sm text-gray-300">Stellar Games</p>
                         <h3 className="text-xl font-semibold">{game}</h3>
                       </div>
                       <Button size="icon" variant="secondary">
@@ -140,7 +137,11 @@ function Component() {
             </TabsContent>
 
             <TabsContent className="mt-4" value="account">
-              <AccountDetails country={country} user={user} />
+              <AccountDetails user={user} />
+            </TabsContent>
+
+            <TabsContent className="mt-4" value="wishlist">
+              <UnderConstruction />
             </TabsContent>
           </Tabs>
         </CardContent>

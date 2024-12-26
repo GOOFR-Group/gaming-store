@@ -48,6 +48,13 @@ type Service interface {
 	PatchUser(ctx context.Context, id uuid.UUID, editableUser domain.EditableUserPatch) (domain.User, error)
 	SignInUser(ctx context.Context, username domain.Username, email domain.Email, password domain.Password) (string, error)
 
+	CreateUserCartGame(ctx context.Context, userID, gameID uuid.UUID) error
+	ListUserCart(ctx context.Context, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+	DeleteUserCartGame(ctx context.Context, userID, gameID uuid.UUID) error
+	PurchaseUserCart(ctx context.Context, userID uuid.UUID) error
+
+	ListUserLibrary(ctx context.Context, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
+
 	CreatePublisher(ctx context.Context, editablePublisher domain.EditablePublisherWithPassword) (domain.Publisher, error)
 	GetPublisherByID(ctx context.Context, id uuid.UUID) (domain.Publisher, error)
 	PatchPublisher(ctx context.Context, id uuid.UUID, editablePublisher domain.EditablePublisherPatch) (domain.Publisher, error)

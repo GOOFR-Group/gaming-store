@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { GameForm } from "@/components/form/game";
+import { GameForm } from "@/components/distribute/games/form/form";
 import {
   Card,
   CardContent,

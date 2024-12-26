@@ -3,15 +3,14 @@ import { Publisher } from "./publisher";
 import { Tag } from "./tag";
 
 /**
- * Represents a game.
+ * Represents a game that is not announced.
  */
-export interface Game {
+interface ToBeAnnouncedGame {
   id: string;
   publisher: Publisher;
   title: string;
   price: number;
   isActive: boolean;
-  releaseDate?: string;
   description: string;
   ageRating: string;
   features: string;
@@ -27,6 +26,19 @@ export interface Game {
   createdAt: string;
   modifiedAt: string;
 }
+
+/**
+ * Represents a game that is announced.
+ */
+interface AnnouncedGame extends ToBeAnnouncedGame {
+  releaseDate: string;
+  downloadMultimedia: Multimedia;
+}
+
+/**
+ * Represents a game.
+ */
+export type Game = AnnouncedGame | ToBeAnnouncedGame;
 
 /**
  * Represents games with pagination.
@@ -52,4 +64,44 @@ export interface GamesFilters {
   releaseDateBefore?: string;
   releaseDateAfter?: string;
   tagIds?: number[];
+}
+
+/**
+ * Represents a new game.
+ */
+export interface NewGame {
+  title: string;
+  price: number;
+  isActive: boolean;
+  releaseDate?: string;
+  description: string;
+  ageRating: string;
+  features: string;
+  languages: string[];
+  requirements: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId: string;
+  downloadMultimediaId?: string;
+}
+
+/**
+ * Represents an editable game.
+ */
+export interface EditableGame {
+  title?: string;
+  price?: number;
+  isActive?: boolean;
+  releaseDate?: string;
+  description?: string;
+  ageRating?: string;
+  features?: string;
+  languages?: string[];
+  requirements?: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId?: string;
+  downloadMultimediaId?: string;
 }

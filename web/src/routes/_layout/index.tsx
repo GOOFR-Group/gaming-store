@@ -12,7 +12,7 @@ function gamesQueryOptions() {
   return queryOptions({
     queryKey: gamesQueryKey(),
     queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
+      return Array.from({ length: 4 }, (_, idx) => {
         return {
           title: `Game ${idx}`,
           image: "/images/game.jpg",
@@ -23,6 +23,17 @@ function gamesQueryOptions() {
     },
   });
 }
+
+const genres = [
+  { label: "Action", image: "/images/genres/action.png" },
+  { label: "Adventure", image: "/images/genres/adventure.png" },
+  { label: "RPG", image: "/images/genres/rpg.png" },
+  { label: "Strategy", image: "/images/genres/strategy.png" },
+  { label: "Sport", image: "/images/genres/sport.png" },
+  { label: "Simulation", image: "/images/genres/simulation.png" },
+  { label: "Puzzle", image: "/images/genres/puzzle.png" },
+  { label: "Racing", image: "/images/genres/racing.png" },
+];
 
 export const Route = createFileRoute("/_layout/")({
   component: Component,
@@ -53,13 +64,13 @@ function Component() {
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button
                     asChild
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 tracking-wider"
                   >
                     <Link to="/browse">Shop Now</Link>
                   </Button>
                   <Button
                     asChild
-                    className="border-gray-700 text-white hover:bg-gray-800"
+                    className="border-gray-700 text-white hover:bg-gray-800 tracking-wider"
                     variant="outline"
                   >
                     <a href="#recommended">View Recommended Games</a>
@@ -77,61 +88,61 @@ function Component() {
 
         <Section href="/" id="recommended" title="Featured & Recommended">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 
-        <Section href="/" title="Deals">
+        <Section href="/" title="Upcoming Releases">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 
         <Section href="/" title="Best Sellers">
           {data.map((game) => (
-            <Game
-              key={game.title}
-              image={game.image}
-              price={game.price}
-              publisher={game.publisher}
-              title={game.title}
-            />
+            <Link key={game.title} href="/games/1">
+              <Game
+                image={game.image}
+                price={game.price}
+                publisher={game.publisher}
+                title={game.title}
+              />
+            </Link>
           ))}
         </Section>
 
-        <section className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6">
+        <section className="w-full py-12 px-6">
           <h2 className="text-3xl font-bold tracking-tighter mb-8">
             Browse by Genre
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              "Action",
-              "Adventure",
-              "RPG",
-              "Strategy",
-              "Sports",
-              "Simulation",
-              "Puzzle",
-              "Indie",
-            ].map((genre) => (
+            {genres.map((genre) => (
               <Button
-                key={genre}
-                className="h-20 text-lg font-semibold"
+                key={genre.label}
+                className="group h-20 text-lg font-semibold relative overflow-hidden"
                 variant="outline"
               >
-                {genre}
+                <div
+                  className="size-[10vw] sm:size-16 absolute -left-3 sm:bottom-0 bottom-1/2 sm:translate-y-0 translate-y-1/2 bg-contain bg-no-repeat group-hover:brightness-90"
+                  style={{
+                    backgroundImage: `url('${genre.image}')`,
+                  }}
+                />
+                {genre.label}
               </Button>
             ))}
           </div>
@@ -148,16 +159,13 @@ function Section(props: {
   id?: string;
 }) {
   return (
-    <section
-      className="w-full py-12 md:py-24 lg:py-32 px-4 md:px-6"
-      id={props.id}
-    >
+    <section className="w-full py-8 px-6" id={props.id}>
       <Link className="flex items-center gap-4 mb-8" href={props.href}>
         <h2 className="text-3xl font-bold tracking-tighter">{props.title}</h2>
         <ChevronRight size={24} />
       </Link>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 *:mx-auto">
         {props.children}
       </div>
     </section>

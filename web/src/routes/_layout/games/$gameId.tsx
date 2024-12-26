@@ -1,11 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ShoppingCart, Star } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
 import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
@@ -27,7 +32,7 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p className="text-muted-foreground">
+              <p>
                 Embark on an interstellar journey in Cosmic Explorers, where
                 you'll discover uncharted planets, encounter alien species, and
                 unravel the mysteries of the universe. Build your own spaceship,
@@ -58,26 +63,26 @@ function Component() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Minimum:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                    Minimum
+                  </h3>
+                  <ul className="list-disc list-inside">
                     <li>OS: Windows 10 64-bit</li>
                     <li>Processor: Intel Core i5-4460 or AMD FX-6300</li>
                     <li>Memory: 8 GB RAM</li>
-                    <li>
-                      Graphics: NVIDIA GeForce GTX 760 or AMD Radeon R7 260x
-                    </li>
+                    <li>Graphics: NVIDIA GeForce GTX 760</li>
                     <li>Storage: 50 GB available space</li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Recommended:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                    Recommended
+                  </h3>
+                  <ul className="list-disc list-inside">
                     <li>OS: Windows 10 64-bit</li>
                     <li>Processor: Intel Core i7-4790 or AMD Ryzen 5 1500X</li>
                     <li>Memory: 16 GB RAM</li>
-                    <li>
-                      Graphics: NVIDIA GeForce GTX 1060 or AMD Radeon RX 480
-                    </li>
+                    <li>Graphics: NVIDIA GeForce GTX 1060</li>
                     <li>Storage: 50 GB available space (SSD recommended)</li>
                   </ul>
                 </div>
@@ -98,13 +103,25 @@ function Component() {
                 </div>
               </div>
               <Button className="w-full text-lg py-6">
-                <ShoppingCart className="mr-2" />
+                <ShoppingCart />
                 Add to Cart
               </Button>
-              <Button className="w-full text-lg py-6 mt-2" variant="secondary">
-                Add to Wishlist
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2 text-center">
+              <Tooltip>
+                <TooltipTrigger className="w-full">
+                  <Button
+                    disabled
+                    className="w-full text-lg py-6 mt-2"
+                    variant="secondary"
+                  >
+                    <Heart />
+                    Add to Wishlist
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  This feature is under construction
+                </TooltipContent>
+              </Tooltip>
+              <p className="text-muted-foreground mt-2 text-center">
                 Release Date: June 15, 2023
               </p>
             </CardContent>
@@ -112,15 +129,19 @@ function Component() {
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Developed by</h3>
-              <p className="text-muted-foreground">Stellar Games</p>
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                Developed by
+              </h3>
+              <p>Stellar Games</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Game Features</h3>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                Game Features
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
                 <li>Vast, procedurally generated universe</li>
                 <li>Multiplayer co-op and PvP modes</li>
                 <li>Customizable spaceships and characters</li>
@@ -132,10 +153,10 @@ function Component() {
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                 Languages Supported
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p>
                 English, French, German, Spanish, Italian, Russian, Japanese,
                 Korean, Chinese (Simplified and Traditional)
               </p>
@@ -150,15 +171,16 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 5 }, (_, idx) => {
+          {Array.from({ length: 4 }, (_, idx) => {
             return (
-              <Game
-                key={idx}
-                image="/images/game.jpg"
-                price={59.99}
-                publisher="Stellar Games"
-                title={`Game ${idx}`}
-              />
+              <Link key={idx} params={{ gameId: "1" }} to="/games/$gameId">
+                <Game
+                  image="/images/game.jpg"
+                  price={59.99}
+                  publisher="Stellar Games"
+                  title={`Game ${idx}`}
+                />
+              </Link>
             );
           })}
         </div>

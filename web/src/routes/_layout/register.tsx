@@ -2,8 +2,8 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { format, subYears } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as z from "zod";
 
@@ -40,16 +40,16 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
-import { COUNTRIES, TOAST_MESSAGES } from "@/lib/constants";
+import { COUNTRIES, MINIMUM_USER_AGE, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import { accountDetailsSchema, passwordRefinement } from "@/lib/zod";
+import { passwordRefinement, userAccountDetailsSchema } from "@/lib/zod";
 
 export const Route = createFileRoute("/_layout/register")({
   component: Component,
 });
 
-const formSchema = accountDetailsSchema
+const formSchema = userAccountDetailsSchema
   .extend({
     password: z
       .string()
@@ -124,7 +124,7 @@ function Component() {
             break;
 
           case "user_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
@@ -149,7 +149,7 @@ function Component() {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 flex flex-col items-center">
               <CardTitle className="text-3xl font-bold tracking-tight">
-                Register Account
+                Create Account
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -228,9 +228,15 @@ function Component() {
                         <PopoverContent align="start" className="w-auto p-0">
                           <Calendar
                             initialFocus
-                            disabled={(date) => date > new Date()}
                             mode="single"
                             selected={field.value}
+                            defaultMonth={subYears(
+                              new Date(),
+                              MINIMUM_USER_AGE,
+                            )}
+                            disabled={(date) =>
+                              date > subYears(new Date(), MINIMUM_USER_AGE)
+                            }
                             onSelect={field.onChange}
                           />
                         </PopoverContent>
@@ -252,7 +258,7 @@ function Component() {
                       >
                         <FormControl>
                           <SelectTrigger className="border-input">
-                            <SelectValue placeholder="Select a country" />
+                            <SelectValue placeholder="Select your country" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -278,9 +284,13 @@ function Component() {
                   name="vatin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>VAT</FormLabel>
+                      <FormLabel>VAT No.</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your VAT" {...field} />
+                        <Input
+                          maxLength={9}
+                          placeholder="Enter your VAT No."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -334,14 +344,20 @@ function Component() {
                 )}
               />
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-col space-y-4">
               <Button
                 className="w-full text-primary-foreground font-semibold"
                 disabled={mutation.isPending}
                 type="submit"
               >
-                Register Account
+                Create Account
               </Button>
+              <div className="flex justify-center items-center gap-2 w-full">
+                <span className="text-sm">Already have an account?</span>
+                <Button asChild className="p-0" variant="link">
+                  <Link to="/signin">Sign in</Link>
+                </Button>
+              </div>
             </CardFooter>
           </form>
         </Form>

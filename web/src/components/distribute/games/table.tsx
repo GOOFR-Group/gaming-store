@@ -42,7 +42,7 @@ const columns = [
       return <DataTableColumnHeader column={column} />;
     },
     cell({ getValue }) {
-      const releaseDate = getValue();
+      const releaseDate = getValue<string | undefined>();
       if (!releaseDate) {
         return TO_BE_ANNOUNCED;
       }

@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { updateUser, uploadMultimedia } from "@/lib/api";
 import { TOAST_MESSAGES } from "@/lib/constants";
 import { ContentTooLarge } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
 
@@ -21,23 +22,22 @@ export function UserAvatar(props: {
   const mutation = useMutation({
     async mutationFn(file: File) {
       const multimedia = await uploadMultimedia(file);
-
       await updateUser(props.id, { pictureMultimediaId: multimedia.id });
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {
         toast({
           variant: "destructive",
-          title: "Picture size must be smaller than 2MB",
+          title: "Picture size must be smaller than 20 MB",
         });
         return;
       }
 
       toast(TOAST_MESSAGES.unexpectedError);
-    },
+    }),
   });
 
   /**
@@ -45,12 +45,12 @@ export function UserAvatar(props: {
    * @param event Input change event.
    */
   function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (!files) {
+    const selectedFile = event.target.files?.item(0);
+    if (!selectedFile) {
       return;
     }
 
-    mutation.mutate(files[0]);
+    mutation.mutate(selectedFile);
   }
 
   return (

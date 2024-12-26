@@ -60,7 +60,7 @@ export function passwordRefinement(password: string, ctx: RefinementCtx) {
   }
 }
 
-export const accountDetailsSchema = z.object({
+export const userAccountDetailsSchema = z.object({
   username: z
     .string()
     .min(1, {
@@ -102,9 +102,47 @@ export const accountDetailsSchema = z.object({
   vatin: z
     .string()
     .min(1, {
-      message: "VAT is required",
+      message: "VAT No. is required",
     })
-    .max(20, {
-      message: "VAT must be shorter than 20 characters",
+    .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+      message: "VAT No. must be 9 digits",
+    }),
+});
+
+export const publisherAccountDetails = z.object({
+  name: z
+    .string()
+    .min(1, {
+      message: "Name is required",
+    })
+    .max(100, {
+      message: "Name must be shorter than 100 characters",
+    }),
+  email: z
+    .string()
+    .email({
+      message: "Please enter a valid email address",
+    })
+    .max(320, {
+      message: "Email must be shorter than 320 characters",
+    }),
+  country: z.string().min(1, {
+    message: "Country is required",
+  }),
+  address: z
+    .string()
+    .min(1, {
+      message: "Address is required",
+    })
+    .max(100, {
+      message: "Address must be shorter than 100 characters",
+    }),
+  vatin: z
+    .string()
+    .min(1, {
+      message: "VAT No. is required",
+    })
+    .refine((vatin) => vatin.length === 9 && !Number.isNaN(Number(vatin)), {
+      message: "VAT No. must be 9 digits",
     }),
 });
