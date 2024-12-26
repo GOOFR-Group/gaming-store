@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TAX } from "@/lib/constants";
 import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 
@@ -87,7 +88,7 @@ function Component() {
             features: game.features,
             tags: game.tags,
             languages: game.languages,
-            price: game.price,
+            price: Math.round(game.price * (1 + TAX) * 100) / 100,
             releaseDate:
               "releaseDate" in game ? new Date(game.releaseDate) : undefined,
             title: game.title,
