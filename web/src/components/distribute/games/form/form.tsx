@@ -68,6 +68,7 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import {
   LANGUAGES,
   MISSING_VALUE_SYMBOL,
+  TAX,
   TOAST_MESSAGES,
 } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
@@ -271,7 +272,7 @@ export function GameForm(props: GameProps) {
       if (props.mode === "add") {
         const newGame: NewGame = {
           title: data.title,
-          price: data.price,
+          price: data.price / (1 + TAX),
           isActive: data.isActive,
           description: data.description,
           ageRating: data.ageRating,
@@ -325,7 +326,7 @@ export function GameForm(props: GameProps) {
 
       const editableGame: EditableGame = {
         title: data.title,
-        price: data.price,
+        price: data.price / (1 + TAX),
         isActive: data.isActive,
         description: data.description,
         ageRating: data.ageRating,
