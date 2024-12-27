@@ -142,14 +142,16 @@ function Component() {
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games </h3>
               {library.games.length === 0 ?
-                <div className="mx-auto grid">
-                  <p className="text-center text-foreground text-2xl font-bold">
-                    Your library is empty
-                  </p>
-                  <p className="text-center text-muted-foreground mt-4">
-                    <Link to="/browse">
-                      <Button variant="outline">Browse Games</Button>
-                    </Link>
+                <div className="mx-auto grid text-center">
+                  <p className="text-muted-foreground">
+                    Your library is empty, try&nbsp;
+                    <a
+                      className="text-primary hover:underline"
+                      href="/browse"
+                    >
+                      purchasing some games
+                    </a>
+                    &nbsp;first.
                   </p>
                 </div>
                 : <ListGamesLibrary library={library} />}
