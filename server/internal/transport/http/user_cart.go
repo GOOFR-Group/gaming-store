@@ -19,6 +19,10 @@ const (
 	errUserCartGameAlreadyExists = "user cart game already exists"
 	errUserCartGameNotFound      = "user cart game association does not exist"
 	errUserCartEmpty             = "user cart empty"
+
+	codeUserLibraryGameAlreadyExists = "user_library_game_already_exists"
+
+	errUserLibraryGameAlreadyExists = "user library game already exists"
 )
 
 // ListUserCartGames handles the http request to list user cart games.
