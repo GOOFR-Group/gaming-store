@@ -1,24 +1,65 @@
-import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import {
+  queryOptions,
+  useMutation,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import { ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
 import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Game as gameDomain } from "@/domain/game";
 import { useToast } from "@/hooks/use-toast";
-import { addGameToCart } from "@/lib/api";
+import { addGameToCart, getPublisherGame, getUser, getUserCart } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TokenMissing } from "@/lib/errors";
+import { gameQueryKey, userQueryKey } from "@/lib/query-keys";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
 });
+
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function userQueryOptions() {
+  return queryOptions({
+    queryKey: userQueryKey,
+    async queryFn() {
+      try {
+        const token = getToken();
+        const payload = decodeTokenPayload(token);
+
+        const userId = payload.sub;
+        const user = await getUser(userId);
+
+        return user;
+      } catch {
+        return null;
+      }
+    },
+  });
+}
+
+function gameQueryOptions(gameId: string) {
+  return queryOptions({
+    queryKey: gameQueryKey(gameId),
+    queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const cartGames = getUserCart(userId);
+      const selectedGame = getPublisherGame(publisherId, gameId);
+
+      return cartGames;
+    },
+  });
+}
 
 function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
   /**
@@ -68,9 +109,23 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
 }
 
 function Component() {
+  const params = useParams({ from: "/_layout/games/$gameId" });
+
+  const { data: gameData } = useSuspenseQuery(gameQueryOptions(params.gameId));
+
+  const query = useSuspenseQuery(userQueryOptions());
+  const userData = query.data;
+
+  const getLanguage = (code: string) => {
+    const lang = new Intl.DisplayNames(["en"], { type: "language" });
+    return lang.of(code);
+  };
+
+  const country = gameData.languages.map((language) => getLanguage(language));
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-4">Cosmic Explorers</h1>
+      <h1 className="text-4xl font-bold mb-4">{gameData.title}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
@@ -83,25 +138,21 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p>
-                Embark on an interstellar journey in Cosmic Explorers, where
-                you'll discover uncharted planets, encounter alien species, and
-                unravel the mysteries of the universe. Build your own spaceship,
-                form alliances with other players, and leave your mark on the
-                galaxy in this expansive multiplayer sci-fi adventure.
-              </p>
+              <p className="text-muted-foreground">{gameData.about}</p>
 
               <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
-                  <Badge variant="secondary">Sci-Fi</Badge>
-                  <Badge variant="secondary">Adventure</Badge>
-                  <Badge variant="secondary">Multiplayer</Badge>
+                  {gameData.genres.map((genre, index) => (
+                    <Badge key={index} variant="secondary">
+                      {genre.toUpperCase()}
+                    </Badge>
+                  ))}
                 </div>
 
                 <img
                   alt="Age rating"
                   className="h-12"
-                  src="/images/pegi/18.png"
+                  src={`/images/pegi/${gameData.ageRating}.png`}
                 />
               </div>
             </CardContent>
@@ -114,29 +165,23 @@ function Component() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
-                    Minimum
-                  </h3>
-                  <ul className="list-disc list-inside">
-                    <li>OS: Windows 10 64-bit</li>
-                    <li>Processor: Intel Core i5-4460 or AMD FX-6300</li>
-                    <li>Memory: 8 GB RAM</li>
-                    <li>Graphics: NVIDIA GeForce GTX 760</li>
-                    <li>Storage: 50 GB available space</li>
+                  <h3 className="font-semibold mb-2">Minimum:</h3>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    {gameData.systemRequirements.minimum
+                      .split("\n")
+                      .map((requirement, index) => (
+                        <li key={index}>{requirement}</li>
+                      ))}
                   </ul>
                 </div>
-                * Adds a game to the cart. */
                 <div>
-                  * Adds a game to the cart. */
-                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
-                    Recommended
-                  </h3>
-                  <ul className="list-disc list-inside">
-                    <li>OS: Windows 10 64-bit</li>
-                    <li>Processor: Intel Core i7-4790 or AMD Ryzen 5 1500X</li>
-                    <li>Memory: 16 GB RAM</li>
-                    <li>Graphics: NVIDIA GeForce GTX 1060</li>
-                    <li>Storage: 50 GB available space (SSD recommended)</li>
+                  <h3 className="font-semibold mb-2">Recommended:</h3>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground">
+                    {gameData.systemRequirements.recommended
+                      .split("\n")
+                      .map((requirement, index) => (
+                        <li key={index}>{requirement}</li>
+                      ))}
                   </ul>
                 </div>
               </div>
@@ -148,67 +193,55 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-3xl font-bold">€59.99</span>
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 fill-yellow-400 mr-1" />
-                  <span className="font-semibold">4.8</span>
+                <span className="text-3xl font-bold">€{gameData.price}</span>
+                <div className="flex items-center p-2 relative bg-gray-500">
+                  <span className="w-full -rotate-12 h-1 z-10 absolute top-5 right-0 bg-white"></span>
+                  <span className="w-full rotate-12 h-1 z-10  absolute top-5 right-0 bg-white"></span>
+                  <Star className="text-yellow-400 fill-yellow-400 mr-1 opacity-65" />
+                  <span className="font-semibold opacity-65">4.8</span>
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <AddToCart gameId="TODO" userId="TODO" />
-              <Tooltip>
-                <TooltipTrigger className="w-full">
-                  <Button
-                    disabled
-                    className="w-full text-lg py-6 mt-2"
-                    variant="secondary"
-                  >
-                    <Heart />
-                    Add to Wishlist
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  This feature is under construction
-                </TooltipContent>
-              </Tooltip>
-              <p className="text-muted-foreground mt-2 text-center">
-                Release Date: June 15, 2023
+              <AddToCart gameId={gameData.id} userId={userData?.id} />
+              <Button className="w-full text-lg py-6 mt-2" variant="secondary">
+                Add to Wishlist
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                Release Date:{" "}
+                {new Date(gameData.releaseDate).toLocaleDateString("en-UK", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
-                Developed by
-              </h3>
-              <p>Stellar Games</p>
+              <h3 className="text-xl font-semibold mb-2">Developed by</h3>
+              <p className="text-muted-foreground">{gameData.publisher}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
-                Game Features
-              </h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Vast, procedurally generated universe</li>
-                <li>Multiplayer co-op and PvP modes</li>
-                <li>Customizable spaceships and characters</li>
-                <li>Dynamic economy and trading system</li>
-                <li>Epic story-driven campaign</li>
+              <h3 className="text-xl font-semibold mb-2">Game Features</h3>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                {gameData.features.split("\n").map((feature, index) => (
+                  <li key={index}>{feature}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+              <h3 className="text-xl font-semibold mb-2">
                 Languages Supported
               </h3>
-              <p>
-                English, French, German, Spanish, Italian, Russian, Japanese,
-                Korean, Chinese (Simplified and Traditional)
+              <p className="text-sm text-muted-foreground">
+                {country.join(", ")}
               </p>
             </CardContent>
           </Card>
@@ -221,16 +254,15 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }, (_, idx) => {
+          {gameData.screenshots.map((data, index) => {
             return (
-              <Link key={idx} params={{ gameId: "1" }} to="/games/$gameId">
-                <Game
-                  image="/images/game.jpg"
-                  price={59.99}
-                  publisher="Stellar Games"
-                  title={`Game ${idx}`}
-                />
-              </Link>
+              <Game
+                key={index}
+                image={data}
+                price={59.99}
+                publisher={gameData.publisher}
+                title={`Game ${index}`}
+              />
             );
           })}
         </div>
