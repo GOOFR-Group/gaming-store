@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
@@ -9,16 +10,49 @@ import {
 import { Menu, ShoppingCart, User } from "lucide-react";
 
 import { NavLink } from "@/components/distribute/navbar/nav-link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { getUser, getUserCart } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
+import { getInitials } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
 
+/**
+ * Query options for retrieving the signed in user.
+ * @returns Query options.
+ */
+function cartQueryOptions() {
+  return queryOptions({
+    queryKey: [cartQueryKey, userQueryKey],
+    async queryFn() {
+      try {
+        const token = getToken();
+        const payload = decodeTokenPayload(token);
+
+        const userId = payload.sub;
+        const cart = await getUserCart(userId);
+        const user = await getUser(userId);
+
+        return { cart, user };
+      } catch {
+        return null;
+      }
+    },
+  });
+}
+
 function Component() {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const { data } = useSuspenseQuery(cartQueryOptions());
+  const { cart, user } = data || { cart: null, user: null };
 
   return (
     <div className="overflow-auto">
@@ -68,15 +102,38 @@ function Component() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
-              <Button asChild size="icon" variant="ghost">
-                <Link to="/cart">
-                  <ShoppingCart className="h-5 w-5" />
+              <Button asChild size="tiny" variant="ghost">
+                <Link href="/cart">
+                  <div className="relative">
+                    <ShoppingCart className="h-5 w-5" />
+                    {cart && (
+                      <Badge className="w-1 font-extralight absolute top-3 left-3 flex justify-center h-5 text-sm">
+                        {cart?.games.length}
+                      </Badge>
+                    )}
+                  </div>
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
-              <Button asChild size="icon" variant="ghost">
-                <Link to="/account">
-                  <User className="h-5 w-5" />
+              <Button asChild size="tiny" variant="ghost">
+                <Link href="/account">
+                  <Avatar
+                    asChild
+                    className="relative size-10 group cursor-pointer"
+                  >
+                    <label>
+                      <AvatarImage
+                        alt="Gamer Avatar"
+                        className="object-cover"
+                        src={user?.pictureMultimedia?.url}
+                      />
+                      <AvatarFallback>
+                        {(user && getInitials(user?.username)) || (
+                          <User className="h-5 w-5" />
+                        )}
+                      </AvatarFallback>
+                    </label>
+                  </Avatar>
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
@@ -239,7 +296,7 @@ function Component() {
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm text-gray-300">
-              © {new Date().getFullYear()} GOOFR. All rights reserved.
+              © {new Date().getFullYear()} GOOFR. All rights reserved. <span className="text-[12px] opacity-5">It was all richards fault.</span>
             </p>
           </div>
         </div>

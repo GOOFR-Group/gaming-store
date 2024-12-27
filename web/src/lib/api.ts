@@ -809,3 +809,105 @@ export async function getTags(filters: TagFilters) {
 
   return paginatedTags;
 }
+
+/**
+ * Retrieves the user's cart.
+ * @param userId.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getUserCart(
+  userId: string,
+  sort: string = "createdAt",
+  order: string = "asc",
+  limit: string = "100",
+) {
+  const token = getToken();
+
+  const response = await fetch(
+    `/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
+    {
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const cartGames = (await response.json()) as PaginatedGames;
+
+  return cartGames;
+}
+
+/**
+ * Removes a game from cart.
+ * @param userId.
+ * @param gameId.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function removeGameFromCart(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
+    method: "DELETE",
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 400:
+        throw new BadRequest(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Adds a game to cart.
+ * @param userId.
+ * @param gameId.
+ * @throws {Unauthorized} Incorrect credentials.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function addGameToCart(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}

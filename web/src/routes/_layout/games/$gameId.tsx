@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 
@@ -11,10 +12,60 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+import { addGameToCart } from "@/lib/api";
+import { TokenMissing } from "@/lib/errors";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
 });
+
+function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
+  /**
+   * Adds a game to the cart.
+   */
+
+  const { toast } = useToast();
+
+  const mutation = useMutation({
+    async mutationFn() {
+      await addGameToCart(userId!, gameId);
+    },
+    onSuccess() {
+      toast({
+        variant: "success",
+        title: "Game Added!",
+        description: "The game was successfully added to your cart.",
+      });
+    },
+    onError(error) {
+      if (error instanceof TokenMissing) {
+        toast({
+          variant: "destructive",
+          title: "Log in to perform this action",
+        });
+        return;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Oops! An unexpected error occurred",
+        description: "Please try again later or contact the support team.",
+      });
+    },
+  });
+
+  function handleClick() {
+    mutation.mutate();
+  }
+
+  return (
+    <Button className="w-full text-lg py-6" onClick={handleClick}>
+      <ShoppingCart className="mr-2" />
+      Add to Cart
+    </Button>
+  );
+}
 
 function Component() {
   return (
@@ -74,7 +125,9 @@ function Component() {
                     <li>Storage: 50 GB available space</li>
                   </ul>
                 </div>
+                * Adds a game to the cart. */
                 <div>
+                  * Adds a game to the cart. */
                   <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                     Recommended
                   </h3>
@@ -102,10 +155,7 @@ function Component() {
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <Button className="w-full text-lg py-6">
-                <ShoppingCart />
-                Add to Cart
-              </Button>
+              <AddToCart gameId="TODO" userId="TODO" />
               <Tooltip>
                 <TooltipTrigger className="w-full">
                   <Button
