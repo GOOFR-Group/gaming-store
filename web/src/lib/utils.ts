@@ -17,14 +17,15 @@ export function cn(...classes: ClassValue[]) {
 /**
  * Formats a value into a currency format
  * @param value Value to be formatted.
+ * @param [tax=0] Value of the tax to be applied.
  * @returns Formatted value.
  */
-export function formatCurrency(value: number) {
+export function formatCurrency(value: number, tax: number = 0) {
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "EUR",
   });
-  return currencyFormat.format(value);
+  return currencyFormat.format(value * (1 + tax));
 }
 
 /**
