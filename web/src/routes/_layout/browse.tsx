@@ -75,11 +75,19 @@ const browseSearchSchema = z
 
 export type BrowseSearchSchemaType = z.infer<typeof browseSearchSchema>;
 
+/**
+ * Query options for retrieving the games in the browse page.
+ * @param search Search params.
+ * @returns Query options.
+ */
 function gamesQueryOptions(search: BrowseSearchSchemaType) {
+  const limit = PAGE_SIZE;
+  const offset = PAGE_SIZE * (search.page - 1);
+
   let filters: GamesFilters | RecommendedGamesFilters = {
     isActive: true,
-    limit: PAGE_SIZE,
-    offset: PAGE_SIZE * (search.page - 1),
+    limit,
+    offset,
   };
   if (search.sort) {
     filters.sort = search.sort;
@@ -120,10 +128,12 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
           if (payload.roles.includes("user")) {
             filters = {
               userId: payload.sub,
+              limit,
+              offset,
             };
           }
         } catch {
-          /* empty */
+          // Ignore the error if the user is not signed in.
         }
         break;
       }
@@ -314,6 +324,12 @@ function NoResults(props: { title: string; description: string }) {
   );
 }
 
+/**
+ * Hook that handles the data logic of the browse page.
+ * @param paginatedGames Paginated games
+ * @param search Browse search params.
+ * @returns Browse page state.
+ */
 function useBrowse(
   paginatedGames: PaginatedGames,
   search: BrowseSearchSchemaType,
@@ -321,18 +337,26 @@ function useBrowse(
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
 
-  async function filterByTitle(title: string) {
+  /**
+   * Filters games by game title.
+   * @param title Game title.
+   */
+  async function filterByTitle(title: BrowseSearchSchemaType["title"]) {
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.set("page", "1");
     searchParams.delete("quickFilter");
-    searchParams.set("title", encodeURIComponent(title));
+    searchParams.set("title", encodeURIComponent(title ?? ""));
 
     updateSearchParams(searchParams);
 
     await queryClient.invalidateQueries({ queryKey: gamesQueryKey() });
   }
 
-  async function filterByTag(tag?: string) {
+  /**
+   * Filters games by tag.
+   * @param tag Tag. When undefined, existing selected tags are cleared.
+   */
+  async function filterByTag(tag: string | undefined) {
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.set("page", "1");
     searchParams.delete("quickFilter");
@@ -352,7 +376,11 @@ function useBrowse(
     await queryClient.invalidateQueries({ queryKey: gamesQueryKey() });
   }
 
-  async function filterByPrice(price?: BrowseSearchSchemaType["price"]) {
+  /**
+   * Filters games by price.
+   * @param price Price filter.
+   */
+  async function filterByPrice(price: BrowseSearchSchemaType["price"]) {
     await navigate({
       search(prev) {
         return {
@@ -365,8 +393,12 @@ function useBrowse(
     });
   }
 
+  /**
+   * Filters games by a quick filter.
+   * @param quickFilter Quick filter.
+   */
   async function filterByQuickFilter(
-    quickFilter?: BrowseSearchSchemaType["quickFilter"],
+    quickFilter: BrowseSearchSchemaType["quickFilter"],
   ) {
     await navigate({
       search() {
@@ -378,6 +410,11 @@ function useBrowse(
     });
   }
 
+  /**
+   * Sorts games by a given sort field and order..
+   * @param sort Sort field.
+   * @param order Order field.
+   */
   async function sortBy(
     sort: BrowseSearchSchemaType["sort"],
     order: BrowseSearchSchemaType["order"],
@@ -395,6 +432,10 @@ function useBrowse(
     });
   }
 
+  /**
+   * Fetches a given pagination page.
+   * @param page Pagination page.
+   */
   async function fetchPage(page: number) {
     await navigate({
       search(prev) {
@@ -406,15 +447,23 @@ function useBrowse(
     });
   }
 
+  /**
+   * Fetches the previous pagination page.
+   */
   async function fetchPreviousPage() {
     await fetchPage(search.page - 1);
   }
 
+  /**
+   * Fetches the next pagination page.
+   */
   async function fetchNextPage() {
     await fetchPage(search.page + 1);
   }
 
   useEffect(() => {
+    // Sets the user to the first page when the game available in the store are
+    // are less that the requested one's and the pagination page is greater that one.
     if (paginatedGames.total < PAGE_SIZE && search.page > 1) {
       void navigate({
         search(prev) {
