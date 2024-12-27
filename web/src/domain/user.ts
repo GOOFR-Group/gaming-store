@@ -59,7 +59,7 @@ export interface UserCredentials {
 /**
  * Represents the filters available for filtering the user cart.
  */
-export interface UserCartFilters {
+export interface UserCartGamesFilters {
   limit?: number;
   offset?: number;
   sort?: string;

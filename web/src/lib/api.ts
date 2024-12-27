@@ -21,7 +21,7 @@ import {
   EditableUser,
   NewUser,
   User,
-  UserCartFilters as UserCartGamesFilters,
+  UserCartGamesFilters,
   UserCredentials,
 } from "@/domain/user";
 

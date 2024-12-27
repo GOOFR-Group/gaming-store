@@ -33,7 +33,6 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
     },
     onSuccess() {
       toast({
-        variant: "success",
         title: "Game Added!",
         description: "The game was successfully added to your cart.",
       });

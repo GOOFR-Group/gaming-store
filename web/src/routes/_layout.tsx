@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getUser, getUserCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
+import { userNavbarQueryKey } from "@/lib/query-keys";
 import { cn, getInitials } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout")({
@@ -29,17 +29,19 @@ export const Route = createFileRoute("/_layout")({
  */
 function layoutQueryOptions() {
   return queryOptions({
-    queryKey: [...cartQueryKey, ...userQueryKey],
+    queryKey: userNavbarQueryKey,
     async queryFn() {
       try {
         const token = getToken();
         const payload = decodeTokenPayload(token);
 
         const userId = payload.sub;
-        const cart = await getUserCartGames(userId);
         const user = await getUser(userId);
+        const cart = await getUserCartGames(userId);
 
-        return { cart, user };
+        cart.total = 10;
+
+        return { user, cart };
       } catch {
         // Ignore the error since the user might not be signed in.
       }
@@ -112,16 +114,14 @@ function Component() {
                 <Link to="/cart">
                   <div className="relative">
                     <ShoppingCart className="size-5" />
-                    {!!data?.cart.games.length && (
+                    {!!data?.cart.total && (
                       <Badge
                         className={cn(
-                          "min-w-5 h-5 absolute p-0 -top-3 left-2 flex justify-center text-xs",
-                          { "px-1": data.cart.games.length > 10 },
+                          "min-w-5 h-5 absolute p-0 -top-3 left-2 justify-center text-xs hover:bg-primary",
+                          { "px-1": data.cart.total > 9 },
                         )}
                       >
-                        {data.cart.games.length > 99
-                          ? "99+"
-                          : data.cart.games.length}
+                        {data.cart.total > 99 ? "99+" : data.cart.total}
                       </Badge>
                     )}
                   </div>

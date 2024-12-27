@@ -40,7 +40,7 @@ import {
 } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { userQueryKey } from "@/lib/query-keys";
+import { userNavbarQueryKey, userQueryKey } from "@/lib/query-keys";
 import { cn, getCountryName } from "@/lib/utils";
 import { userAccountDetailsSchema } from "@/lib/zod";
 
@@ -145,13 +145,8 @@ function EditAccountDetails(props: {
       });
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({
-        predicate(query) {
-          return query.queryKey.some(
-            (queryKey) => queryKey === userQueryKey[0],
-          );
-        },
-      });
+      await queryClient.invalidateQueries({ queryKey: userQueryKey });
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
       props.onSave();
     },
     onError: withAuthErrors((error) => {
