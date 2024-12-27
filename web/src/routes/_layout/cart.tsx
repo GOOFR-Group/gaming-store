@@ -11,7 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TAX } from "@/lib/constants";
 import { cartQueryKey } from "@/lib/query-keys";
+import { formatCurrency } from "@/lib/utils";
 
 function cartQueryOptions() {
   return queryOptions({
@@ -47,8 +49,6 @@ function Component() {
   }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
-  const tax = subtotal * 0.1; // Assuming 10% tax
-  const total = subtotal + tax;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,7 +56,9 @@ function Component() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
-          <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
+          <span className="font-semibold">
+            {formatCurrency(accountBalance)}
+          </span>
         </div>
       </div>
       <div className="flex flex-wrap-reverse gap-8">
@@ -77,7 +79,7 @@ function Component() {
                       <p className="text-sm text-gray-300">{item.developer}</p>
                     </div>
                     <p className="text-lg font-semibold">
-                      €{item.price.toFixed(2)}
+                      {formatCurrency(item.price, TAX)}
                     </p>
                   </div>
                   <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
@@ -110,15 +112,15 @@ function Component() {
             <CardContent className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>€{subtotal.toFixed(2)}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax</span>
-                <span>€{tax.toFixed(2)}</span>
+                <span>Tax ({TAX * 100}%)</span>
+                <span>{formatCurrency(subtotal * TAX)}</span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>€{total.toFixed(2)}</span>
+                <span>{formatCurrency(subtotal, TAX)}</span>
               </div>
             </CardContent>
             <CardFooter>

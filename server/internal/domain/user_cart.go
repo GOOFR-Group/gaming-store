@@ -2,6 +2,10 @@ package domain
 
 import "errors"
 
+const (
+	Tax = 0.23 // Defines the tax applied to the user cart purchase. It represents a number between 0 and 1.
+)
+
 // User cart errors.
 var (
 	ErrUserCartGameAlreadyExists = errors.New("user cart game already exists") // Returned when a user cart game association already exists.
