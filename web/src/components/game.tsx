@@ -18,7 +18,7 @@ export function Game(props: {
         <p className="text-sm text-gray-300">
           {props.publisher || MISSING_VALUE_SYMBOL}
         </p>
-        <h3 className="text-xl font-semibold">
+        <h3 className="text-xl font-semibold line-clamp-2">
           {props.title || MISSING_VALUE_SYMBOL}
         </h3>
         <div className="mt-2 flex items-center gap-2 flex-wrap">

@@ -5,6 +5,7 @@ import {
   GamesFilters,
   NewGame,
   PaginatedGames,
+  RecommendedGamesFilters,
 } from "@/domain/game";
 import { CreateGameMultimedia } from "@/domain/game-multimedia";
 import { Jwt } from "@/domain/jwt";
@@ -391,10 +392,10 @@ export async function getGames(filters: GamesFilters) {
   if (filters.title) {
     searchParams.set("title", filters.title);
   }
-  if (filters.priceUnder) {
+  if (filters.priceUnder !== undefined) {
     searchParams.set("priceUnder", String(filters.priceUnder));
   }
-  if (filters.priceAbove) {
+  if (filters.priceAbove !== undefined) {
     searchParams.set("priceAbove", String(filters.priceAbove));
   }
   if (filters.isActive) {
@@ -413,6 +414,34 @@ export async function getGames(filters: GamesFilters) {
   }
 
   const response = await fetch(`/api/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
+
+  if (response.status >= 400) {
+    throw new InternalServerError();
+  }
+
+  const paginatedGames = (await response.json()) as PaginatedGames;
+
+  return paginatedGames;
+}
+
+/**
+ * Retrieves the recommended games.
+ * @param filters Filters.
+ * @returns Paginated recommended games.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getRecommendedGames(filters: RecommendedGamesFilters) {
+  const searchParams = new URLSearchParams({ userId: filters.userId });
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+
+  const response = await fetch(`/api/games/recommended?${searchParams}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
   });
 

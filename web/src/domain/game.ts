@@ -63,7 +63,16 @@ export interface GamesFilters {
   isActive?: boolean;
   releaseDateBefore?: string;
   releaseDateAfter?: string;
-  tagIds?: number[];
+  tagIds?: string[];
+}
+
+/**
+ * Represents the filters available for filtering recommended games.
+ */
+export interface RecommendedGamesFilters {
+  userId: string;
+  limit?: number;
+  offset?: number;
 }
 
 /**
