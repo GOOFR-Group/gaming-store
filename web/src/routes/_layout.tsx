@@ -17,7 +17,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getUser, getUserCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
@@ -72,7 +72,14 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link to="/browse">Browse</Link>
+                <Link
+                  to="/browse"
+                  search={{
+                    page: 1,
+                  }}
+                >
+                  Browse
+                </Link>
               </Button>
 
               <Button
@@ -181,7 +188,15 @@ function Component() {
           </div>
         </div>
       </header>
-      <Outlet />
+      <main
+        className={cn("px-4 pt-8 pb-20 md:px-6", {
+          "bg-gradient-to-br from-primary to-secondary":
+            location.pathname.includes("/signin") ||
+            location.pathname.includes("/register"),
+        })}
+      >
+        <Outlet />
+      </main>
       <footer className="w-full py-6 bg-gray-900">
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -189,15 +204,25 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" to="/browse">
+                  <Link
+                    className="hover:underline"
+                    to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "recommended",
+                    }}
+                  >
                     Featured & Recommended
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="hover:underline"
-                    search={{ sort: "releaseDate", order: "desc" }}
                     to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "upcoming-releases",
+                    }}
                   >
                     Upcoming Releases
                   </Link>
@@ -205,8 +230,11 @@ function Component() {
                 <li>
                   <Link
                     className="hover:underline"
-                    search={{ sort: "userCount", order: "desc" }}
                     to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "best-sellers",
+                    }}
                   >
                     Best Sellers
                   </Link>

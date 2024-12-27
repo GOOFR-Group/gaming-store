@@ -145,7 +145,7 @@ func (s *store) DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameI
 
 // PurchaseUserCart executes a query to delete all the user cart games and insert them in the user library with the
 // specified identifier. It also stores an invoice for the purchased games.
-func (s *store) PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error {
+func (s *store) PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, tax float64) error {
 	_, err := tx.Exec(ctx, `
 		WITH purchasing_user AS (
 			SELECT id, vatin
@@ -170,11 +170,12 @@ func (s *store) PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUI
 			(SELECT id FROM invoice),
 			game_id,
 			(SELECT price FROM games WHERE id = game_id),
-			0,
+			$2,
 			(SELECT vatin FROM publishers WHERE id = (SELECT publisher_id FROM games WHERE id = game_id))
 		FROM purchased_games
 	`,
 		userID,
+		tax,
 	)
 	if err != nil {
 		switch constraintNameFromError(err) {

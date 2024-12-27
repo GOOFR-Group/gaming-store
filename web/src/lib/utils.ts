@@ -17,14 +17,15 @@ export function cn(...classes: ClassValue[]) {
 /**
  * Formats a value into a currency format
  * @param value Value to be formatted.
+ * @param [tax=0] Value of the tax to be applied.
  * @returns Formatted value.
  */
-export function formatCurrency(value: number) {
+export function formatCurrency(value: number, tax: number = 0) {
   const currencyFormat = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "EUR",
   });
-  return currencyFormat.format(value);
+  return currencyFormat.format(value * (1 + tax));
 }
 
 /**
@@ -106,4 +107,78 @@ export function getMultimediaName(
   }
 
   return multimedia.file.name;
+}
+
+/**
+ * Retrieves the list of the pages to display in the table pagination.
+ * @param pages Pagination pages.
+ * @param pageIndex Page index.
+ * @param [size=5] Size of visible pages.
+ * @returns List of the pages to display in the table pagination.
+ */
+export function getVisiblePages(
+  pages: number[],
+  pageIndex: number,
+  size: number = 5,
+): number[] {
+  const half = Math.floor(size / 2);
+
+  const remainderRightSide =
+    half - Math.min(half, pages.length - 1 - pageIndex);
+  const remainderLeftSide = Math.max(0, half - pageIndex);
+
+  const startIndex = Math.max(0, pageIndex - half - remainderRightSide);
+  const endIndex = Math.min(
+    pages.length - 1,
+    pageIndex + half + remainderLeftSide,
+  );
+
+  return pages.slice(startIndex, endIndex + 1);
+}
+
+/**
+ * Updates the current URL with new search params.
+ * @param searchParams Search params to be set in the URL.
+ */
+export function updateSearchParams(searchParams: URLSearchParams) {
+  const url = new URL(window.location.href);
+
+  url.search = searchParams.toString();
+
+  window.history.pushState(null, "", url);
+}
+
+/**
+ * Debounces a given callback with a given time.
+ * @template TCallback Type of the callback function.
+ * @param callback Callback after the debounce.
+ * @param [waitFor=100] Number of milliseconds to wait for the debounce.
+ * @returns Debounced callback.
+ */
+export function debounce<
+  TCallback extends (...args: Parameters<TCallback>) => ReturnType<TCallback>,
+>(callback: TCallback, waitFor: number = 100) {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<TCallback>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => callback(...args), waitFor);
+  };
+}
+
+/**
+ * Calculates a hash of a file using the SHA-256 algorithm.
+ * @param file File.
+ * @returns SHA-256 hash.
+ */
+export async function calculateHash(file: File) {
+  const buffer = await file.arrayBuffer();
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  return hashHex;
 }

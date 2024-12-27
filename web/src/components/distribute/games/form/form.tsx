@@ -67,12 +67,14 @@ import {
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import {
   LANGUAGES,
+  MAX_MULTIMEDIA_FILE_SIZE,
   MISSING_VALUE_SYMBOL,
+  TAX,
   TOAST_MESSAGES,
 } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { cn, getMultimediaName } from "@/lib/utils";
+import { calculateHash, cn, getMultimediaName } from "@/lib/utils";
 
 import { GamePreview } from "../game-preview";
 import { MultimediaUploadList } from "./multimedia-uploader";
@@ -271,7 +273,7 @@ export function GameForm(props: GameProps) {
       if (props.mode === "add") {
         const newGame: NewGame = {
           title: data.title,
-          price: data.price,
+          price: data.price / (1 + TAX),
           isActive: data.isActive,
           description: data.description,
           ageRating: data.ageRating,
@@ -325,7 +327,7 @@ export function GameForm(props: GameProps) {
 
       const editableGame: EditableGame = {
         title: data.title,
-        price: data.price,
+        price: data.price / (1 + TAX),
         isActive: data.isActive,
         description: data.description,
         ageRating: data.ageRating,
@@ -898,15 +900,59 @@ export function GameForm(props: GameProps) {
                   name={name}
                   value={value}
                   onBlur={onBlur}
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const files = Array.from(e.target.files ?? []);
                     const updatedMultimedia = [...form.getValues("multimedia")];
 
+                    let filesExceedSize = 0;
+                    let duplicatedFiles = 0;
+
                     for (let i = 0; i < files.length; i++) {
                       const file = files[i];
+
+                      if (file.size > MAX_MULTIMEDIA_FILE_SIZE) {
+                        filesExceedSize++;
+                        continue;
+                      }
+
+                      let isDuplicated = false;
+                      for (const multimedia of updatedMultimedia) {
+                        if ("url" in multimedia) {
+                          continue;
+                        }
+
+                        const sha256File = await calculateHash(file);
+                        const sha256Multimedia = await calculateHash(
+                          multimedia.file,
+                        );
+
+                        isDuplicated = sha256File === sha256Multimedia;
+                        if (isDuplicated) {
+                          break;
+                        }
+                      }
+
+                      if (isDuplicated) {
+                        duplicatedFiles++;
+                        continue;
+                      }
+
                       updatedMultimedia.push({
                         id: `${updatedMultimedia.length + i}`,
                         file,
+                      });
+                    }
+
+                    if (filesExceedSize > 0) {
+                      toast({
+                        variant: "destructive",
+                        title: `${filesExceedSize === files.length ? "Files" : "Some files"} could not be added because they exceed 20 MB`,
+                      });
+                    }
+                    if (duplicatedFiles > 0) {
+                      toast({
+                        variant: "destructive",
+                        title: `${duplicatedFiles === files.length ? "Files" : "Some files"} could not be added because they are already uploaded`,
                       });
                     }
 
