@@ -36,6 +36,7 @@ func (h *handler) ListUserGames(w http.ResponseWriter, r *http.Request, userID a
 
 		return
 	}
+
 	gamesPaginated := gamesPaginatedFromDomain(domainPaginatedGames)
 
 	responseBody, err := json.Marshal(gamesPaginated)
