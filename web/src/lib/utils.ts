@@ -164,3 +164,20 @@ export function debounce<
     timeout = setTimeout(() => callback(...args), waitFor);
   };
 }
+
+/**
+ * Calculates a hash of a file using the SHA-256 algorithm.
+ * @param file File.
+ * @returns SHA-256 hash.
+ */
+export async function calculateHash(file: File) {
+  const buffer = await file.arrayBuffer();
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  return hashHex;
+}
