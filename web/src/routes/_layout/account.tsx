@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
+import { Download, Gamepad2, Heart, List, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
@@ -23,6 +23,7 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getCountryName } from "@/lib/utils";
+import { PaginatedGames } from "@/domain/game";
 
 /**
  * Query options for retrieving the signed in user.
@@ -50,6 +51,41 @@ export const Route = createFileRoute("/_layout/account")({
     return opts.context.queryClient.ensureQueryData(userQueryOptions());
   },
 });
+
+function ListGamesLibrary(props: { library: PaginatedGames }) {
+  return <>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {props.library.games.map((game) => (
+        <div key={game.id}>
+          <Link href={`/games/${game.id}`}>
+            <img
+              alt="Game cover"
+              className="object-cover h-[400px] rounded-lg w-full"
+              src={game.previewMultimedia.url}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = "/images/game.jpg";
+              }}
+            />
+          </Link>
+          <div className="p-4 flex items-center justify-between flex-wrap">
+            <div>
+              <p className="text-sm text-gray-400">
+                {game.publisher.name}
+              </p>
+              <h3 className="text-xl font-semibold">{game.title}</h3>
+            </div>
+            <Button size="icon" variant="secondary">
+              <Download className="size-5" />
+              <span className="sr-only">Download</span>
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+}
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
@@ -105,36 +141,18 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {library.games.map((game) => (
-                  <div key={game.id}>
-                    <Link href={`/games/${game.id}`}>
-                      <img
-                        alt="Game cover"
-                        className="object-cover h-[400px] rounded-lg w-full"
-                        src={game.previewMultimedia.url}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.onerror = null;
-                          target.src = "/images/game.jpg";
-                        }}
-                      />
+              {library.games.length === 0 ?
+                <div className="mx-auto grid">
+                  <p className="text-center text-foreground text-2xl font-bold">
+                    Your library is empty
+                  </p>
+                  <p className="text-center text-muted-foreground mt-4">
+                    <Link to="/browse">
+                      <Button variant="outline">Browse Games</Button>
                     </Link>
-                    <div className="p-4 flex items-center justify-between flex-wrap">
-                      <div>
-                        <p className="text-sm text-gray-400">
-                          {game.publisher.name}
-                        </p>
-                        <h3 className="text-xl font-semibold">{game.title}</h3>
-                      </div>
-                      <Button size="icon" variant="secondary">
-                        <Download className="size-5" />
-                        <span className="sr-only">Download</span>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  </p>
+                </div>
+                : <ListGamesLibrary library={library} />}
             </TabsContent>
 
             <TabsContent className="mt-4" value="account">
