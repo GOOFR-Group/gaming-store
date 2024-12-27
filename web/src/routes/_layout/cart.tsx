@@ -1,6 +1,9 @@
-import { useState } from "react";
-
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
@@ -14,15 +17,17 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { deleteUserCartGame, getUser, getUserCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { TAX } from "@/lib/constants";
-import { cartQueryKey } from "@/lib/query-keys";
+import { TAX, TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
+import { cartQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency } from "@/lib/utils";
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their cart.
  * @returns Query options.
  */
-function userQueryOptions() {
+function cartQueryOptions() {
   return queryOptions({
     queryKey: cartQueryKey,
     async queryFn() {
@@ -31,9 +36,22 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
-      const cart = await getUserCartGames(userId);
 
-      return { user, cart };
+      let total = 0;
+      const games = await getBatchPaginatedResponse(async (limit, offset) => {
+        const paginatedGames = await getUserCartGames(userId, {
+          limit,
+          offset,
+        });
+        total = paginatedGames.total;
+
+        return {
+          items: paginatedGames.games,
+          total,
+        };
+      });
+
+      return { user, cart: { games, total } };
     },
   });
 }
@@ -41,45 +59,36 @@ function userQueryOptions() {
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
   async loader(opts) {
-    return opts.context.queryClient.ensureQueryData(userQueryOptions());
+    return opts.context.queryClient.ensureQueryData(cartQueryOptions());
   },
 });
 
 function Component() {
+  const queryClient = useQueryClient();
   const {
     data: { user, cart },
-  } = useSuspenseQuery(userQueryOptions()) || { user: null, cart: null };
+  } = useSuspenseQuery(cartQueryOptions());
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      await deleteUserCartGame(user.id, gameId);
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
 
-  const [cartItems, setCartItems] = useState(cart);
-  const accountBalance = user.balance;
-
-  async function removeItem(id: string) {
-    try {
-      setCartItems({
-        ...cartItems,
-        games: cartItems.games.filter((item) => item.id !== id),
-      });
-      await deleteUserCartGame(user.id, id);
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
-      return;
-    }
+  /**
+   * Removes a game from the user's cart.
+   * @param id Game ID.
+   */
+  function removeGame(id: string) {
+    mutation.mutate(id);
   }
 
-  function moveItemToWishlist(id: string) {
-    setCartItems({
-      ...cartItems,
-      games: cartItems.games.filter((item) => item.id !== id),
-    });
-  }
-
-  const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
-  const tax = subtotal * 0.1; // Assuming 10% tax
-  const total = subtotal + tax;
+  const subtotal = cart.games.reduce((sum, item) => sum + item.price, 0);
 
   return (
     <div className="container mx-auto">
@@ -87,57 +96,47 @@ function Component() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
-          <span className="font-semibold">
-            {formatCurrency(accountBalance)}
-          </span>
+          <span className="font-semibold">{formatCurrency(user.balance)}</span>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-4">
-          {cartItems.games.map((item) => (
-            <Card key={item.id}>
-              <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
-                <img
-                  alt={item.title}
-                  className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
-                  src={item.previewMultimedia.url}
-                  width={100}
-                />
-                <div className="flex-grow flex flex-col justify-between">
-                  <div className="flex flex-wrap justify-between items-start">
-                    <div>
-                      <h2 className="text-lg font-semibold">{item.title}</h2>
-                      <p className="text-sm text-muted-foreground">
-                        {item.publisher.name}
+          {cart.total > 0 ? (
+            cart.games.map((game) => (
+              <Card key={game.id}>
+                <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
+                  <img
+                    alt={game.title}
+                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
+                    src={game.previewMultimedia.url}
+                    width={100}
+                  />
+                  <div className="flex-grow flex flex-col justify-between">
+                    <div className="flex flex-wrap justify-between items-start">
+                      <div>
+                        <h2 className="text-lg font-semibold">{game.title}</h2>
+                        <p className="text-sm text-muted-foreground">
+                          {game.publisher.name}
+                        </p>
+                      </div>
+                      <p className="text-lg font-semibold">
+                        {formatCurrency(game.price, TAX)}
                       </p>
                     </div>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(item.price, TAX)}
-                    </p>
+                    <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
+                      <Button
+                        aria-label={`Remove ${game.title} from cart`}
+                        variant="ghost"
+                        onClick={() => removeGame(game.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
-                    <Button
-                      aria-label={`Remove ${item.title} from cart`}
-                      variant="ghost"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Remove
-                    </Button>
-
-                    <Button
-                      disabled
-                      aria-label={`Move ${item.title} to wishlist`}
-                      variant="ghost"
-                      onClick={() => moveItemToWishlist(item.id)}
-                    >
-                      Move to wishlist
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          {cartItems.games.length === 0 && (
+                </CardContent>
+              </Card>
+            ))
+          ) : (
             <p className="text-center text-muted-foreground mt-8">
               Your cart is empty.
             </p>
@@ -154,20 +153,16 @@ function Component() {
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax</span>
-                <span>{formatCurrency(tax)}</span>
+                <span>Tax ({TAX * 100}%)</span>
+                <span>{formatCurrency(subtotal * TAX)}</span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>{formatCurrency(total)}</span>
+                <span>{formatCurrency(subtotal, TAX)}</span>
               </div>
             </CardContent>
             <CardFooter>
-              <Button
-                asChild
-                className="w-full"
-                disabled={cartItems.games.length === 0}
-              >
+              <Button asChild className="w-full" disabled={!cart.total}>
                 <Link className="w-full">Proceed to Checkout</Link>
               </Button>
             </CardFooter>
