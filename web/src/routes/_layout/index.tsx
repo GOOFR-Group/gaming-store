@@ -121,7 +121,14 @@ function Component() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild className="tracking-wider">
-                    <Link to="/browse">Shop Now</Link>
+                    <Link
+                      to="/browse"
+                      search={{
+                        page: 1,
+                      }}
+                    >
+                      Shop Now
+                    </Link>
                   </Button>
                   <Button asChild className="tracking-wider" variant="outline">
                     <a href="#recommended">View Recommended Games</a>
@@ -142,22 +149,29 @@ function Component() {
           id="recommended"
           title="Featured & Recommended"
           to="/browse"
+          search={{
+            quickFilter: "recommended",
+          }}
         />
 
         <Section
           games={homeGames.upcomingReleases.games}
           id="upcoming-releases"
-          search={{ sort: "releaseDate", order: "desc" }}
           title="Upcoming Releases"
           to="/browse"
+          search={{
+            quickFilter: "upcoming-releases",
+          }}
         />
 
         <Section
           games={homeGames.bestSellers.games}
           id="best-sellers"
-          search={{ sort: "userCount", order: "desc" }}
           title="Best Sellers"
           to="/browse"
+          search={{
+            quickFilter: "best-sellers",
+          }}
         />
 
         <section className="w-full py-6 px-6">
@@ -173,7 +187,13 @@ function Component() {
                 disabled={!genreIds[genre.label]}
                 variant="outline"
               >
-                <Link search={{ tags: genreIds[genre.label] }} to="/browse">
+                <Link
+                  to="/browse"
+                  search={{
+                    page: 1,
+                    tags: genreIds[genre.label],
+                  }}
+                >
                   <div
                     className="size-[10vw] sm:size-16 absolute -left-3 sm:bottom-0 bottom-1/2 sm:translate-y-0 translate-y-1/2 bg-contain bg-no-repeat group-hover:brightness-90"
                     style={{
@@ -196,7 +216,7 @@ function Section(props: {
   title: string;
   games: GameDomain[];
   to: LinkProps["to"];
-  search?: Record<string, string>;
+  search?: LinkProps["search"];
 }) {
   return (
     <section className="w-full py-6 px-6" id={props.id}>

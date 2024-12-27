@@ -109,12 +109,15 @@ function Component() {
               <Tooltip>
                 <TooltipTrigger className="w-full">
                   <Button
+                    asChild
                     disabled
                     className="w-full text-lg py-6 mt-2"
                     variant="secondary"
                   >
-                    <Heart />
-                    Add to Wishlist
+                    <span>
+                      <Heart />
+                      Add to Wishlist
+                    </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">

@@ -429,16 +429,19 @@ export async function getGames(filters: GamesFilters) {
 /**
  * Retrieves the recommended games.
  * @param filters Filters.
- * @returns Paginated recommended games.
+ * @returns Paginated games.
  * @throws {InternalServerError} Server internal error.
  */
 export async function getRecommendedGames(filters: RecommendedGamesFilters) {
-  const searchParams = new URLSearchParams({ userId: filters.userId });
+  const searchParams = new URLSearchParams();
   if (filters.limit) {
     searchParams.set("limit", String(filters.limit));
   }
   if (filters.offset) {
     searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.userId) {
+    searchParams.set("userId", filters.userId);
   }
 
   const response = await fetch(`/api/games/recommended?${searchParams}`, {

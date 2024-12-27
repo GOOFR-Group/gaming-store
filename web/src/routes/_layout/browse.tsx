@@ -431,7 +431,8 @@ function useBrowse(
       search.page > 1 ||
       search.title ||
       search.tags ||
-      search.title
+      search.quickFilter ||
+      search.price !== undefined
     ),
 
     pages:

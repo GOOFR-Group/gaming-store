@@ -70,15 +70,6 @@ export interface GamesFilters {
  * Represents the filters available for filtering recommended games.
  */
 export interface RecommendedGamesFilters {
-  userId: string;
-  limit?: number;
-  offset?: number;
-}
-
-/**
- * Represents the filters available for filtering recommended games.
- */
-export interface RecommendedGamesFilters {
   limit?: number;
   offset?: number;
   userId?: string;
