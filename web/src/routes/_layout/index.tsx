@@ -1,5 +1,6 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, LinkProps } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 
 import { Game } from "@/components/game";
@@ -42,7 +43,8 @@ function homeGamesQueryOptions() {
             limit: 6,
             isActive: true,
             sort: "releaseDate",
-            order: "desc",
+            order: "asc",
+            releaseDateAfter: format(new Date(), "yyyy-MM-dd"),
           }),
           getGames({
             limit: 6,
