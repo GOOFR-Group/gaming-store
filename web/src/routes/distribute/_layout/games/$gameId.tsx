@@ -117,8 +117,8 @@ function Component() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="grid grid-cols-2 w-fit gap-2">
             <div>
-              <h3 className="font-semibold mb-1"> Price </h3>
-              <p> {formatCurrency(game.price, TAX)} </p>
+              <h3 className="font-semibold mb-1">Price</h3>
+              <p>{formatCurrency(game.price, TAX)}</p>
             </div>
             <div>
               <h3 className="font-semibold mb-1 text-muted-foreground">
