@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_layout")({
  * Query options for retrieving the signed in user and their cart.
  * @returns Query options.
  */
-function layoutQueryOptions() {
+function userNavbarQueryOptions() {
   return queryOptions({
     queryKey: userNavbarQueryKey,
     async queryFn() {
@@ -38,8 +38,6 @@ function layoutQueryOptions() {
         const userId = payload.sub;
         const user = await getUser(userId);
         const cart = await getUserCartGames(userId);
-
-        cart.total = 10;
 
         return { user, cart };
       } catch {
@@ -53,7 +51,7 @@ function Component() {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const { data } = useSuspenseQuery(layoutQueryOptions());
+  const { data } = useSuspenseQuery(userNavbarQueryOptions());
 
   return (
     <div className="overflow-auto">
