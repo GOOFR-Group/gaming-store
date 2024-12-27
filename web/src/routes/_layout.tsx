@@ -125,24 +125,32 @@ function Component() {
         </div>
       </header>
       <Outlet />
-      <footer className="w-full py-6">
+      <footer className="w-full py-6 bg-gray-900">
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link className="hover:underline" to="/browse">
                     Featured & Recommended
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link
+                    className="hover:underline"
+                    search={{ sort: "releaseDate", order: "desc" }}
+                    to="/browse"
+                  >
                     Upcoming Releases
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline" href="#">
+                  <Link
+                    className="hover:underline"
+                    search={{ sort: "userCount", order: "desc" }}
+                    to="/browse"
+                  >
                     Best Sellers
                   </Link>
                 </li>

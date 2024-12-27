@@ -5,6 +5,7 @@ import {
   GamesFilters,
   NewGame,
   PaginatedGames,
+  RecommendedGamesFilters,
 } from "@/domain/game";
 import { CreateGameMultimedia } from "@/domain/game-multimedia";
 import { Jwt } from "@/domain/jwt";
@@ -413,6 +414,37 @@ export async function getGames(filters: GamesFilters) {
   }
 
   const response = await fetch(`/api/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+  });
+
+  if (response.status >= 400) {
+    throw new InternalServerError();
+  }
+
+  const paginatedGames = (await response.json()) as PaginatedGames;
+
+  return paginatedGames;
+}
+
+/**
+ * Retrieves the recommended games.
+ * @param filters Filters.
+ * @returns Paginated games.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getRecommendedGames(filters: RecommendedGamesFilters) {
+  const searchParams = new URLSearchParams();
+  if (filters.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters.userId) {
+    searchParams.set("userId", filters.userId);
+  }
+
+  const response = await fetch(`/api/games/recommended?${searchParams}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
   });
 
