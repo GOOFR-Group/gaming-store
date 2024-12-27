@@ -181,7 +181,7 @@ export async function getUserGames(
     }
   }
 
-  const user = (await response.json()) as GameList;
+  const user = (await response.json()) as PaginatedGames;
 
   return user;
 }
