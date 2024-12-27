@@ -945,13 +945,13 @@ export function GameForm(props: GameProps) {
                     if (filesExceedSize > 0) {
                       toast({
                         variant: "destructive",
-                        title: `${filesExceedSize === files.length ? "Files" : "Some files"} could not be uploaded because they exceed 20 MB`,
+                        title: `${filesExceedSize === files.length ? "Files" : "Some files"} could not be added because they exceed 20 MB`,
                       });
                     }
                     if (duplicatedFiles > 0) {
                       toast({
                         variant: "destructive",
-                        title: `${duplicatedFiles === files.length ? "Files" : "Some files"} could not be uploaded because they are already uploaded`,
+                        title: `${duplicatedFiles === files.length ? "Files" : "Some files"} could not be added because they are already uploaded`,
                       });
                     }
 
