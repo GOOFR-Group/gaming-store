@@ -35,7 +35,7 @@ import { getBatchPaginatedResponse } from "@/lib/request";
 import { debounce, getVisiblePages, updateSearchParams } from "@/lib/utils";
 
 const VISIBLE_PAGES = 3;
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 16;
 
 const browseSearchSchema = z
   .object({
@@ -254,7 +254,7 @@ function Component() {
               title="No games were found"
             />
           ) : (
-            <div className="flex-1 grid grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,12rem))] gap-6 *:mx-auto">
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 *:mx-auto">
               {games.map((game) => (
                 <Link
                   key={game.id}
