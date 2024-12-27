@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { Toaster } from "@/components/ui/toaster";
+import { withAuthErrors } from "@/lib/middleware";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -24,6 +25,9 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
   component: RootComponent,
+  errorComponent(props) {
+    withAuthErrors()(props.error);
+  },
 });
 
 function RootComponent() {
@@ -31,8 +35,8 @@ function RootComponent() {
     <Suspense>
       <ScrollRestoration />
       <Outlet />
-      <ReactQueryDevtools buttonPosition="bottom-right" />
-      <TanStackRouterDevtools position="bottom-right" />
+      <ReactQueryDevtools buttonPosition="bottom-left" />
+      <TanStackRouterDevtools position="bottom-left" />
       <Toaster />
     </Suspense>
   );

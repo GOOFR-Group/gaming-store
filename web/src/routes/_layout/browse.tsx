@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Game } from "@/components/game";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import { gamesQueryKey } from "@/lib/query-keys";
 
 function gamesQueryOptions() {
   return queryOptions({
-    queryKey: gamesQueryKey,
+    queryKey: gamesQueryKey(),
     queryFn() {
       return Array.from({ length: 5 }, (_, idx) => {
         return {
@@ -64,7 +64,7 @@ function Component() {
           <div>
             <Label className="mb-2 block">Genre</Label>
             <div className="flex flex-wrap gap-2">
-              {["All", "Action", "RPG", "Strategy", "Sports", "Puzzle"].map(
+              {["All", "Action", "RPG", "Strategy", "Sport", "Puzzle"].map(
                 (genre) => (
                   <button
                     key={genre}
@@ -115,13 +115,18 @@ function Component() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.map((game) => (
-              <Game
+              <Link
                 key={game.title}
-                image={game.image}
-                price={game.price}
-                publisher={game.publisher}
-                title={game.title}
-              />
+                params={{ gameId: "1" }}
+                to="/games/$gameId"
+              >
+                <Game
+                  image={game.image}
+                  price={game.price}
+                  publisher={game.publisher}
+                  title={game.title}
+                />
+              </Link>
             ))}
           </div>
 

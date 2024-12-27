@@ -10,6 +10,7 @@ ignoreWords:
   - Cabo
   - Caicos
   - Castagnoli93
+  - cloudrun
   - cmdk
   - Côte
   - Cunha
@@ -26,6 +27,7 @@ ignoreWords:
   - ihttp
   - ILIKE
   - iobjectStore
+  - ismtp
   - isready
   - Kitts
   - ldflags

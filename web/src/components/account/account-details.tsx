@@ -2,21 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@radix-ui/react-select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -30,16 +18,33 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
-import { COUNTRIES } from "@/lib/constants";
+import {
+  COUNTRIES,
+  MISSING_VALUE_SYMBOL,
+  TOAST_MESSAGES,
+} from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
 import { userQueryKey } from "@/lib/query-keys";
-import { cn } from "@/lib/utils";
-import { accountDetailsSchema } from "@/lib/zod";
+import { cn, getCountryName } from "@/lib/utils";
+import { userAccountDetailsSchema } from "@/lib/zod";
 
-export function AccountDetails(props: { user: User; country: string }) {
+export function AccountDetails(props: { user: User }) {
   const [isEditMode, setEditMode] = useState(false);
 
   if (isEditMode) {
@@ -53,19 +58,11 @@ export function AccountDetails(props: { user: User; country: string }) {
   }
 
   return (
-    <ViewAccountDetails
-      country={props.country}
-      user={props.user}
-      onEdit={() => setEditMode(true)}
-    />
+    <ViewAccountDetails user={props.user} onEdit={() => setEditMode(true)} />
   );
 }
 
-function ViewAccountDetails(props: {
-  user: User;
-  country: string;
-  onEdit: () => void;
-}) {
+function ViewAccountDetails(props: { user: User; onEdit: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex h-10 justify-between items-center mb-4">
@@ -97,10 +94,12 @@ function ViewAccountDetails(props: {
         </div>
         <div>
           <p className="text-sm font-medium text-muted-foreground">Country</p>
-          <p className="text-lg">{props.country}</p>
+          <p className="text-lg">
+            {getCountryName(props.user.country) ?? MISSING_VALUE_SYMBOL}
+          </p>
         </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">VAT</p>
+          <p className="text-sm font-medium text-muted-foreground">VAT No.</p>
           <p className="text-lg">{props.user.vatin}</p>
         </div>
       </div>
@@ -112,7 +111,7 @@ function ViewAccountDetails(props: {
   );
 }
 
-type AccountDetailsSchemaType = z.infer<typeof accountDetailsSchema>;
+type AccountDetailsSchemaType = z.infer<typeof userAccountDetailsSchema>;
 
 function EditAccountDetails(props: {
   user: User;
@@ -121,7 +120,7 @@ function EditAccountDetails(props: {
 }) {
   const queryClient = useQueryClient();
   const form = useForm<AccountDetailsSchemaType>({
-    resolver: zodResolver(accountDetailsSchema),
+    resolver: zodResolver(userAccountDetailsSchema),
     defaultValues: {
       username: props.user.username,
       email: props.user.email,
@@ -149,7 +148,7 @@ function EditAccountDetails(props: {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
       props.onSave();
     },
-    onError(error) {
+    onError: withAuthErrors((error) => {
       if (error instanceof Conflict) {
         switch (error.code) {
           case "user_username_already_exists":
@@ -161,18 +160,14 @@ function EditAccountDetails(props: {
             break;
 
           case "user_vatin_already_exists":
-            form.setError("vatin", { message: "VAT already exists" });
+            form.setError("vatin", { message: "VAT No. already exists" });
             break;
         }
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
-    },
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
   });
 
   /**
@@ -212,11 +207,7 @@ function EditAccountDetails(props: {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter your email"
-                      type="email"
-                      {...field}
-                    />
+                    <Input placeholder="Enter your email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -289,7 +280,7 @@ function EditAccountDetails(props: {
                   >
                     <FormControl>
                       <SelectTrigger className="border-input">
-                        <SelectValue placeholder="Select a country" />
+                        <SelectValue placeholder="Select your country" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -312,9 +303,13 @@ function EditAccountDetails(props: {
               name="vatin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT</FormLabel>
+                  <FormLabel>VAT No.</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your VAT" {...field} />
+                    <Input
+                      maxLength={9}
+                      placeholder="Enter your VAT No."
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -337,10 +332,11 @@ function EditAccountDetails(props: {
           />
 
           <div className="flex w-full justify-end items-center gap-2 mt-4">
-            <Button variant="ghost" onClick={props.onCancel}>
+            <Button type="reset" variant="ghost" onClick={props.onCancel}>
               Cancel
             </Button>
             <Button disabled={mutation.isPending} type="submit">
+              {mutation.isPending && <LoaderCircle className="animate-spin" />}
               Save
             </Button>
           </div>

@@ -12,6 +12,7 @@ import (
 
 	"github.com/goofr-group/gaming-store/server/internal/authn"
 	"github.com/goofr-group/gaming-store/server/internal/authz"
+	ismtp "github.com/goofr-group/gaming-store/server/internal/client/smtp"
 	"github.com/goofr-group/gaming-store/server/internal/config"
 	"github.com/goofr-group/gaming-store/server/internal/logging"
 	"github.com/goofr-group/gaming-store/server/internal/service"
@@ -91,6 +92,15 @@ func main() {
 		objectStore = iobjectStore.NewNOOP()
 	}
 
+	// Set up smtp client.
+	var smtp service.SMTP
+
+	if serviceConfig.SMTP.Enabled {
+		smtp = ismtp.New(serviceConfig.SMTP)
+	} else {
+		smtp = ismtp.NewNOOP()
+	}
+
 	// Set up authentication service.
 	jwtSigningKey, ok := os.LookupEnv(envKeyJWTSigningKey)
 	if !ok {
@@ -103,7 +113,7 @@ func main() {
 	authzService := authz.New(ihttp.AuthzRoles, authnService)
 
 	// Set up service.
-	service := service.New(authnService, dataStore, objectStore)
+	service := service.New(authnService, dataStore, objectStore, smtp)
 
 	// Handle signals.
 	sigs := make(chan os.Signal, 1)

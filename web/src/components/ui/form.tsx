@@ -87,8 +87,10 @@ FormItem.displayName = "FormItem";
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    optional?: boolean;
+  }
+>(({ className, children, optional = false, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -97,7 +99,14 @@ const FormLabel = React.forwardRef<
       className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
-    />
+    >
+      {children}
+      {optional && (
+        <span className="ml-2 text-muted-foreground italic text-xs">
+          Optional
+        </span>
+      )}
+    </Label>
   );
 });
 FormLabel.displayName = "FormLabel";
@@ -127,12 +136,13 @@ FormControl.displayName = "FormControl";
 
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLParagraphElement> & { asChild?: boolean }
+>(({ className, asChild = false, ...props }, ref) => {
   const { formDescriptionId } = useFormField();
+  const Comp = asChild ? Slot : "p";
 
   return (
-    <p
+    <Comp
       ref={ref}
       className={cn("text-sm text-muted-foreground", className)}
       id={formDescriptionId}

@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Download, Gamepad2, UserIcon } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
@@ -18,10 +18,11 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUser, getUserGames } from "@/lib/api";
+import { UnderConstruction } from "@/components/under-construction";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES_MAP } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
  * Query options for retrieving the signed in user.
@@ -48,13 +49,6 @@ export const Route = createFileRoute("/_layout/account")({
   loader(opts) {
     return opts.context.queryClient.ensureQueryData(userQueryOptions());
   },
-  onError() {
-    redirect({
-      to: "/signin",
-      replace: true,
-      throw: true,
-    });
-  },
 });
 
 function Component() {
@@ -63,12 +57,8 @@ function Component() {
 
   const { user, library } = userQuery.data;
 
-  const country =
-    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? "-";
-
   return (
-    <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
+    <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen mb-20">
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -79,7 +69,9 @@ function Component() {
             />
             <div className="text-center sm:text-left">
               <CardTitle className="text-2xl">{user.displayName}</CardTitle>
-              <CardDescription>{country}</CardDescription>
+              <CardDescription>
+                {getCountryName(user.country) ?? MISSING_VALUE_SYMBOL}
+              </CardDescription>
             </div>
           </div>
           <div className="text-center sm:text-right">
@@ -97,7 +89,7 @@ function Component() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="library">
                 <Gamepad2 className="mr-2 h-4 w-4" />
                 Library
@@ -105,6 +97,10 @@ function Component() {
               <TabsTrigger value="account">
                 <UserIcon className="mr-2 h-4 w-4" />
                 Account
+              </TabsTrigger>
+              <TabsTrigger value="wishlist">
+                <Heart className="mr-2 h-4 w-4" />
+                Wishlist
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
@@ -116,7 +112,7 @@ function Component() {
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
-                        src={game.downloadMultimedia.url}
+                        src={game.previewMultimedia.url}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.onerror = null;
@@ -142,7 +138,11 @@ function Component() {
             </TabsContent>
 
             <TabsContent className="mt-4" value="account">
-              <AccountDetails country={country} user={user} />
+              <AccountDetails user={user} />
+            </TabsContent>
+
+            <TabsContent className="mt-4" value="wishlist">
+              <UnderConstruction />
             </TabsContent>
           </Tabs>
         </CardContent>

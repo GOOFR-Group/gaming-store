@@ -5,6 +5,8 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import { routeTree } from "./routeTree.gen";
 
 export const queryClient = new QueryClient();
@@ -26,13 +28,26 @@ declare module "@tanstack/react-router" {
   }
 }
 
+declare module "@tanstack/react-table" {
+  // Type parameters are still necessary since ColumnMeta requires identical type parameters.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData, TValue> {
+    /**
+     * Column name.
+     */
+    name: string;
+  }
+}
+
 const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <TooltipProvider delayDuration={0}>
+        <RouterProvider router={router} />
+      </TooltipProvider>
     </QueryClientProvider>,
   );
 }

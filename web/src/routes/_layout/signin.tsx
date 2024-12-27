@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
+import { TOAST_MESSAGES } from "@/lib/constants";
 import { Unauthorized } from "@/lib/errors";
 
 export const Route = createFileRoute("/_layout/signin")({
@@ -81,11 +82,7 @@ function Component() {
         return;
       }
 
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+      toast(TOAST_MESSAGES.unexpectedError);
     },
   });
 
@@ -98,7 +95,7 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
       <Card className="w-full max-w-md bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -143,19 +140,15 @@ function Component() {
                 )}
               />
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex items-center flex-col space-y-4">
               <Button
                 className="w-full text-primary-foreground font-semibold"
                 type="submit"
               >
                 Sign In
               </Button>
-              <Button
-                asChild
-                className="w-full text-primary-foreground font-semibold"
-                variant="secondary"
-              >
-                <Link to="/register">Register</Link>
+              <Button asChild variant="link">
+                <Link to="/register">Create account</Link>
               </Button>
             </CardFooter>
           </form>

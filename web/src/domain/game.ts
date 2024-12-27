@@ -1,44 +1,116 @@
 import { Multimedia } from "./multimedia";
+import { Publisher } from "./publisher";
+import { Tag } from "./tag";
 
 /**
- * Represents a multimedia resource of the store.
+ * Represents a game that is not announced.
  */
-export interface Game {
-  id: number;
-  ageRating: number;
-  createdAt: string;
-  description: string;
-  downloadMultimedia: Multimedia;
-  features: string;
-  isActive: boolean;
-  languages: string[];
-  modifiedAt: Date;
-  multimedia: Multimedia[];
-  previewMultimedia: Multimedia[];
-  price: number;
+interface ToBeAnnouncedGame {
+  id: string;
   publisher: Publisher;
-  releaseDate: Date;
-  requirements: string[];
-  tags: string[];
   title: string;
-}
-
-// ttemp
-interface Publisher {
-  address: string;
-  country: string;
-  createdAt: string; // ISO 8601 date string
-  email: string;
-  id: string; // UUID
-  modifiedAt: string; // ISO 8601 date string
-  name: string;
-  vatin: string; // VAT identification number
+  price: number;
+  isActive: boolean;
+  description: string;
+  ageRating: string;
+  features: string;
+  languages: string[];
+  requirements: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimedia: Multimedia;
+  downloadMultimedia?: Multimedia;
+  multimedia: Multimedia[];
+  tags: Tag[];
+  createdAt: string;
+  modifiedAt: string;
 }
 
 /**
- * Represents a multimedia resource of the store.
+ * Represents a game that is announced.
  */
-export interface GameList {
+interface AnnouncedGame extends ToBeAnnouncedGame {
+  releaseDate: string;
+  downloadMultimedia: Multimedia;
+}
+
+/**
+ * Represents a game.
+ */
+export type Game = AnnouncedGame | ToBeAnnouncedGame;
+
+/**
+ * Represents games with pagination.
+ */
+export interface PaginatedGames {
   games: Game[];
   total: number;
+}
+
+/**
+ * Represents the filters available for filtering games.
+ */
+export interface GamesFilters {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  order?: string;
+  publisherId?: string;
+  title?: string;
+  priceUnder?: number;
+  priceAbove?: number;
+  isActive?: boolean;
+  releaseDateBefore?: string;
+  releaseDateAfter?: string;
+  tagIds?: number[];
+}
+
+/**
+ * Represents the filters available for filtering recommended games.
+ */
+export interface RecommendedGamesFilters {
+  limit?: number;
+  offset?: number;
+  userId?: string;
+}
+
+/**
+ * Represents a new game.
+ */
+export interface NewGame {
+  title: string;
+  price: number;
+  isActive: boolean;
+  releaseDate?: string;
+  description: string;
+  ageRating: string;
+  features: string;
+  languages: string[];
+  requirements: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId: string;
+  downloadMultimediaId?: string;
+}
+
+/**
+ * Represents an editable game.
+ */
+export interface EditableGame {
+  title?: string;
+  price?: number;
+  isActive?: boolean;
+  releaseDate?: string;
+  description?: string;
+  ageRating?: string;
+  features?: string;
+  languages?: string[];
+  requirements?: {
+    minimum: string;
+    recommended: string;
+  };
+  previewMultimediaId?: string;
+  downloadMultimediaId?: string;
 }

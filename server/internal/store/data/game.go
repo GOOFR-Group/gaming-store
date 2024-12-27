@@ -128,7 +128,7 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 
 	var (
 		sortField          = "g.title"
-		sortFieldSecondary *string
+		sortFieldSecondary = "g.created_at DESC"
 	)
 
 	switch domainSortField {
@@ -140,8 +140,6 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 		sortField = "g.release_date"
 	case domain.GamePaginatedSortUserCount:
 		sortField = "count(ul.user_id)"
-		temp := "g.title"
-		sortFieldSecondary = &temp
 	}
 
 	rows, err := tx.Query(ctx, `
@@ -163,7 +161,7 @@ func (s *store) ListGames(ctx context.Context, tx pgx.Tx, filter domain.GamesPag
 			ON ul.game_id = g.id
 	`+sqlWhere+`
 		GROUP BY g.id, p.id, pm.id, gpm.id, gdm.id
-	`+listSQLOrder(sortField, filter.Order, sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset),
+	`+listSQLOrder(sortField, filter.Order, &sortFieldSecondary)+listSQLLimitOffset(filter.Limit, filter.Offset),
 		argsWhere...,
 	)
 	if err != nil {
@@ -207,7 +205,7 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 	argsWhere = append(argsWhere, true)
 
 	filterFields = append(filterFields, listSQLWhereOperatorGreaterThanEqual("g.release_date"))
-	argsWhere = append(argsWhere, time.Now().AddDate(-1, 0, 0))
+	argsWhere = append(argsWhere, time.Now().AddDate(-1, 0, 0).UTC())
 
 	if filter.UserID != nil {
 		rows, err := tx.Query(ctx, `
@@ -260,7 +258,8 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 	}
 
 	rows, err := tx.Query(ctx, `
-		SELECT g.id, g.title, g.price, g.is_active, g.release_date, g.description, g.age_rating, g.features, g.languages, g.requirements, g.created_at, g.modified_at,
+		SELECT DISTINCT ON (p.id) count(ul.user_id) OVER (PARTITION BY g.id) AS user_count,
+			g.id, g.title, g.price, g.is_active, g.release_date, g.description, g.age_rating, g.features, g.languages, g.requirements, g.created_at, g.modified_at,
 			p.id, p.email, p.name, p.address, p.country, p.vatin, p.created_at, p.modified_at,
 			pm.id, pm.checksum, pm.media_type, pm.url, pm.created_at,
 			gpm.id, gpm.checksum, gpm.media_type, gpm.url, gpm.created_at,
@@ -277,8 +276,7 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 		LEFT JOIN users_libraries ul
 			ON ul.game_id = g.id
 	`+sqlWhere+`
-		GROUP BY g.id, p.id, pm.id, gpm.id, gdm.id
-		ORDER BY count(ul.user_id) DESC, g.release_date DESC
+		ORDER BY p.id, user_count DESC, g.release_date DESC, g.created_at DESC
 	`+listSQLLimitOffset(filter.Limit, filter.Offset),
 		argsWhere...,
 	)
@@ -287,7 +285,7 @@ func (s *store) ListGamesRecommended(ctx context.Context, tx pgx.Tx, filter doma
 	}
 	defer rows.Close()
 
-	games, err := getGamesFromRows(rows)
+	games, err := getGamesRecommendedFromRows(rows)
 	if err != nil {
 		return domain.PaginatedResponse[domain.Game]{}, fmt.Errorf("%s: %w", descriptionFailedScanRows, err)
 	}
@@ -584,6 +582,114 @@ func getGamesFromRows(rows pgx.Rows) ([]domain.Game, error) {
 
 	for rows.Next() {
 		game, err := getGameFromRow(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		games = append(games, game)
+	}
+
+	return games, nil
+}
+
+// getGameRecommendedFromRow returns the recommended game by scanning the given row.
+func getGameRecommendedFromRow(row pgx.Row) (domain.Game, error) {
+	var (
+		userCount int
+		game      domain.Game
+
+		publisherPictureMultimediaID        *uuid.UUID
+		publisherPictureMultimediaChecksum  *uint32
+		publisherPictureMultimediaMediaType *string
+		publisherPictureMultimediaURL       *string
+		publisherPictureMultimediaCreatedAt *time.Time
+
+		gameDownloadMultimediaID        *uuid.UUID
+		gameDownloadMultimediaChecksum  *uint32
+		gameDownloadMultimediaMediaType *string
+		gameDownloadMultimediaURL       *string
+		gameDownloadMultimediaCreatedAt *time.Time
+	)
+
+	err := row.Scan(
+		&userCount,
+		&game.ID,
+		&game.Title,
+		&game.Price,
+		&game.IsActive,
+		&game.ReleaseDate,
+		&game.Description,
+		&game.AgeRating,
+		&game.Features,
+		&game.Languages,
+		&game.Requirements,
+		&game.CreatedAt,
+		&game.ModifiedAt,
+
+		&game.Publisher.ID,
+		&game.Publisher.Email,
+		&game.Publisher.Name,
+		&game.Publisher.Address,
+		&game.Publisher.Country,
+		&game.Publisher.Vatin,
+		&game.Publisher.CreatedAt,
+		&game.Publisher.ModifiedAt,
+
+		&publisherPictureMultimediaID,
+		&publisherPictureMultimediaChecksum,
+		&publisherPictureMultimediaMediaType,
+		&publisherPictureMultimediaURL,
+		&publisherPictureMultimediaCreatedAt,
+
+		&game.PreviewMultimedia.ID,
+		&game.PreviewMultimedia.Checksum,
+		&game.PreviewMultimedia.MediaType,
+		&game.PreviewMultimedia.URL,
+		&game.PreviewMultimedia.CreatedAt,
+
+		&gameDownloadMultimediaID,
+		&gameDownloadMultimediaChecksum,
+		&gameDownloadMultimediaMediaType,
+		&gameDownloadMultimediaURL,
+		&gameDownloadMultimediaCreatedAt,
+	)
+	if err != nil {
+		return domain.Game{}, err
+	}
+
+	if publisherPictureMultimediaID != nil {
+		game.Publisher.PictureMultimedia = &domain.Multimedia{
+			MultimediaObject: domain.MultimediaObject{
+				Checksum:  *publisherPictureMultimediaChecksum,
+				MediaType: *publisherPictureMultimediaMediaType,
+				URL:       *publisherPictureMultimediaURL,
+			},
+			ID:        *publisherPictureMultimediaID,
+			CreatedAt: *publisherPictureMultimediaCreatedAt,
+		}
+	}
+
+	if gameDownloadMultimediaID != nil {
+		game.DownloadMultimedia = &domain.Multimedia{
+			MultimediaObject: domain.MultimediaObject{
+				Checksum:  *gameDownloadMultimediaChecksum,
+				MediaType: *gameDownloadMultimediaMediaType,
+				URL:       *gameDownloadMultimediaURL,
+			},
+			ID:        *gameDownloadMultimediaID,
+			CreatedAt: *gameDownloadMultimediaCreatedAt,
+		}
+	}
+
+	return game, nil
+}
+
+// getGamesRecommendedFromRows returns the recommended games by scanning the given rows.
+func getGamesRecommendedFromRows(rows pgx.Rows) ([]domain.Game, error) {
+	var games []domain.Game
+
+	for rows.Next() {
+		game, err := getGameRecommendedFromRow(rows)
 		if err != nil {
 			return nil, err
 		}
