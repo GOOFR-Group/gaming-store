@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --port=3001",
-    "lint": "eslint . && prettier . --check --ignore-path ../.gitignore && tsc --noEmit",
+    "lint": "eslint . && prettier . --check --ignore-path ../.gitignore && tsc --project tsconfig.app.json --noEmit",
     "lint:fix": "eslint . --fix && prettier . --write --ignore-path ../.gitignore",
     "serve": "vite preview"
   },

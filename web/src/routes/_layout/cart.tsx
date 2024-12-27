@@ -57,7 +57,7 @@ function Component() {
         <div className="text-lg">
           Account Balance:{" "}
           <span className="font-semibold">
-            {formatCurrency(accountBalance, 0)}{" "}
+            {formatCurrency(accountBalance)}
           </span>
         </div>
       </div>
@@ -112,11 +112,11 @@ function Component() {
             <CardContent className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{formatCurrency(subtotal, 0)}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax ({TAX * 100}%)</span>
-                <span>{formatCurrency(subtotal * TAX, 0)}</span>
+                <span>{formatCurrency(subtotal * TAX)}</span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Total</span>

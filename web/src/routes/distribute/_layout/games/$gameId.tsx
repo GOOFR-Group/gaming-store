@@ -125,7 +125,7 @@ function Component() {
                 (Tax {TAX * 100}%)
               </h3>
               <p className="text-muted-foreground">
-                {formatCurrency(game.price, 0)}
+                {formatCurrency(game.price)}
               </p>
             </div>
           </div>
