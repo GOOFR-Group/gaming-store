@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, Heart, List, UserIcon } from "lucide-react";
+import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
@@ -17,13 +17,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getUser, getUserGames } from "@/lib/api";
 import { UnderConstruction } from "@/components/under-construction";
+import { PaginatedGames } from "@/domain/game";
+import { getUser, getUserGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getCountryName } from "@/lib/utils";
-import { PaginatedGames } from "@/domain/game";
 
 /**
  * Query options for retrieving the signed in user.
@@ -53,38 +53,38 @@ export const Route = createFileRoute("/_layout/account")({
 });
 
 function ListGamesLibrary(props: { library: PaginatedGames }) {
-  return <>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {props.library.games.map((game) => (
-        <div key={game.id}>
-          <Link href={`/games/${game.id}`}>
-            <img
-              alt="Game cover"
-              className="object-cover h-[400px] rounded-lg w-full"
-              src={game.previewMultimedia.url}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = "/images/game.jpg";
-              }}
-            />
-          </Link>
-          <div className="p-4 flex items-center justify-between flex-wrap">
-            <div>
-              <p className="text-sm text-gray-400">
-                {game.publisher.name}
-              </p>
-              <h3 className="text-xl font-semibold">{game.title}</h3>
+  return (
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {props.library.games.map((game) => (
+          <div key={game.id}>
+            <Link href={`/games/${game.id}`}>
+              <img
+                alt="Game cover"
+                className="object-cover h-[400px] rounded-lg w-full"
+                src={game.previewMultimedia.url}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = "/images/game.jpg";
+                }}
+              />
+            </Link>
+            <div className="p-4 flex items-center justify-between flex-wrap">
+              <div>
+                <p className="text-sm text-gray-400">{game.publisher.name}</p>
+                <h3 className="text-xl font-semibold">{game.title}</h3>
+              </div>
+              <Button size="icon" variant="secondary">
+                <Download className="size-5" />
+                <span className="sr-only">Download</span>
+              </Button>
             </div>
-            <Button size="icon" variant="secondary">
-              <Download className="size-5" />
-              <span className="sr-only">Download</span>
-            </Button>
           </div>
-        </div>
-      ))}
-    </div>
-  </>
+        ))}
+      </div>
+    </>
+  );
 }
 
 function Component() {
@@ -141,20 +141,19 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games </h3>
-              {library.games.length === 0 ?
+              {library.games.length === 0 ? (
                 <div className="mx-auto grid text-center">
                   <p className="text-muted-foreground">
                     Your library is empty, try&nbsp;
-                    <a
-                      className="text-primary hover:underline"
-                      href="/browse"
-                    >
+                    <a className="text-primary hover:underline" href="/browse">
                       purchasing some games
                     </a>
                     &nbsp;first.
                   </p>
                 </div>
-                : <ListGamesLibrary library={library} />}
+              ) : (
+                <ListGamesLibrary library={library} />
+              )}
             </TabsContent>
 
             <TabsContent className="mt-4" value="account">
