@@ -58,7 +58,7 @@ function cartQueryOptions() {
 
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
-  async loader(opts) {
+  loader(opts) {
     return opts.context.queryClient.ensureQueryData(cartQueryOptions());
   },
 });
@@ -162,7 +162,7 @@ function Component() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" disabled={!cart.total}>
+              <Button asChild disabled={!cart.total}>
                 <Link className="w-full">Proceed to Checkout</Link>
               </Button>
             </CardFooter>
