@@ -106,7 +106,7 @@ function Component() {
   });
 
   return (
-    <div className="flex flex-col items-center min-h-screen">
+    <div className="flex flex-col items-center">
       <div className="container flex-1">
         <section className="w-full py-12 md:py-24">
           <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">

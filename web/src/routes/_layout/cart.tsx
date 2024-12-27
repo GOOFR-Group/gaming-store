@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { getUser, getUserCart, removeGameFromCart } from "@/lib/api";
+import { deleteUserCartGame, getUser, getUserCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TAX } from "@/lib/constants";
 import { cartQueryKey } from "@/lib/query-keys";
@@ -31,7 +31,7 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
-      const cart = await getUserCart(userId);
+      const cart = await getUserCartGames(userId);
 
       return { user, cart };
     },
@@ -59,7 +59,7 @@ function Component() {
         ...cartItems,
         games: cartItems.games.filter((item) => item.id !== id),
       });
-      await removeGameFromCart(user.id, id);
+      await deleteUserCartGame(user.id, id);
     } catch {
       toast({
         variant: "destructive",

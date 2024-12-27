@@ -17,7 +17,13 @@ import {
   PublisherCredentials,
 } from "@/domain/publisher";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
-import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
+import {
+  EditableUser,
+  NewUser,
+  User,
+  UserCartFilters as UserCartGamesFilters,
+  UserCredentials,
+} from "@/domain/user";
 
 import { getToken } from "./auth";
 import {
@@ -811,21 +817,36 @@ export async function getTags(filters: TagFilters) {
 }
 
 /**
- * Retrieves the user's cart.
- * @param userId.
- * @throws {Unauthorized} Incorrect credentials.
+ * Retrieves the games of a given user's cart.
+ * @param userId User ID.
+ * @param [filters] User's cart filters.
+ * @returns Paginated games.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getUserCart(
+export async function getUserCartGames(
   userId: string,
-  sort: string = "createdAt",
-  order: string = "asc",
-  limit: string = "100",
+  filters?: UserCartGamesFilters,
 ) {
   const token = getToken();
 
+  const searchParams = new URLSearchParams();
+  if (filters?.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters?.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters?.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters?.order) {
+    searchParams.set("order", filters.order);
+  }
+
   const response = await fetch(
-    `/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
+    `/api/users/${userId}/cart/games?${searchParams}`,
     {
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
       headers: {
@@ -837,28 +858,71 @@ export async function getUserCart(
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
       default:
         throw new InternalServerError();
     }
   }
 
-  const cartGames = (await response.json()) as PaginatedGames;
+  const paginatedGames = (await response.json()) as PaginatedGames;
 
-  return cartGames;
+  return paginatedGames;
 }
 
 /**
- * Removes a game from cart.
- * @param userId.
- * @param gameId.
- * @throws {Unauthorized} Incorrect credentials.
+ * Creates a user cart game association.
+ * @param userId User ID.
+ * @param gameId Game ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User or game not found.
+ * @throws {Conflict} Association already exists, or the game is not active,
+ *                    or the game has not been released, or the user is not old
+ *                    enough to play the game, or the user already has the game
+ *                    in their library.
  * @throws {InternalServerError} Server internal error.
  */
-export async function removeGameFromCart(userId: string, gameId: string) {
+export async function createUserCartGame(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Deletes a user cart game association.
+ * @param userId User ID.
+ * @param gameId Game ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {Conflict} Association does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function deleteUserCartGame(userId: string, gameId: string) {
   const token = getToken();
 
   const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
@@ -872,40 +936,12 @@ export async function removeGameFromCart(userId: string, gameId: string) {
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-}
-
-/**
- * Adds a game to cart.
- * @param userId.
- * @param gameId.
- * @throws {Unauthorized} Incorrect credentials.
- * @throws {InternalServerError} Server internal error.
- */
-export async function addGameToCart(userId: string, gameId: string) {
-  const token = getToken();
-
-  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
-    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
       case 401:
         throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
       default:
         throw new InternalServerError();
     }

@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { getUser, getUserCart } from "@/lib/api";
+import { getUser, getUserCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
 import { cn, getInitials } from "@/lib/utils";
@@ -24,10 +24,10 @@ export const Route = createFileRoute("/_layout")({
 });
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their cart.
  * @returns Query options.
  */
-function cartQueryOptions() {
+function layoutQueryOptions() {
   return queryOptions({
     queryKey: [...cartQueryKey, ...userQueryKey],
     async queryFn() {
@@ -36,12 +36,12 @@ function cartQueryOptions() {
         const payload = decodeTokenPayload(token);
 
         const userId = payload.sub;
-        const cart = await getUserCart(userId);
+        const cart = await getUserCartGames(userId);
         const user = await getUser(userId);
 
         return { cart, user };
       } catch {
-        return null;
+        // Ignore the error since the user might not be signed in.
       }
     },
   });
@@ -51,8 +51,7 @@ function Component() {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const { data } = useSuspenseQuery(cartQueryOptions());
-  const { cart, user } = data || { cart: null, user: null };
+  const { data } = useSuspenseQuery(layoutQueryOptions());
 
   return (
     <div className="overflow-auto">
@@ -109,38 +108,47 @@ function Component() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
-              <Button asChild size="tiny" variant="ghost">
-                <Link href="/cart">
+              <Button asChild size="icon" variant="ghost">
+                <Link to="/cart">
                   <div className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cart && (
-                      <Badge className="w-1 font-extralight absolute -top-3 left-2 flex justify-center h-5  text-xs">
-                        {cart?.games.length}
+                    <ShoppingCart className="size-5" />
+                    {!!data?.cart.games.length && (
+                      <Badge
+                        className={cn(
+                          "min-w-5 h-5 absolute p-0 -top-3 left-2 flex justify-center text-xs",
+                          { "px-1": data.cart.games.length > 10 },
+                        )}
+                      >
+                        {data.cart.games.length > 99
+                          ? "99+"
+                          : data.cart.games.length}
                       </Badge>
                     )}
                   </div>
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
-              <Button asChild size="tiny" variant="ghost">
-                <Link href="/account">
-                  <Avatar
-                    asChild
-                    className="relative size-10 group cursor-pointer"
-                  >
-                    <label>
+              <Button
+                asChild
+                className={data ? "group hover:bg-transparent" : ""}
+                size="icon"
+                variant="ghost"
+              >
+                <Link to="/account">
+                  {data ? (
+                    <Avatar className="size-8 group-hover:brightness-90">
                       <AvatarImage
-                        alt="Gamer Avatar"
+                        alt="User avatar"
                         className="object-cover"
-                        src={user?.pictureMultimedia?.url}
+                        src={data.user.pictureMultimedia?.url}
                       />
                       <AvatarFallback>
-                        {(user && getInitials(user?.displayName)) || (
-                          <User className="h-5 w-5" />
-                        )}
+                        {getInitials(data.user.displayName)}
                       </AvatarFallback>
-                    </label>
-                  </Avatar>
+                    </Avatar>
+                  ) : (
+                    <User className="size-5" />
+                  )}
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
@@ -189,7 +197,7 @@ function Component() {
         </div>
       </header>
       <main
-        className={cn("px-4 pt-8 pb-20 md:px-6", {
+        className={cn("min-h-screen px-4 pt-8 pb-20 md:px-6", {
           "bg-gradient-to-br from-primary to-secondary":
             location.pathname.includes("/signin") ||
             location.pathname.includes("/register"),
@@ -276,7 +284,7 @@ function Component() {
                 </li>
                 <li>
                   <Link className="hover:underline" to="/under-construction">
-                    FAQs to add
+                    FAQs
                   </Link>
                 </li>
               </ul>
@@ -324,10 +332,7 @@ function Component() {
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm text-gray-300">
-              © {new Date().getFullYear()} GOOFR. All rights reserved.{" "}
-              <span className="text-[12px] opacity-5">
-                It was all richards fault.
-              </span>
+              © {new Date().getFullYear()} GOOFR. All rights reserved.
             </p>
           </div>
         </div>

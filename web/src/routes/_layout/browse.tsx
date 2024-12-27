@@ -200,7 +200,7 @@ function Component() {
   const state = useBrowse(paginatedGames, search);
 
   return (
-    <div className="container mx-auto bg-background text-foreground min-h-screen">
+    <div className="container mx-auto bg-background text-foreground">
       <h1 className="text-4xl font-bold mb-8">Browse</h1>
 
       <div className="mb-4">

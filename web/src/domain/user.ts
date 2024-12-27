@@ -55,3 +55,13 @@ export interface UserCredentials {
   email?: string;
   password: string;
 }
+
+/**
+ * Represents the filters available for filtering the user cart.
+ */
+export interface UserCartFilters {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  order?: string;
+}

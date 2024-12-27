@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { addGameToCart } from "@/lib/api";
+import { createUserCartGame } from "@/lib/api";
 import { TokenMissing } from "@/lib/errors";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
@@ -29,7 +29,7 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
 
   const mutation = useMutation({
     async mutationFn() {
-      await addGameToCart(userId!, gameId);
+      await createUserCartGame(userId!, gameId);
     },
     onSuccess() {
       toast({

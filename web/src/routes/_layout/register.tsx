@@ -143,7 +143,7 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
+    <div className="flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
       <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
