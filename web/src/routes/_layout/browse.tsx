@@ -203,7 +203,7 @@ function Component() {
     <div className="container mx-auto bg-background text-foreground min-h-screen">
       <h1 className="text-4xl font-bold mb-8">Browse</h1>
 
-      <div className="mb-8">
+      <div className="mb-4">
         <Input
           className="w-full bg-input text-foreground"
           placeholder="Search games..."
