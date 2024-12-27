@@ -51,7 +51,7 @@ function Component() {
   const total = subtotal + tax;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">

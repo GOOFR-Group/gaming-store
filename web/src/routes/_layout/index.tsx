@@ -105,42 +105,40 @@ function Component() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
-      <main className="container flex-1 mb-20">
+      <div className="container flex-1">
         <section className="w-full py-12 md:py-24">
-          <div className="px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    Your Gateway to Epic Gaming Adventures
-                  </h1>
-                  <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Discover, download, and dominate with our vast collection of
-                    games for all platforms.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button asChild className="tracking-wider">
-                    <Link
-                      to="/browse"
-                      search={{
-                        page: 1,
-                      }}
-                    >
-                      Shop Now
-                    </Link>
-                  </Button>
-                  <Button asChild className="tracking-wider" variant="outline">
-                    <a href="#recommended">View Recommended Games</a>
-                  </Button>
-                </div>
+          <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+            <div className="flex flex-col justify-center space-y-4">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  Your Gateway to Epic Gaming Adventures
+                </h1>
+                <p className="max-w-[600px] text-gray-300 md:text-xl">
+                  Discover, download, and dominate with our vast collection of
+                  games for all platforms.
+                </p>
               </div>
-              <img
-                alt="Cover image of a portal to a faraway modern world"
-                className="mx-auto size-[550px] aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:aspect-square hidden sm:block"
-                src="/images/cover.jpg"
-              />
+              <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <Button asChild className="tracking-wider">
+                  <Link
+                    to="/browse"
+                    search={{
+                      page: 1,
+                    }}
+                  >
+                    Shop Now
+                  </Link>
+                </Button>
+                <Button asChild className="tracking-wider" variant="outline">
+                  <a href="#recommended">View Recommended Games</a>
+                </Button>
+              </div>
             </div>
+            <img
+              alt="Cover image of a portal to a faraway modern world"
+              className="mx-auto size-[550px] aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:aspect-square hidden sm:block"
+              src="/images/cover.jpg"
+            />
           </div>
         </section>
 
@@ -174,7 +172,7 @@ function Component() {
           }}
         />
 
-        <section className="w-full py-6 px-6">
+        <section className="w-full py-6">
           <h2 className="text-3xl font-bold tracking-tighter mb-6">
             Browse by Genre
           </h2>
@@ -206,7 +204,7 @@ function Component() {
             ))}
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }
@@ -219,7 +217,7 @@ function Section(props: {
   search?: LinkProps["search"];
 }) {
   return (
-    <section className="w-full py-6 px-6" id={props.id}>
+    <section className="w-full py-6" id={props.id}>
       <Link
         className="flex items-center gap-4 mb-6"
         search={props.search}

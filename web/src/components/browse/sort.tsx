@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BrowseSearchSchemaType } from "@/routes/_layout/browse";
 
+import { QUICK_FILTERS } from "./quick-filters";
+
 const SORT_OPTIONS: {
   sort: BrowseSearchSchemaType["sort"];
   order: BrowseSearchSchemaType["order"];
@@ -58,6 +60,7 @@ const SORT_OPTIONS: {
 export function BrowseSort(props: {
   sort: BrowseSearchSchemaType["sort"];
   order: BrowseSearchSchemaType["order"];
+  quickFilter: BrowseSearchSchemaType["quickFilter"];
   onSelect: (
     sort: BrowseSearchSchemaType["sort"],
     order: BrowseSearchSchemaType["order"],
@@ -68,12 +71,12 @@ export function BrowseSort(props: {
       <DropdownMenuTrigger asChild>
         <Button className="group" variant="ghost">
           <span className="text-muted-foreground">Sort by:</span>{" "}
-          {
-            SORT_OPTIONS.find(
-              (option) =>
-                option.sort === props.sort && option.order === props.order,
-            )?.label
-          }
+          {props.quickFilter
+            ? QUICK_FILTERS[props.quickFilter]
+            : SORT_OPTIONS.find(
+                (option) =>
+                  option.sort === props.sort && option.order === props.order,
+              )?.label}
           <ChevronDown className="group-data-[state=open]:rotate-180" />
         </Button>
       </DropdownMenuTrigger>

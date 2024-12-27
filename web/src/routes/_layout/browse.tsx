@@ -190,7 +190,7 @@ function Component() {
   const state = useBrowse(paginatedGames, search);
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
+    <div className="container mx-auto bg-background text-foreground min-h-screen">
       <h1 className="text-4xl font-bold mb-8">Browse</h1>
 
       <div className="mb-8">
@@ -206,6 +206,7 @@ function Component() {
       <div className="flex items-center justify-end mb-8">
         <BrowseSort
           order={search.order}
+          quickFilter={search.quickFilter}
           sort={search.sort}
           onSelect={(sort, order) => state.sortBy(sort, order)}
         />
@@ -243,7 +244,7 @@ function Component() {
               title="No games were found"
             />
           ) : (
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex-1 grid grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,12rem))] gap-6 *:mx-auto">
               {games.map((game) => (
                 <Link
                   key={game.id}

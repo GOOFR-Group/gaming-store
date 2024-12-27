@@ -2,23 +2,22 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { BrowseSearchSchemaType } from "@/routes/_layout/browse";
 
-const QUICK_FILTERS_OPTIONS: {
-  label: string;
-  value: BrowseSearchSchemaType["quickFilter"];
-}[] = [
-  {
-    label: "Featured & Recommended",
-    value: "recommended",
+type QuickFilter = NonNullable<BrowseSearchSchemaType["quickFilter"]>;
+
+export const QUICK_FILTERS: Record<QuickFilter, string> = {
+  recommended: "Featured & Recommended",
+  "upcoming-releases": "Upcoming Releases",
+  "best-sellers": "Best Sellers",
+};
+
+const QUICK_FILTERS_OPTIONS = Object.entries(QUICK_FILTERS).map(
+  ([quickFilter, label]) => {
+    return {
+      label: label,
+      value: quickFilter as QuickFilter,
+    };
   },
-  {
-    label: "Upcoming Releases",
-    value: "upcoming-releases",
-  },
-  {
-    label: "Best Sellers",
-    value: "best-sellers",
-  },
-];
+);
 
 export function QuickFilters(props: {
   selectedQuickFilter: BrowseSearchSchemaType["quickFilter"];

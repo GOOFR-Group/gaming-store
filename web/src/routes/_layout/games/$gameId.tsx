@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_layout/games/$gameId")({
 
 function Component() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       <h1 className="text-4xl font-bold mb-4">Cosmic Explorers</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -168,7 +168,7 @@ function Component() {
         </div>
       </div>
 
-      <section className="py-12 md:py-24 lg:py-32 px-4 md:px-6">
+      <section className="py-12 md:py-24 lg:py-32">
         <h2 className="text-3xl font-bold tracking-tighter mb-8">
           More Like This
         </h2>
