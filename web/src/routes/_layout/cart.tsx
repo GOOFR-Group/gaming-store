@@ -142,32 +142,30 @@ function Component() {
             </p>
           )}
         </div>
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax ({TAX * 100}%)</span>
-                <span>{formatCurrency(subtotal * TAX)}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>{formatCurrency(subtotal, TAX)}</span>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button asChild disabled={!cart.total}>
-                <Link className="w-full">Proceed to Checkout</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tax ({TAX * 100}%)</span>
+              <span>{formatCurrency(subtotal * TAX)}</span>
+            </div>
+            <div className="flex justify-between font-bold">
+              <span>Total</span>
+              <span>{formatCurrency(subtotal, TAX)}</span>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button asChild disabled={!cart.total}>
+              <Link className="w-full">Proceed to Checkout</Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
