@@ -23,7 +23,7 @@ import { formatCurrency } from "@/lib/utils";
  */
 function userQueryOptions() {
   return queryOptions({
-    queryKey: [userQueryKey, cartQueryKey],
+    queryKey: cartQueryKey,
     async queryFn() {
       const token = getToken();
       const payload = decodeTokenPayload(token);
@@ -49,6 +49,7 @@ function Component() {
     data: { user, cart },
   } = useSuspenseQuery(userQueryOptions()) || { user: null, cart: null };
 
+  
   const [cartItems, setCartItems] = useState(cart);
   const accountBalance = user.balance;
 

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_layout")({
  */
 function cartQueryOptions() {
   return queryOptions({
-    queryKey: [cartQueryKey, userQueryKey],
+    queryKey: [...cartQueryKey, ...userQueryKey],
     async queryFn() {
       try {
         const token = getToken();
@@ -107,7 +107,7 @@ function Component() {
                   <div className="relative">
                     <ShoppingCart className="h-5 w-5" />
                     {cart && (
-                      <Badge className="w-1 font-extralight absolute top-3 left-3 flex justify-center h-5 text-sm">
+                      <Badge className="w-1 font-extralight absolute -top-3 left-2 flex justify-center h-5  text-xs">
                         {cart?.games.length}
                       </Badge>
                     )}
@@ -128,7 +128,7 @@ function Component() {
                         src={user?.pictureMultimedia?.url}
                       />
                       <AvatarFallback>
-                        {(user && getInitials(user?.username)) || (
+                        {(user && getInitials(user?.displayName)) || (
                           <User className="h-5 w-5" />
                         )}
                       </AvatarFallback>
@@ -248,7 +248,7 @@ function Component() {
                 </li>
                 <li>
                   <Link className="hover:underline" to="/under-construction">
-                    FAQs
+                    FAQs to add
                   </Link>
                 </li>
               </ul>

@@ -145,7 +145,11 @@ function EditAccountDetails(props: {
       });
     },
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: userQueryKey });
+      await queryClient.invalidateQueries({
+        predicate(query) {
+          return query.queryKey.some((queryKey) => queryKey === userQueryKey[0]);
+        },
+      });
       props.onSave();
     },
     onError: withAuthErrors((error) => {
