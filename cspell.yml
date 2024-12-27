@@ -27,6 +27,7 @@ ignoreWords:
   - ihttp
   - ILIKE
   - iobjectStore
+  - iofs
   - ismtp
   - isready
   - Kitts
@@ -47,9 +48,11 @@ ignoreWords:
   - Réunion
   - Rica
   - Ryzen
+  - schemaname
   - signin
   - sslmode
   - stretchr
+  - tablename
   - testcontainers
   - Tokelau
   - tseslint
