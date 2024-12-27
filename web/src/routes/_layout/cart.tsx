@@ -14,7 +14,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { getUser, getUserCart, removeGameFromCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
+import { cartQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -49,7 +49,6 @@ function Component() {
     data: { user, cart },
   } = useSuspenseQuery(userQueryOptions()) || { user: null, cart: null };
 
-  
   const [cartItems, setCartItems] = useState(cart);
   const accountBalance = user.balance;
 

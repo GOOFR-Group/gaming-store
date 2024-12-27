@@ -296,7 +296,10 @@ function Component() {
           </div>
           <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-sm text-gray-300">
-              © {new Date().getFullYear()} GOOFR. All rights reserved. <span className="text-[12px] opacity-5">It was all richards fault.</span>
+              © {new Date().getFullYear()} GOOFR. All rights reserved.{" "}
+              <span className="text-[12px] opacity-5">
+                It was all richards fault.
+              </span>
             </p>
           </div>
         </div>

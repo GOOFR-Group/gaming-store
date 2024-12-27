@@ -147,7 +147,9 @@ function EditAccountDetails(props: {
     async onSuccess() {
       await queryClient.invalidateQueries({
         predicate(query) {
-          return query.queryKey.some((queryKey) => queryKey === userQueryKey[0]);
+          return query.queryKey.some(
+            (queryKey) => queryKey === userQueryKey[0],
+          );
         },
       });
       props.onSave();
