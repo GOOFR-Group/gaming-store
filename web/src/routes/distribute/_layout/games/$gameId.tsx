@@ -3,8 +3,8 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 
-import { ErrorPage } from "@/components/distribute/error";
 import { GamePreview } from "@/components/distribute/games/game-preview";
+import { Error } from "@/components/error";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
       errorProps.error instanceof NotFound
     ) {
       return (
-        <ErrorPage
+        <Error
           showBack
           description="The game you are looking for does not exist."
           title="Game Not Found"
@@ -101,7 +101,7 @@ function Component() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Upload game files to enable downloading</p>
+                Upload game files to enable downloading
               </TooltipContent>
             </Tooltip>
           )}
