@@ -42,7 +42,7 @@ type DataStore interface {
 	CreateUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
 	ListUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserCartPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	DeleteUserCartGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) error
-	PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error
+	PurchaseUserCart(ctx context.Context, tx pgx.Tx, userID uuid.UUID, tax float64) error
 
 	ListUserLibrary(ctx context.Context, tx pgx.Tx, userID uuid.UUID, filter domain.UserLibraryPaginatedFilter) (domain.PaginatedResponse[domain.Game], error)
 	ExistsUserLibraryGame(ctx context.Context, tx pgx.Tx, userID, gameID uuid.UUID) (bool, error)

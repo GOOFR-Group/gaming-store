@@ -17,7 +17,13 @@ import {
   PublisherCredentials,
 } from "@/domain/publisher";
 import { PaginatedTags, TagFilters } from "@/domain/tag";
-import { EditableUser, NewUser, User, UserCredentials } from "@/domain/user";
+import {
+  EditableUser,
+  NewUser,
+  User,
+  UserCartGamesFilters,
+  UserCredentials,
+} from "@/domain/user";
 
 import { getToken } from "./auth";
 import {
@@ -392,10 +398,10 @@ export async function getGames(filters: GamesFilters) {
   if (filters.title) {
     searchParams.set("title", filters.title);
   }
-  if (filters.priceUnder) {
+  if (filters.priceUnder !== undefined) {
     searchParams.set("priceUnder", String(filters.priceUnder));
   }
-  if (filters.priceAbove) {
+  if (filters.priceAbove !== undefined) {
     searchParams.set("priceAbove", String(filters.priceAbove));
   }
   if (filters.isActive) {
@@ -811,21 +817,36 @@ export async function getTags(filters: TagFilters) {
 }
 
 /**
- * Retrieves the cart games.
- * @param filters Tags filters.
- * @returns Tags.
+ * Retrieves the games of a given user's cart.
+ * @param userId User ID.
+ * @param [filters] User's cart filters.
+ * @returns Paginated games.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getCartGames(
+export async function getUserCartGames(
   userId: string,
-  sort: string = "createdAt",
-  order: string = "asc",
-  limit: string = "100",
+  filters?: UserCartGamesFilters,
 ) {
   const token = getToken();
 
+  const searchParams = new URLSearchParams();
+  if (filters?.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters?.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters?.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters?.order) {
+    searchParams.set("order", filters.order);
+  }
+
   const response = await fetch(
-    `/api/users/${userId}/cart/games?sort=${sort}&order=${order}&limit=${limit}&offset=0`,
+    `/api/users/${userId}/cart/games?${searchParams}`,
     {
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
       headers: {
@@ -837,18 +858,94 @@ export async function getCartGames(
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
       default:
         throw new InternalServerError();
     }
   }
 
-  const cartGames = (await response.json()) as PaginatedGames;
+  const paginatedGames = (await response.json()) as PaginatedGames;
 
-  return cartGames;
+  return paginatedGames;
+}
+
+/**
+ * Creates a user cart game association.
+ * @param userId User ID.
+ * @param gameId Game ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User or game not found.
+ * @throws {Conflict} Association already exists, or the game is not active,
+ *                    or the game has not been released, or the user is not old
+ *                    enough to play the game, or the user already has the game
+ *                    in their library.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function createUserCartGame(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Deletes a user cart game association.
+ * @param userId User ID.
+ * @param gameId Game ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {Conflict} Association does not exist.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function deleteUserCartGame(userId: string, gameId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
+    method: "DELETE",
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
 }
 
 /**
@@ -862,36 +959,6 @@ export async function purchaseUserCart(userId: string) {
 
   const response = await fetch(`/api/users/${userId}/cart/purchase`, {
     method: "POST",
-    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-}
-
-/**
- * Deletes a game from the cart.
- * @param filters Tags filters.
- * @returns Tags.
- * @throws {InternalServerError} Server internal error.
- */
-export async function deleteGameCart(userId: string, gameId: string) {
-  const token = getToken();
-
-  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
-    method: "DELETE",
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     headers: {
       Authorization: `Bearer ${token}`,
