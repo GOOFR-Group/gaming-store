@@ -30,6 +30,7 @@ export function Carousel(props: { game: Game }) {
           height={400}
           src={props.game.multimedia[currentIndex].url}
           width={600}
+          onError={(e) => (e.currentTarget.src = "/images/game.jpg")}
         />
         <Button
           aria-label="Previous screenshot"
@@ -71,6 +72,7 @@ export function Carousel(props: { game: Game }) {
               className={`rounded object-cover w-[100px] h-[67px] transition-opacity ${
                 index === currentIndex ? "opacity-100" : "opacity-70"
               }`}
+              onError={(e) => (e.currentTarget.src = "/images/game.jpg")}
             />
           </button>
         ))}

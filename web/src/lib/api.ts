@@ -520,15 +520,10 @@ export async function getUserGames(
  * @throws {InternalServerError} Server internal error.
  */
 export async function getPublisherGame(publisherId: string, gameId: string) {
-  const token = getToken();
-
   const response = await fetch(
     `/api/publishers/${publisherId}/games/${gameId}`,
     {
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     },
   );
 
@@ -938,7 +933,7 @@ export async function getUserCartGames(
 export async function createUserCartGame(userId: string, gameId: string) {
   const token = getToken();
 
-  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
     headers: {

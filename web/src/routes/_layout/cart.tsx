@@ -73,6 +73,7 @@ function Component() {
       await deleteUserCartGame(user.id, gameId);
     },
     async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: cartQueryKey });
       await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
     },
     onError: withAuthErrors(() => {
@@ -107,9 +108,8 @@ function Component() {
                 <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
                   <img
                     alt={game.title}
-                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
+                    className="rounded-md mr-4 max-h-[100px] aspect-square h-auto object-cover"
                     src={game.previewMultimedia.url}
-                    width={100}
                   />
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex flex-wrap justify-between items-start">

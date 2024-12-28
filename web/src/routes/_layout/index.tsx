@@ -233,8 +233,8 @@ function Section(props: {
         {props.games.map((game) => (
           <Link
             key={game.title}
-            params={{ gameId: game.id }}
-            to="/games/$gameId"
+            params={{ gameId: game.id, publisherId: game.publisher.id }}
+            to="/publishers/$publisherId/games/$gameId"
           >
             <Game
               image={game.previewMultimedia.url}
