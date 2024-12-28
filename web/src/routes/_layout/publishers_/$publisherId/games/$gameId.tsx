@@ -2,25 +2,31 @@ import {
   queryOptions,
   useMutation,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { ShoppingCart, Star } from "lucide-react";
+} from '@tanstack/react-query'
+import { createFileRoute, useParams } from '@tanstack/react-router'
+import { ShoppingCart, Star } from 'lucide-react'
 
-import { Carousel } from "@/components/carousel";
-import { Game } from "@/components/game";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Game as gameDomain } from "@/domain/game";
-import { useToast } from "@/hooks/use-toast";
-import { addGameToCart, getPublisherGame, getUser, getUserCart } from "@/lib/api";
-import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { TokenMissing } from "@/lib/errors";
-import { gameQueryKey, userQueryKey } from "@/lib/query-keys";
+import { Carousel } from '@/components/carousel'
+import { Game } from '@/components/game'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { useToast } from '@/hooks/use-toast'
+import {
+  addGameToCart,
+  getPublisherGame,
+  getUser,
+  getUserCart,
+} from '@/lib/api'
+import { decodeTokenPayload, getToken } from '@/lib/auth'
+import { TokenMissing } from '@/lib/errors'
+import { gameQueryKey, userQueryKey } from '@/lib/query-keys'
 
-export const Route = createFileRoute("/_layout/games/$gameId")({
+export const Route = createFileRoute(
+  '/_layout/publishers/$publisherId/games/$gameId',
+)({
   component: Component,
-});
+})
 
 /**
  * Query options for retrieving the signed in user.
@@ -31,34 +37,34 @@ function userQueryOptions() {
     queryKey: userQueryKey,
     async queryFn() {
       try {
-        const token = getToken();
-        const payload = decodeTokenPayload(token);
+        const token = getToken()
+        const payload = decodeTokenPayload(token)
 
-        const userId = payload.sub;
-        const user = await getUser(userId);
+        const userId = payload.sub
+        const user = await getUser(userId)
 
-        return user;
+        return user
       } catch {
-        return null;
+        return null
       }
     },
-  });
+  })
 }
 
-function gameQueryOptions(gameId: string) {
+function gameQueryOptions(gameId: string, publisherId: string) {
   return queryOptions({
-    queryKey: gameQueryKey(gameId),
-    queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
+    queryKey: gameQueryKey(gameId,publisherId),
+    async queryFn() {
+      const token = getToken()
+      const payload = decodeTokenPayload(token)
 
-      const userId = payload.sub;
-      const cartGames = getUserCart(userId);
-      const selectedGame = getPublisherGame(publisherId, gameId);
+      const userId = payload.sub
+      const cartGames = await getUserCart(userId)
+      const gameData = await getPublisherGame(publisherId, gameId)
 
-      return cartGames;
+      return {cartGames,gameData}
     },
-  });
+  })
 }
 
 function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
@@ -66,38 +72,38 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
    * Adds a game to the cart.
    */
 
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   const mutation = useMutation({
     async mutationFn() {
-      await addGameToCart(userId!, gameId);
+      await addGameToCart(userId!, gameId)
     },
     onSuccess() {
       toast({
-        variant: "success",
-        title: "Game Added!",
-        description: "The game was successfully added to your cart.",
-      });
+        variant: 'success',
+        title: 'Game Added!',
+        description: 'The game was successfully added to your cart.',
+      })
     },
     onError(error) {
       if (error instanceof TokenMissing) {
         toast({
-          variant: "destructive",
-          title: "Log in to perform this action",
-        });
-        return;
+          variant: 'destructive',
+          title: 'Log in to perform this action',
+        })
+        return
       }
 
       toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
+        variant: 'destructive',
+        title: 'Oops! An unexpected error occurred',
+        description: 'Please try again later or contact the support team.',
+      })
     },
-  });
+  })
 
   function handleClick() {
-    mutation.mutate();
+    mutation.mutate()
   }
 
   return (
@@ -105,23 +111,25 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
       <ShoppingCart className="mr-2" />
       Add to Cart
     </Button>
-  );
+  )
 }
 
 function Component() {
-  const params = useParams({ from: "/_layout/games/$gameId" });
+  const params = useParams({
+    from: '/_layout/publishers/$publisherId/games/$gameId',
+  })
 
-  const { data: gameData } = useSuspenseQuery(gameQueryOptions(params.gameId));
+  const { data: {cartGames,gameData} } = useSuspenseQuery(gameQueryOptions(params.gameId,params.publisherId))
 
-  const query = useSuspenseQuery(userQueryOptions());
-  const userData = query.data;
+  const query = useSuspenseQuery(userQueryOptions())
+  const userData = query.data
 
   const getLanguage = (code: string) => {
-    const lang = new Intl.DisplayNames(["en"], { type: "language" });
-    return lang.of(code);
-  };
+    const lang = new Intl.DisplayNames(['en'], { type: 'language' })
+    return lang.of(code)
+  }
 
-  const country = gameData.languages.map((language) => getLanguage(language));
+  const country = gameData.languages.map((language) => getLanguage(language))
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -138,13 +146,13 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p className="text-muted-foreground">{gameData.about}</p>
+              <p className="text-muted-foreground">{gameData.description}</p>
 
               <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
-                  {gameData.genres.map((genre, index) => (
+                  {gameData.tags.map((tag, index) => (
                     <Badge key={index} variant="secondary">
-                      {genre.toUpperCase()}
+                      {tag.name.toUpperCase()}
                     </Badge>
                   ))}
                 </div>
@@ -167,8 +175,8 @@ function Component() {
                 <div>
                   <h3 className="font-semibold mb-2">Minimum:</h3>
                   <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {gameData.systemRequirements.minimum
-                      .split("\n")
+                    {gameData.requirements.minimum
+                      .split('\n')
                       .map((requirement, index) => (
                         <li key={index}>{requirement}</li>
                       ))}
@@ -177,8 +185,8 @@ function Component() {
                 <div>
                   <h3 className="font-semibold mb-2">Recommended:</h3>
                   <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {gameData.systemRequirements.recommended
-                      .split("\n")
+                    {gameData.requirements.recommended
+                      .split('\n')
                       .map((requirement, index) => (
                         <li key={index}>{requirement}</li>
                       ))}
@@ -207,11 +215,11 @@ function Component() {
                 Add to Wishlist
               </Button>
               <p className="text-sm text-muted-foreground mt-2 text-center">
-                Release Date:{" "}
-                {new Date(gameData.releaseDate).toLocaleDateString("en-UK", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
+                Release Date:{' '}//
+                {new Date(gameData BOAS PESSOAL, TODO: sem data neste objeto).toLocaleDateString('en-UK', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
                 })}
               </p>
             </CardContent>
@@ -220,7 +228,7 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-2">Developed by</h3>
-              <p className="text-muted-foreground">{gameData.publisher}</p>
+              <p className="text-muted-foreground">{gameData.publisher.name}</p>
             </CardContent>
           </Card>
 
@@ -228,7 +236,7 @@ function Component() {
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-2">Game Features</h3>
               <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {gameData.features.split("\n").map((feature, index) => (
+                {gameData.features.split('\n').map((feature, index) => (
                   <li key={index}>{feature}</li>
                 ))}
               </ul>
@@ -241,7 +249,7 @@ function Component() {
                 Languages Supported
               </h3>
               <p className="text-sm text-muted-foreground">
-                {country.join(", ")}
+                {country.join(', ')}
               </p>
             </CardContent>
           </Card>
@@ -254,19 +262,19 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {gameData.screenshots.map((data, index) => {
+          {{gameData.map((data, index) => {
             return (
               <Game
-                key={index}
-                image={data}
+                key={index} outro TODO aqui haha balls
+                image={data.url}
                 price={59.99}
                 publisher={gameData.publisher}
                 title={`Game ${index}`}
               />
-            );
-          })}
+            )
+          })} }
         </div>
       </section>
     </div>
-  );
+  )
 }
