@@ -65,9 +65,14 @@ const browseSearchSchema = z
       search.price = undefined;
       search.sort = undefined;
       search.order = undefined;
-    } else if (!search.quickFilter && !search.sort && !search.order) {
-      search.sort = "price";
-      search.order = "asc";
+    } else {
+      if (!search.sort) {
+        search.sort = "price";
+      }
+
+      if (!search.order) {
+        search.order = "asc";
+      }
     }
 
     return search;
@@ -150,10 +155,12 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
   }
 
   return queryOptions({
-    queryKey: gamesQueryKey(filters),
+    queryKey: gamesQueryKey(filters, search.quickFilter === "recommended"),
     async queryFn() {
       const gamesPromise =
-        "userId" in filters ? getRecommendedGames(filters) : getGames(filters);
+        search.quickFilter === "recommended"
+          ? getRecommendedGames(filters)
+          : getGames(filters);
 
       const [games, tags] = await Promise.all([
         gamesPromise,
@@ -411,7 +418,7 @@ function useBrowse(
   }
 
   /**
-   * Sorts games by a given sort field and order..
+   * Sorts games by a given sort field and order.
    * @param sort Sort field.
    * @param order Order field.
    */
@@ -482,7 +489,7 @@ function useBrowse(
       search.title ||
       search.tags ||
       search.quickFilter ||
-      search.price !== undefined
+      search.price
     ),
 
     pages:

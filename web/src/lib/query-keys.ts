@@ -15,12 +15,14 @@ export const homeQueryKey: QueryKey = ["home"];
 /**
  * Query key used when fetching games.
  * @param [filters] Filters.
+ * @param [isRecommended=false] Indicates if games are recommended to the user.
  * @returns Games query key.
  */
 export function gamesQueryKey(
   filters?: GamesFilters | RecommendedGamesFilters,
+  isRecommended: boolean = false,
 ): QueryKey {
-  return ["games", filters];
+  return ["games", filters, isRecommended];
 }
 
 /**

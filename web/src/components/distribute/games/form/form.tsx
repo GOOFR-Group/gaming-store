@@ -915,18 +915,19 @@ export function GameForm(props: GameProps) {
                         continue;
                       }
 
+                      const fileHash = await calculateHash(file);
+
                       let isDuplicated = false;
                       for (const multimedia of updatedMultimedia) {
                         if ("url" in multimedia) {
                           continue;
                         }
 
-                        const sha256File = await calculateHash(file);
-                        const sha256Multimedia = await calculateHash(
+                        const multimediaHash = await calculateHash(
                           multimedia.file,
                         );
 
-                        isDuplicated = sha256File === sha256Multimedia;
+                        isDuplicated = fileHash === multimediaHash;
                         if (isDuplicated) {
                           break;
                         }
