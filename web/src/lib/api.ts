@@ -511,7 +511,6 @@ export async function getUserGames(
   return user;
 }
 
-
 /**
  * Retrieves a game from a publisher.
  * @param publisherId Publisher ID.
@@ -544,8 +543,6 @@ export async function getPublisherGame(publisherId: string, gameId: string) {
         throw new InternalServerError();
     }
   }
-
-  console.log(response);
 
   const game = (await response.json()) as Game;
 

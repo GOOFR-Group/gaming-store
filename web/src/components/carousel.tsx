@@ -2,8 +2,9 @@ import { useState } from "react";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { Button } from "./ui/button";
 import { Game } from "@/domain/game";
+
+import { Button } from "./ui/button";
 
 export function Carousel(props: { game: Game }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,10 +56,11 @@ export function Carousel(props: { game: Game }) {
             key={index}
             aria-current={index === currentIndex ? "true" : "false"}
             aria-label={`View ${screenshot.url}`}
-            className={`flex-shrink-0 focus:outline-none p-1 rounded-md transition-all ${index === currentIndex
-              ? "ring-2 ring-primary bg-primary/10"
-              : "hover:bg-secondary/50"
-              }`}
+            className={`flex-shrink-0 focus:outline-none p-1 rounded-md transition-all ${
+              index === currentIndex
+                ? "ring-2 ring-primary bg-primary/10"
+                : "hover:bg-secondary/50"
+            }`}
             onClick={() => setCurrentIndex(index)}
           >
             <img
@@ -66,8 +68,9 @@ export function Carousel(props: { game: Game }) {
               height={67}
               src={screenshot.url}
               width={100}
-              className={`rounded object-cover w-[100px] h-[67px] transition-opacity ${index === currentIndex ? "opacity-100" : "opacity-70"
-                }`}
+              className={`rounded object-cover w-[100px] h-[67px] transition-opacity ${
+                index === currentIndex ? "opacity-100" : "opacity-70"
+              }`}
             />
           </button>
         ))}

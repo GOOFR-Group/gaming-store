@@ -30,8 +30,8 @@ export function gamesQueryKey(
  * @param id Game ID.
  * @returns Game query key.
  */
-export function gameQueryKey(publisherId: string,gameId:string): QueryKey {
-  return ["games", publisherId,gameId];
+export function gameQueryKey(publisherId: string, gameId: string): QueryKey {
+  return ["games", publisherId, gameId];
 }
 
 /**
