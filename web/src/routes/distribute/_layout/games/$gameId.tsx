@@ -1,5 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Download, Edit } from "lucide-react";
 
@@ -26,16 +26,14 @@ import { formatCurrency, getLanguageName } from "@/lib/utils";
  * @returns Query options.
  */
 function publisherGameQueryOptions(gameId: string) {
+  const token = getToken();
+  const payload = decodeTokenPayload(token);
+  const publisherId = payload.sub;
+
   return queryOptions({
-    queryKey: gameQueryKey(gameId),
+    queryKey: gameQueryKey(gameId, publisherId),
     async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-      const publisherId = payload.sub;
-
-      const game = await getPublisherGame(publisherId, gameId);
-
-      return game;
+      return await getPublisherGame(publisherId, gameId);
     },
   });
 }
@@ -66,7 +64,8 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId")({
 });
 
 function Component() {
-  const params = useParams({ from: "/distribute/_layout/games/$gameId" });
+  const params = Route.useParams();
+
   const query = useSuspenseQuery(publisherGameQueryOptions(params.gameId));
 
   const game = query.data;

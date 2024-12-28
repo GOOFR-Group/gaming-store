@@ -1,9 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useNavigate,
-  useParams,
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { GameForm } from "@/components/distribute/games/form/form";
 import { Error } from "@/components/error";
@@ -26,16 +22,14 @@ import { gameQueryKey } from "@/lib/query-keys";
  * @returns Query options.
  */
 function publisherGameQueryOptions(gameId: string) {
+  const token = getToken();
+  const payload = decodeTokenPayload(token);
+  const publisherId = payload.sub;
+
   return queryOptions({
-    queryKey: gameQueryKey(gameId),
+    queryKey: gameQueryKey(gameId, publisherId),
     async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-      const publisherId = payload.sub;
-
-      const game = await getPublisherGame(publisherId, gameId);
-
-      return game;
+      return await getPublisherGame(publisherId, gameId);
     },
   });
 }
@@ -66,7 +60,7 @@ export const Route = createFileRoute("/distribute/_layout/games/$gameId/edit")({
 });
 
 function Component() {
-  const params = useParams({ from: "/distribute/_layout/games/$gameId/edit" });
+  const params = Route.useParams();
   const query = useSuspenseQuery(publisherGameQueryOptions(params.gameId));
   const navigate = useNavigate();
 
