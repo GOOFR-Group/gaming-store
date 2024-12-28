@@ -42,6 +42,8 @@ function cartQueryOptions() {
         const paginatedGames = await getUserCartGames(userId, {
           limit,
           offset,
+          sort: "createdAt",
+          order: "desc",
         });
         total = paginatedGames.total;
 
