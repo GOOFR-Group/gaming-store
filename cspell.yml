@@ -21,6 +21,7 @@ ignoreWords:
   - fkey
   - Futuna
   - golangci
+  - gomock
   - GOPATH
   - GOOFR
   - healthcheck
@@ -59,6 +60,7 @@ ignoreWords:
   - vatin
   - Viet
 ignorePaths:
+  - "*.gen.go"
   - .golangci.yml
   - go.mod
   - go.sum

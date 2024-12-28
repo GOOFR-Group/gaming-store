@@ -8,10 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goofr-group/gaming-store/server/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/language"
+
+	"github.com/goofr-group/gaming-store/server/internal/domain"
 )
 
 func TestStore_PurchaseUserCart(t *testing.T) {
