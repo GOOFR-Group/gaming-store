@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL, TAX, TO_BE_ANNOUNCED } from "@/lib/constants";
 import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getLanguageName } from "@/lib/utils";
@@ -115,16 +115,26 @@ function Component() {
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h3 className="font-semibold mb-1">Price</h3>
-            <p>{formatCurrency(game.price)}</p>
+          <div className="grid grid-cols-2 w-fit gap-2">
+            <div>
+              <h3 className="font-semibold mb-1">Price</h3>
+              <p>{formatCurrency(game.price, TAX)}</p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1 text-muted-foreground">
+                (Tax {TAX * 100}%)
+              </h3>
+              <p className="text-muted-foreground">
+                {formatCurrency(game.price)}
+              </p>
+            </div>
           </div>
           <div>
             <h3 className="font-semibold mb-1">Release Date</h3>
             <p>
               {"releaseDate" in game
                 ? format(game.releaseDate, "dd/MM/yyyy")
-                : "To be announced"}
+                : TO_BE_ANNOUNCED}
             </p>
           </div>
           <div>
@@ -176,7 +186,7 @@ function Component() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <h3 className="text-lg font-semibold mb-2">About the Game</h3>
-            <p>{game.description}</p>
+            <p className="whitespace-pre-wrap">{game.description}</p>
           </div>
 
           <div>

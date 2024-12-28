@@ -130,7 +130,7 @@ function Component() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-primary to-secondary">
       <DistributeNavbar variant="simple" />
 
-      <div className="flex-1 flex items-center justify-center p-4">
+      <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -288,7 +288,7 @@ function Component() {
             </form>
           </Form>
         </Card>
-      </div>
+      </main>
     </div>
   );
 }

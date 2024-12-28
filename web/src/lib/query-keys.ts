@@ -1,6 +1,6 @@
 import { QueryKey } from "@tanstack/react-query";
 
-import { GamesFilters } from "@/domain/game";
+import { GamesFilters, RecommendedGamesFilters } from "@/domain/game";
 
 /**
  * Query key used when fetching a user information.
@@ -15,10 +15,14 @@ export const homeQueryKey: QueryKey = ["home"];
 /**
  * Query key used when fetching games.
  * @param [filters] Filters.
+ * @param [isRecommended=false] Indicates if games are recommended to the user.
  * @returns Games query key.
  */
-export function gamesQueryKey(filters?: GamesFilters): QueryKey {
-  return ["games", filters];
+export function gamesQueryKey(
+  filters?: GamesFilters | RecommendedGamesFilters,
+  isRecommended: boolean = false,
+): QueryKey {
+  return ["games", filters, isRecommended];
 }
 
 /**
@@ -44,3 +48,8 @@ export const tagsQueryKey: QueryKey = ["tags"];
  * Query key used when fetching the publisher information.
  */
 export const publisherQueryKey: QueryKey = ["publisher"];
+
+/**
+ * Query key used when fetching the user's information for the navbar.
+ */
+export const userNavbarQueryKey: QueryKey = ["cart", "user"];

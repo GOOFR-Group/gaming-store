@@ -64,7 +64,7 @@ function Component() {
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
-        <PublisherAccountDetails country={country} publisher={publisher} />
+        <PublisherAccountDetails publisher={publisher} />
       </CardContent>
     </Card>
   );
