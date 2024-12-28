@@ -65,9 +65,9 @@ export const Route = createFileRoute("/_layout/account")({
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
-  const userQuery = useSuspenseQuery(userQueryOptions());
-
-  const { user, library } = userQuery.data;
+  const {
+    data: { user, library },
+  } = useSuspenseQuery(userQueryOptions());
 
   return (
     <div className="container mx-auto bg-background text-foreground">
