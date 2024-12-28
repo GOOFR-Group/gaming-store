@@ -1,7 +1,10 @@
-import { useState } from "react";
-
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,23 +14,44 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TAX } from "@/lib/constants";
-import { cartQueryKey } from "@/lib/query-keys";
+import { toast } from "@/hooks/use-toast";
+import { deleteUserCartGame, getUser, getUserCartGames } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TAX, TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
+import { cartQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency } from "@/lib/utils";
 
+/**
+ * Query options for retrieving the signed in user and their cart.
+ * @returns Query options.
+ */
 function cartQueryOptions() {
   return queryOptions({
     queryKey: cartQueryKey,
-    queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
+    async queryFn() {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+
+      const userId = payload.sub;
+      const user = await getUser(userId);
+
+      let total = 0;
+      const games = await getBatchPaginatedResponse(async (limit, offset) => {
+        const paginatedGames = await getUserCartGames(userId, {
+          limit,
+          offset,
+        });
+        total = paginatedGames.total;
+
         return {
-          id: idx + 1,
-          title: "Cosmic Explorers",
-          price: 59.99,
-          developer: "Stellar Games",
-          image: "/images/game.jpg",
+          items: paginatedGames.games,
+          total,
         };
       });
+
+      return { user, cart: { games, total } };
     },
   });
 }
@@ -40,15 +64,31 @@ export const Route = createFileRoute("/_layout/cart")({
 });
 
 function Component() {
-  const { data } = useSuspenseQuery(cartQueryOptions());
-  const [cartItems, setCartItems] = useState(data);
-  const accountBalance = 500.0; // Placeholder account balance
+  const queryClient = useQueryClient();
+  const {
+    data: { user, cart },
+  } = useSuspenseQuery(cartQueryOptions());
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      await deleteUserCartGame(user.id, gameId);
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
 
-  function removeItem(id: number) {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  /**
+   * Removes a game from the user's cart.
+   * @param id Game ID.
+   */
+  function removeGame(id: string) {
+    mutation.mutate(id);
   }
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = cart.games.reduce((sum, item) => sum + item.price, 0);
 
   return (
     <div className="container mx-auto">
@@ -56,84 +96,77 @@ function Component() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
-          <span className="font-semibold">
-            {formatCurrency(accountBalance)}
-          </span>
+          <span className="font-semibold">{formatCurrency(user.balance)}</span>
         </div>
       </div>
-      <div className="flex flex-wrap-reverse gap-8">
-        <div className="flex-1 space-y-4">
-          {cartItems.map((item) => (
-            <Card key={item.id}>
-              <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
-                <img
-                  alt={item.title}
-                  className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
-                  src={item.image}
-                  width={100}
-                />
-                <div className="flex-grow flex flex-col justify-between">
-                  <div className="flex flex-wrap justify-between items-start">
-                    <div>
-                      <h2 className="text-lg font-semibold">{item.title}</h2>
-                      <p className="text-sm text-gray-300">{item.developer}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-4">
+          {cart.total > 0 ? (
+            cart.games.map((game) => (
+              <Card key={game.id}>
+                <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
+                  <img
+                    alt={game.title}
+                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
+                    src={game.previewMultimedia.url}
+                    width={100}
+                  />
+                  <div className="flex-grow flex flex-col justify-between">
+                    <div className="flex flex-wrap justify-between items-start">
+                      <div>
+                        <h2 className="text-lg font-semibold">{game.title}</h2>
+                        <p className="text-sm text-muted-foreground">
+                          {game.publisher.name}
+                        </p>
+                      </div>
+                      <p className="text-lg font-semibold">
+                        {formatCurrency(game.price, TAX)}
+                      </p>
                     </div>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(item.price, TAX)}
-                    </p>
+                    <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
+                      <Button
+                        aria-label={`Remove ${game.title} from cart`}
+                        variant="ghost"
+                        onClick={() => removeGame(game.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
-                    <Button
-                      aria-label={`Remove ${item.title} from cart`}
-                      variant="ghost"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Remove
-                    </Button>
-
-                    <Button
-                      aria-label={`Move ${item.title} to wishlist`}
-                      variant="ghost"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Move to wishlist
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground mt-8">
+              Your cart is empty.
+            </p>
+          )}
         </div>
-        <div className="w-full sm:w-60 lg:w-96">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax ({TAX * 100}%)</span>
-                <span>{formatCurrency(subtotal * TAX)}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>{formatCurrency(subtotal, TAX)}</span>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">Proceed to Checkout</Button>
-            </CardFooter>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Tax ({TAX * 100}%)</span>
+              <span>{formatCurrency(subtotal * TAX)}</span>
+            </div>
+            <div className="flex justify-between font-bold">
+              <span>Total</span>
+              <span>{formatCurrency(subtotal, TAX)}</span>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button asChild disabled={!cart.total}>
+              <Link className="w-full">Proceed to Checkout</Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
-      {cartItems.length === 0 && (
-        <p className="text-center text-muted-foreground mt-8">
-          Your cart is empty.
-        </p>
-      )}
     </div>
   );
 }

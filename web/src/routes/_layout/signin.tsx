@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as z from "zod";
 
@@ -27,6 +27,7 @@ import { signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { TOAST_MESSAGES } from "@/lib/constants";
 import { Unauthorized } from "@/lib/errors";
+import { userNavbarQueryKey } from "@/lib/query-keys";
 
 export const Route = createFileRoute("/_layout/signin")({
   component: Component,
@@ -44,6 +45,7 @@ const formSchema = z.object({
 type SignInSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
+  const queryClient = useQueryClient();
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,6 +67,7 @@ function Component() {
       storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
       await navigate({ to: "/account" });
     },
     onError(error) {
@@ -95,7 +98,7 @@ function Component() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-[80vh] flex items-center justify-center">
       <Card className="w-full max-w-md bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

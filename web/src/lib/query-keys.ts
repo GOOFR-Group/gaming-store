@@ -48,3 +48,8 @@ export const tagsQueryKey: QueryKey = ["tags"];
  * Query key used when fetching the publisher information.
  */
 export const publisherQueryKey: QueryKey = ["publisher"];
+
+/**
+ * Query key used when fetching the user's information for the navbar.
+ */
+export const userNavbarQueryKey: QueryKey = ["cart", "user"];

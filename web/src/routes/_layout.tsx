@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
@@ -9,17 +10,49 @@ import {
 import { Menu, ShoppingCart, User } from "lucide-react";
 
 import { NavLink } from "@/components/distribute/navbar/nav-link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+import { getUser, getUserCartGames } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { userNavbarQueryKey } from "@/lib/query-keys";
+import { cn, getInitials } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
 
+/**
+ * Query options for retrieving the signed in user and their cart.
+ * @returns Query options.
+ */
+function userNavbarQueryOptions() {
+  return queryOptions({
+    queryKey: userNavbarQueryKey,
+    async queryFn() {
+      try {
+        const token = getToken();
+        const payload = decodeTokenPayload(token);
+
+        const userId = payload.sub;
+        const user = await getUser(userId);
+        const cart = await getUserCartGames(userId);
+
+        return { user, cart };
+      } catch {
+        // Ignore the error since the user might not be signed in.
+        return null;
+      }
+    },
+  });
+}
+
 function Component() {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const { data } = useSuspenseQuery(userNavbarQueryOptions());
 
   return (
     <div className="overflow-auto">
@@ -78,13 +111,43 @@ function Component() {
             <nav className="flex items-center space-x-2">
               <Button asChild size="icon" variant="ghost">
                 <Link to="/cart">
-                  <ShoppingCart className="h-5 w-5" />
+                  <div className="relative">
+                    <ShoppingCart className="size-5" />
+                    {!!data?.cart.total && (
+                      <Badge
+                        className={cn(
+                          "min-w-5 h-5 absolute p-0 -top-3 left-2 justify-center text-xs hover:bg-primary",
+                          { "px-1": data.cart.total > 9 },
+                        )}
+                      >
+                        {data.cart.total > 99 ? "99+" : data.cart.total}
+                      </Badge>
+                    )}
+                  </div>
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
-              <Button asChild size="icon" variant="ghost">
+              <Button
+                asChild
+                className={data ? "group hover:bg-transparent" : ""}
+                size="icon"
+                variant="ghost"
+              >
                 <Link to="/account">
-                  <User className="h-5 w-5" />
+                  {data ? (
+                    <Avatar className="size-8 group-hover:brightness-90">
+                      <AvatarImage
+                        alt="User avatar"
+                        className="object-cover"
+                        src={data.user.pictureMultimedia?.url}
+                      />
+                      <AvatarFallback>
+                        {getInitials(data.user.displayName)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <User className="size-5" />
+                  )}
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
@@ -133,7 +196,7 @@ function Component() {
         </div>
       </header>
       <main
-        className={cn("px-4 pt-8 pb-20 md:px-6", {
+        className={cn("min-h-screen px-4 py-8 sm:pb-20 md:px-6", {
           "bg-gradient-to-br from-primary to-secondary":
             location.pathname.includes("/signin") ||
             location.pathname.includes("/register"),

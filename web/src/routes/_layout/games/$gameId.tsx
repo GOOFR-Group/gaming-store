@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 
@@ -11,12 +12,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+import { createUserCartGame } from "@/lib/api";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
 });
 
 function Component() {
+  const params = Route.useParams();
+
   return (
     <div className="container mx-auto">
       <h1 className="text-4xl font-bold mb-4">Cosmic Explorers</h1>
@@ -102,10 +110,7 @@ function Component() {
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <Button className="w-full text-lg py-6">
-                <ShoppingCart />
-                Add to Cart
-              </Button>
+              <AddToCart gameId={params.gameId} />
               <Tooltip>
                 <TooltipTrigger className="w-full">
                   <Button
@@ -189,5 +194,40 @@ function Component() {
         </div>
       </section>
     </div>
+  );
+}
+
+function AddToCart(props: { gameId: string }) {
+  const { toast } = useToast();
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const userId = payload.sub;
+
+      await createUserCartGame(userId, gameId);
+    },
+    onSuccess() {
+      toast({
+        title: "Game added to cart",
+      });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
+
+  /**
+   * Handles on click event on add to cart.
+   */
+  function handleClick() {
+    mutation.mutate(props.gameId);
+  }
+
+  return (
+    <Button className="w-full text-lg py-6" onClick={handleClick}>
+      <ShoppingCart className="mr-2" />
+      Add to Cart
+    </Button>
   );
 }

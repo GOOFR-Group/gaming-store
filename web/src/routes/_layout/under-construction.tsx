@@ -7,9 +7,5 @@ export const Route = createFileRoute("/_layout/under-construction")({
 });
 
 function Component() {
-  return (
-    <div className="min-h-screen">
-      <UnderConstruction showBack />
-    </div>
-  );
+  return <UnderConstruction showBack />;
 }
