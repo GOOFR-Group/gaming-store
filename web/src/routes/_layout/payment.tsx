@@ -7,6 +7,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -211,7 +212,12 @@ function PurchaseSummary(props: {
             </div>
           </div>
         </div>
-        <Button className="w-full mt-4" onClick={handleCompletePayment}>
+        <Button
+          className="w-full mt-4"
+          disabled={mutation.isPending}
+          onClick={handleCompletePayment}
+        >
+          {mutation.isPending && <LoaderCircle className="animate-spin" />}
           Complete Payment
         </Button>
       </CardContent>
@@ -221,9 +227,11 @@ function PurchaseSummary(props: {
 
 function ThankYouMessage() {
   return (
-    <div className="container w-full max-w-4xl mx-auto px-4 py-8 bg-background text-foreground min-h-screen text-center">
-      <h1 className="text-4xl font-bold mb-2">Thank you for your purchase!</h1>
-      <p className="text-lg mb-8">
+    <div className="text-center mt-16">
+      <h1 className="text-4xl font-bold mt-12 mb-2">
+        Thank you for your purchase!
+      </h1>
+      <p className="text-lg text-muted-foreground mb-8">
         The invoice for your purchase has been sent to your email.
       </p>
       <div className="w-full flex items-center justify-center">
