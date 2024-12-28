@@ -14,33 +14,34 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { getUser, getUserCart } from "@/lib/api";
+import { getUser, getUserCartGames } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
-import { getInitials } from "@/lib/utils";
+import { userNavbarQueryKey } from "@/lib/query-keys";
+import { cn, getInitials } from "@/lib/utils";
 
 export const Route = createFileRoute("/_layout")({
   component: Component,
 });
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their cart.
  * @returns Query options.
  */
-function cartQueryOptions() {
+function userNavbarQueryOptions() {
   return queryOptions({
-    queryKey: [...cartQueryKey, ...userQueryKey],
+    queryKey: userNavbarQueryKey,
     async queryFn() {
       try {
         const token = getToken();
         const payload = decodeTokenPayload(token);
 
         const userId = payload.sub;
-        const cart = await getUserCart(userId);
         const user = await getUser(userId);
+        const cart = await getUserCartGames(userId);
 
-        return { cart, user };
+        return { user, cart };
       } catch {
+        // Ignore the error since the user might not be signed in.
         return null;
       }
     },
@@ -51,8 +52,7 @@ function Component() {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const { data } = useSuspenseQuery(cartQueryOptions());
-  const { cart, user } = data || { cart: null, user: null };
+  const { data } = useSuspenseQuery(userNavbarQueryOptions());
 
   return (
     <div className="overflow-auto">
@@ -72,7 +72,14 @@ function Component() {
                 className="font-medium hover:bg-transparent hover:text-primary"
                 variant="ghost"
               >
-                <Link to="/browse">Browse</Link>
+                <Link
+                  to="/browse"
+                  search={{
+                    page: 1,
+                  }}
+                >
+                  Browse
+                </Link>
               </Button>
 
               <Button
@@ -102,38 +109,45 @@ function Component() {
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
-              <Button asChild size="tiny" variant="ghost">
-                <Link href="/cart">
+              <Button asChild size="icon" variant="ghost">
+                <Link to="/cart">
                   <div className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {cart && (
-                      <Badge className="w-1 font-extralight absolute -top-3 left-2 flex justify-center h-5  text-xs">
-                        {cart?.games.length}
+                    <ShoppingCart className="size-5" />
+                    {!!data?.cart.total && (
+                      <Badge
+                        className={cn(
+                          "min-w-5 h-5 absolute p-0 -top-3 left-2 justify-center text-xs hover:bg-primary",
+                          { "px-1": data.cart.total > 9 },
+                        )}
+                      >
+                        {data.cart.total > 99 ? "99+" : data.cart.total}
                       </Badge>
                     )}
                   </div>
                   <span className="sr-only">Shopping cart</span>
                 </Link>
               </Button>
-              <Button asChild size="tiny" variant="ghost">
-                <Link href="/account">
-                  <Avatar
-                    asChild
-                    className="relative size-10 group cursor-pointer"
-                  >
-                    <label>
+              <Button
+                asChild
+                className={data ? "group hover:bg-transparent" : ""}
+                size="icon"
+                variant="ghost"
+              >
+                <Link to="/account">
+                  {data ? (
+                    <Avatar className="size-8 group-hover:brightness-90">
                       <AvatarImage
-                        alt="Gamer Avatar"
+                        alt="User avatar"
                         className="object-cover"
-                        src={user?.pictureMultimedia?.url}
+                        src={data.user.pictureMultimedia?.url}
                       />
                       <AvatarFallback>
-                        {(user && getInitials(user?.displayName)) || (
-                          <User className="h-5 w-5" />
-                        )}
+                        {getInitials(data.user.displayName)}
                       </AvatarFallback>
-                    </label>
-                  </Avatar>
+                    </Avatar>
+                  ) : (
+                    <User className="size-5" />
+                  )}
                   <span className="sr-only">Account</span>
                 </Link>
               </Button>
@@ -181,7 +195,15 @@ function Component() {
           </div>
         </div>
       </header>
-      <Outlet />
+      <main
+        className={cn("min-h-screen px-4 py-8 sm:pb-20 md:px-6", {
+          "bg-gradient-to-br from-primary to-secondary":
+            location.pathname.includes("/signin") ||
+            location.pathname.includes("/register"),
+        })}
+      >
+        <Outlet />
+      </main>
       <footer className="w-full py-6 bg-gray-900">
         <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -189,15 +211,25 @@ function Component() {
               <h3 className="text-lg font-semibold mb-2">Browse</h3>
               <ul className="space-y-1">
                 <li>
-                  <Link className="hover:underline" to="/browse">
+                  <Link
+                    className="hover:underline"
+                    to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "recommended",
+                    }}
+                  >
                     Featured & Recommended
                   </Link>
                 </li>
                 <li>
                   <Link
                     className="hover:underline"
-                    search={{ sort: "releaseDate", order: "desc" }}
                     to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "upcoming-releases",
+                    }}
                   >
                     Upcoming Releases
                   </Link>
@@ -205,8 +237,11 @@ function Component() {
                 <li>
                   <Link
                     className="hover:underline"
-                    search={{ sort: "userCount", order: "desc" }}
                     to="/browse"
+                    search={{
+                      page: 1,
+                      quickFilter: "best-sellers",
+                    }}
                   >
                     Best Sellers
                   </Link>

@@ -61,7 +61,7 @@ function gamesQueryOptions(
     order: sort ? (sort.desc ? "desc" : "asc") : undefined,
     publisherId,
     title: titleFilter?.value as string,
-    tagIds: tagsFilter?.value as number[],
+    tagIds: tagsFilter?.value as string[],
   };
 
   return queryOptions({

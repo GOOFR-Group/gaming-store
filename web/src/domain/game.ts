@@ -64,7 +64,7 @@ export interface GamesFilters {
   isActive?: boolean;
   releaseDateBefore?: string;
   releaseDateAfter?: string;
-  tagIds?: number[];
+  tagIds?: string[];
 }
 
 /**
