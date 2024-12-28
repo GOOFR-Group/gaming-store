@@ -11,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getUser, getUserCart, removeGameFromCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TAX } from "@/lib/constants";
 import { cartQueryKey } from "@/lib/query-keys";
 import { formatCurrency } from "@/lib/utils";
 
@@ -51,7 +52,7 @@ function Component() {
 
   const [cartItems, setCartItems] = useState(cart);
   const accountBalance = user.balance;
-
+  const { toast } = useToast();
   async function removeItem(id: string) {
     try {
       setCartItems({
@@ -69,16 +70,7 @@ function Component() {
     }
   }
 
-  function moveItemToWishlist(id: string) {
-    setCartItems({
-      ...cartItems,
-      games: cartItems.games.filter((item) => item.id !== id),
-    });
-  }
-
   const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
-  const tax = subtotal * 0.1; // Assuming 10% tax
-  const total = subtotal + tax;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -86,7 +78,9 @@ function Component() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
-          <span className="font-semibold">€{accountBalance.toFixed(2)}</span>
+          <span className="font-semibold">
+            {formatCurrency(accountBalance)}
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -109,7 +103,7 @@ function Component() {
                       </p>
                     </div>
                     <p className="text-lg font-semibold">
-                      {formatCurrency(item.price)}
+                      {formatCurrency(item.price, TAX)}
                     </p>
                   </div>
                   <div className="flex-1 flex flex-wrap items-center justify-end mt-2">
@@ -119,15 +113,6 @@ function Component() {
                       onClick={() => removeItem(item.id)}
                     >
                       Remove
-                    </Button>
-
-                    <Button
-                      disabled
-                      aria-label={`Move ${item.title} to wishlist`}
-                      variant="ghost"
-                      onClick={() => moveItemToWishlist(item.id)}
-                    >
-                      Move to wishlist
                     </Button>
                   </div>
                 </div>
@@ -151,12 +136,12 @@ function Component() {
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax</span>
-                <span>{formatCurrency(tax)}</span>
+                <span>Tax ({TAX * 100}%)</span>
+                <span>{formatCurrency(subtotal * TAX)}</span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>{formatCurrency(total)}</span>
+                <span>{formatCurrency(subtotal, TAX)}</span>
               </div>
             </CardContent>
             <CardFooter>
