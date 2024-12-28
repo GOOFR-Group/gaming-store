@@ -14,59 +14,17 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { createUserCartGame } from "@/lib/api";
-import { TokenMissing } from "@/lib/errors";
+import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
 
 export const Route = createFileRoute("/_layout/games/$gameId")({
   component: Component,
 });
 
-function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
-  /**
-   * Adds a game to the cart.
-   */
-
-  const { toast } = useToast();
-
-  const mutation = useMutation({
-    async mutationFn() {
-      await createUserCartGame(userId!, gameId);
-    },
-    onSuccess() {
-      toast({
-        title: "Game Added!",
-        description: "The game was successfully added to your cart.",
-      });
-    },
-    onError(error) {
-      if (error instanceof TokenMissing) {
-        toast({
-          variant: "destructive",
-          title: "Log in to perform this action",
-        });
-        return;
-      }
-
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
-    },
-  });
-
-  function handleClick() {
-    mutation.mutate();
-  }
-
-  return (
-    <Button className="w-full text-lg py-6" onClick={handleClick}>
-      <ShoppingCart className="mr-2" />
-      Add to Cart
-    </Button>
-  );
-}
-
 function Component() {
+  const params = Route.useParams();
+
   return (
     <div className="container mx-auto">
       <h1 className="text-4xl font-bold mb-4">Cosmic Explorers</h1>
@@ -124,9 +82,7 @@ function Component() {
                     <li>Storage: 50 GB available space</li>
                   </ul>
                 </div>
-                * Adds a game to the cart. */
                 <div>
-                  * Adds a game to the cart. */
                   <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                     Recommended
                   </h3>
@@ -154,7 +110,7 @@ function Component() {
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <AddToCart gameId="TODO" userId="TODO" />
+              <AddToCart gameId={params.gameId} />
               <Tooltip>
                 <TooltipTrigger className="w-full">
                   <Button
@@ -238,5 +194,40 @@ function Component() {
         </div>
       </section>
     </div>
+  );
+}
+
+function AddToCart(props: { gameId: string }) {
+  const { toast } = useToast();
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const userId = payload.sub;
+
+      await createUserCartGame(userId, gameId);
+    },
+    onSuccess() {
+      toast({
+        title: "Game added to cart",
+      });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
+
+  /**
+   * Handles on click event on add to cart.
+   */
+  function handleClick() {
+    mutation.mutate(props.gameId);
+  }
+
+  return (
+    <Button className="w-full text-lg py-6" onClick={handleClick}>
+      <ShoppingCart className="mr-2" />
+      Add to Cart
+    </Button>
   );
 }
