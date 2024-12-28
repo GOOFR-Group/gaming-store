@@ -110,7 +110,7 @@ func TestStore_PurchaseUserCart(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, 2, userCart.Total)
 
-		err = s.PurchaseUserCart(ctx, tx, userID)
+		err = s.PurchaseUserCart(ctx, tx, userID, domain.Tax)
 		require.NoError(t, err)
 
 		userCart, err = s.ListUserCart(ctx, tx, userID, domain.UserCartPaginatedFilter{})
