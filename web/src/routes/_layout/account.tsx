@@ -114,7 +114,10 @@ function Component() {
                   "Game 6",
                 ].map((game) => (
                   <div key={game}>
-                    <Link params={{ gameId: "1" }} to="/games/$gameId">
+                    <Link
+                      params={{ gameId: "1", publisherId: "1" }}
+                      to="/publishers/$publisherId/games/$gameId"
+                    >
                       <img
                         alt="Game cover"
                         className="object-cover h-[400px] rounded-lg w-full"
