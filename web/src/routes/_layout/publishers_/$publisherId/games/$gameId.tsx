@@ -106,7 +106,6 @@ function RelatedGames(props: { games: GameDomain[] }) {
                 image={game.previewMultimedia.url}
                 price={game.price}
                 publisher={game.publisher.name}
-                tags={game.tags.map((x) => x.name)}
                 title={game.title}
               />
             </Link>
@@ -309,7 +308,7 @@ function Component() {
               </Button>
               <p className="text-sm text-muted-foreground mt-2 text-center">
                 Release Date: &nbsp;
-                {gameData.releaseDate
+                {"releaseDate" in gameData
                   ? new Date(gameData.releaseDate).toLocaleDateString("en-UK", {
                       year: "numeric",
                       month: "long",
