@@ -16,19 +16,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { gamesQueryKey } from "@/lib/query-keys";
+import { getGames } from "@/lib/api";
 
 function gamesQueryOptions() {
   return queryOptions({
     queryKey: gamesQueryKey(),
-    queryFn() {
-      return Array.from({ length: 5 }, (_, idx) => {
-        return {
-          title: `Game ${idx}`,
-          image: "/images/game.jpg",
-          publisher: "Stellar Games",
-          price: 59.99,
-        };
-      });
+    async queryFn() {
+      const games = await getGames({});
+      return games;
     },
   });
 }
@@ -44,6 +39,7 @@ function Component() {
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState<string>();
   const { data } = useSuspenseQuery(gamesQueryOptions());
+  const { games } = data;
 
   return (
     <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
@@ -68,11 +64,10 @@ function Component() {
                 (genre) => (
                   <button
                     key={genre}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      selectedGenre === genre
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${selectedGenre === genre
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
                     onClick={() => setSelectedGenre(genre)}
                   >
                     {genre}
@@ -94,11 +89,10 @@ function Component() {
               ].map((price) => (
                 <button
                   key={price}
-                  className={`p-3 rounded-lg text-left text-sm font-medium transition-colors ${
-                    selectedPrice === price
-                      ? "bg-primary text-primary-foreground"
-                      : "text-secondary-foreground hover:bg-secondary/80"
-                  }`}
+                  className={`p-3 rounded-lg text-left text-sm font-medium transition-colors ${selectedPrice === price
+                    ? "bg-primary text-primary-foreground"
+                    : "text-secondary-foreground hover:bg-secondary/80"
+                    }`}
                   onClick={() =>
                     setSelectedPrice(
                       price === selectedPrice ? undefined : price,
@@ -114,16 +108,16 @@ function Component() {
 
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.map((game) => (
+            {games.map((game) => (
               <Link
                 key={game.title}
-                params={{ gameId: "TODO",publisherId:"TODO"}}
+                params={{ gameId: game.id, publisherId: game.publisher.id }}
                 to="/publishers/$publisherId/games/$gameId"
               >
                 <Game
-                  image={game.image}
+                  image={game.previewMultimedia.url}
                   price={game.price}
-                  publisher={game.publisher}
+                  publisher={game.publisher.name}
                   title={game.title}
                 />
               </Link>

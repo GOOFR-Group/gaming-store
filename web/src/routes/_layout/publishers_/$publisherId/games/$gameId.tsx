@@ -1,4 +1,5 @@
 import {
+  dataTagSymbol,
   queryOptions,
   useMutation,
   useSuspenseQuery,
@@ -17,10 +18,13 @@ import {
   getPublisherGame,
   getUser,
   getUserCart,
+  getUserGames,
 } from '@/lib/api'
 import { decodeTokenPayload, getToken } from '@/lib/auth'
 import { TokenMissing } from '@/lib/errors'
 import { gameQueryKey, userQueryKey } from '@/lib/query-keys'
+import { Key } from 'react'
+import { formatCurrency } from '@/lib/utils'
 
 export const Route = createFileRoute(
   '/_layout/publishers/$publisherId/games/$gameId',
@@ -53,16 +57,16 @@ function userQueryOptions() {
 
 function gameQueryOptions(gameId: string, publisherId: string) {
   return queryOptions({
-    queryKey: gameQueryKey(gameId,publisherId),
+    queryKey: gameQueryKey(gameId, publisherId),
     async queryFn() {
       const token = getToken()
       const payload = decodeTokenPayload(token)
 
-      const userId = payload.sub
-      const cartGames = await getUserCart(userId)
-      const gameData = await getPublisherGame(publisherId, gameId)
+      const userId = payload.sub;
+      const userGames = await getUserGames(userId);
+      const gameData = await getPublisherGame(publisherId, gameId);
 
-      return {cartGames,gameData}
+      return { userGames, gameData }
     },
   })
 }
@@ -116,10 +120,14 @@ function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
 
 function Component() {
   const params = useParams({
-    from: '/_layout/publishers/$publisherId/games/$gameId',
-  })
+    from: '/_layout',
+  }) as { gameId: string; publisherId: string }
 
-  const { data: {cartGames,gameData} } = useSuspenseQuery(gameQueryOptions(params.gameId,params.publisherId))
+  const {
+    data: { userGames, gameData },
+  } = useSuspenseQuery(gameQueryOptions(params.gameId, params.publisherId));
+
+  console.log(userGames);
 
   const query = useSuspenseQuery(userQueryOptions())
   const userData = query.data
@@ -139,7 +147,7 @@ function Component() {
         <div className="md:col-span-2 space-y-6">
           <div className="space-y-4">
             <div className="aspect-video w-full max-h-[512px]">
-              <Carousel />
+              <Carousel game={gameData} />
             </div>
           </div>
 
@@ -201,8 +209,8 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-3xl font-bold">€{gameData.price}</span>
-                <div className="flex items-center p-2 relative bg-gray-500">
+                <span className="text-3xl font-bold">{formatCurrency(gameData.price)}</span>
+                <div className="flex items-center p-2 relative">
                   <span className="w-full -rotate-12 h-1 z-10 absolute top-5 right-0 bg-white"></span>
                   <span className="w-full rotate-12 h-1 z-10  absolute top-5 right-0 bg-white"></span>
                   <Star className="text-yellow-400 fill-yellow-400 mr-1 opacity-65" />
@@ -215,12 +223,12 @@ function Component() {
                 Add to Wishlist
               </Button>
               <p className="text-sm text-muted-foreground mt-2 text-center">
-                Release Date:{' '}//
-                {new Date(gameData BOAS PESSOAL, TODO: sem data neste objeto).toLocaleDateString('en-UK', {
+                Release Date: &nbsp;
+                {gameData.releaseDate ? new Date(gameData.releaseDate).toLocaleDateString('en-UK', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
-                })}
+                }) : 'Unknown Release Date'}
               </p>
             </CardContent>
           </Card>
@@ -262,17 +270,13 @@ function Component() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {{gameData.map((data, index) => {
-            return (
-              <Game
-                key={index} outro TODO aqui haha balls
-                image={data.url}
-                price={59.99}
-                publisher={gameData.publisher}
-                title={`Game ${index}`}
-              />
-            )
-          })} }
+          <Game
+            key={gameData.id}
+            image={gameData.previewMultimedia.url}
+            price={59.99}
+            publisher={gameData.publisher.name}
+            title={gameData.title}
+          />
         </div>
       </section>
     </div>

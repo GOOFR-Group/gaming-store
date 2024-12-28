@@ -22,6 +22,7 @@ interface ToBeAnnouncedGame {
   previewMultimedia: Multimedia;
   downloadMultimedia?: Multimedia;
   multimedia: Multimedia[];
+  releaseDate?: string;
   tags: Tag[];
   createdAt: string;
   modifiedAt: string;
