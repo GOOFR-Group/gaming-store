@@ -392,10 +392,10 @@ export async function getGames(filters: GamesFilters) {
   if (filters.title) {
     searchParams.set("title", filters.title);
   }
-  if (filters.priceUnder) {
+  if (filters.priceUnder !== undefined) {
     searchParams.set("priceUnder", String(filters.priceUnder));
   }
-  if (filters.priceAbove) {
+  if (filters.priceAbove !== undefined) {
     searchParams.set("priceAbove", String(filters.priceAbove));
   }
   if (filters.isActive) {

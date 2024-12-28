@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_layout/terms-service")({
 
 function Component() {
   return (
-    <div className="container w-full max-w-4xl mx-auto px-4 py-8 bg-background text-foreground min-h-screen">
+    <div className="container w-full max-w-4xl mx-auto bg-background text-foreground min-h-screen">
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       <p className="mb-4">
         <strong className="font-bold">Effective Date:</strong> December 25, 2024

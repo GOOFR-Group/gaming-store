@@ -43,10 +43,8 @@ function Calendar({
   );
 
   const currentDate = new Date().getFullYear();
-  const yearOptions = Array.from(
-    { length: currentDate },
-    (_, i) => currentDate - i,
-  );
+  const years = currentDate + 10;
+  const yearOptions = Array.from({ length: years }, (_, i) => years - i);
   const selectedYear =
     yearOptions.find((year) => year === date.getFullYear()) ?? yearOptions[0];
 
@@ -90,7 +88,7 @@ function Calendar({
                   </SelectItem>
                 );
               })
-              .slice(1900, new Date().getFullYear() + 1)
+              .slice(1900, years + 1)
               .reverse()}
           </SelectContent>
         </Select>
