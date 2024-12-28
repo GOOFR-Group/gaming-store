@@ -21,6 +21,7 @@ import { TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict, EmptyCart } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { paymentQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
@@ -36,13 +37,28 @@ function paymentQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
-      const cart = await getUserCartGames(userId);
 
-      if (!cart.total) {
+      let total = 0;
+      const games = await getBatchPaginatedResponse(async (limit, offset) => {
+        const paginatedGames = await getUserCartGames(userId, {
+          limit,
+          offset,
+          sort: "createdAt",
+          order: "desc",
+        });
+        total = paginatedGames.total;
+
+        return {
+          items: paginatedGames.games,
+          total,
+        };
+      });
+
+      if (!total) {
         throw new EmptyCart();
       }
 
-      return { user, cart };
+      return { user, cart: { games, total } };
     },
   });
 }
