@@ -65,9 +65,14 @@ const browseSearchSchema = z
       search.price = undefined;
       search.sort = undefined;
       search.order = undefined;
-    } else if (!search.quickFilter && !search.sort && !search.order) {
+    } else {
+      if (!search.sort) {
       search.sort = "price";
+      }
+
+      if (!search.order) {
       search.order = "asc";
+    }
     }
 
     return search;
