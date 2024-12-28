@@ -2,13 +2,13 @@ import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
+import { Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
 import { SignOut } from "@/components/account/sign-out";
 import { UserAvatar } from "@/components/account/user-avatar";
-import { Button } from "@/components/ui/button";
+import { Game } from "@/components/game";
 import {
   Card,
   CardContent,
@@ -19,14 +19,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnderConstruction } from "@/components/under-construction";
 import { PaginatedGames } from "@/domain/game";
-import { getUser, getUserGames } from "@/lib/api";
+import { getUser, getUserGameLibrary } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their game library.
  * @returns Query options.
  */
 function userQueryOptions() {
@@ -38,7 +38,7 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
-      const library = await getUserGames(userId);
+      const library = await getUserGameLibrary(userId);
 
       return { user, library };
     },
@@ -51,41 +51,6 @@ export const Route = createFileRoute("/_layout/account")({
     return opts.context.queryClient.ensureQueryData(userQueryOptions());
   },
 });
-
-function ListGamesLibrary(props: { library: PaginatedGames }) {
-  return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {props.library.games.map((game) => (
-          <div key={game.id}>
-            <Link href={`/games/${game.id}`}>
-              <img
-                alt="Game cover"
-                className="object-cover h-[400px] rounded-lg w-full"
-                src={game.previewMultimedia.url}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = "/images/game.jpg";
-                }}
-              />
-            </Link>
-            <div className="p-4 flex items-center justify-between flex-wrap">
-              <div>
-                <p className="text-sm text-gray-400">{game.publisher.name}</p>
-                <h3 className="text-xl font-semibold">{game.title}</h3>
-              </div>
-              <Button size="icon" variant="secondary">
-                <Download className="size-5" />
-                <span className="sr-only">Download</span>
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
@@ -141,18 +106,18 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games </h3>
-              {library.games.length === 0 ? (
+              {library.games.length > 0 ? (
+                <ListGamesLibrary library={library} />
+              ) : (
                 <div className="mx-auto grid text-center">
                   <p className="text-muted-foreground">
-                    Your library is empty, try&nbsp;
+                    Your library is empty, try{" "}
                     <a className="text-primary hover:underline" href="/browse">
                       purchasing some games
-                    </a>
-                    &nbsp;first.
+                    </a>{" "}
+                    ;first.
                   </p>
                 </div>
-              ) : (
-                <ListGamesLibrary library={library} />
               )}
             </TabsContent>
 
@@ -166,6 +131,25 @@ function Component() {
           </Tabs>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ListGamesLibrary(props: { library: PaginatedGames }) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
+      {props.library.games.map((game) => (
+        <div key={game.id} className="w-fit max-w-full mx-auto">
+          <Link params={{ gameId: game.id }} to="/games/$gameId">
+            <Game
+              download
+              image={game.previewMultimedia.url}
+              publisher={game.publisher.name}
+              title={game.title}
+            />
+          </Link>
+        </div>
+      ))}
     </div>
   );
 }

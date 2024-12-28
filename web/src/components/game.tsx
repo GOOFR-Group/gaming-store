@@ -1,11 +1,16 @@
+import { Download } from "lucide-react";
+
 import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
+
+import { Button } from "./ui/button";
 
 export function Game(props: {
   title: string;
   publisher: string;
-  price: number;
   image: string;
+  price?: number;
+  download?: boolean;
 }) {
   return (
     <article className="group max-w-60">
@@ -18,16 +23,28 @@ export function Game(props: {
         <p className="text-sm text-gray-300">
           {props.publisher || MISSING_VALUE_SYMBOL}
         </p>
-        <h3 className="text-xl font-semibold line-clamp-2">
+        <h3
+          className={cn("text-xl font-semibold line-clamp-2", {
+            "h-14": props.download,
+          })}
+        >
           {props.title || MISSING_VALUE_SYMBOL}
         </h3>
-        <div className="mt-2 flex items-center gap-2 flex-wrap">
-          <p>
-            {!Number.isNaN(Number(props.price))
-              ? formatCurrency(props.price, TAX)
-              : MISSING_VALUE_SYMBOL}
-          </p>
-        </div>
+        {props.price !== undefined && (
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <p>
+              {!Number.isNaN(Number(props.price))
+                ? formatCurrency(props.price, TAX)
+                : MISSING_VALUE_SYMBOL}
+            </p>
+          </div>
+        )}
+        {props.download && (
+          <Button variant="secondary">
+            Download
+            <Download className="size-5" />
+          </Button>
+        )}
       </div>
     </article>
   );

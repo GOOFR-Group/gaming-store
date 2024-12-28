@@ -23,6 +23,7 @@ import {
   User,
   UserCartGamesFilters,
   UserCredentials,
+  UserGameLibraryFilters,
 } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -144,34 +145,40 @@ export async function getUser(id: string) {
 }
 
 /**
- * Retrieves a user given a user ID.
+ * Retrieves a user's game library.
  * @param userId User ID.
- * @param asc order of the content, true by default.
- * @param limit limit of items, 100 by default.
- * @param offset element where it starts, 0 by default.
- * @returns GameList.
+ * @param [filters] Filters.
+ * @returns User's game library.
  * @throws {Unauthorized} Access token is invalid.
  * @throws {Forbidden} Forbidden access.
- * @throws {NotFound} User not found.
  * @throws {InternalServerError} Server internal error.
  */
-export async function getUserGames(
+export async function getUserGameLibrary(
   userId: string,
-  asc: boolean = true,
-  limit: number = 100,
-  offset: number = 0,
+  filters?: UserGameLibraryFilters,
 ) {
   const token = getToken();
 
-  const response = await fetch(
-    `/api/users/${userId}/games?sort=gameTitle&order=${asc ? "asc" : "desc"}&limit=${limit}&offset=${offset}`,
-    {
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const searchParams = new URLSearchParams();
+  if (filters?.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters?.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters?.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters?.order) {
+    searchParams.set("order", filters.order);
+  }
+
+  const response = await fetch(`/api/users/${userId}/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
@@ -180,16 +187,14 @@ export async function getUserGames(
         throw new Unauthorized(error.code, error.message);
       case 403:
         throw new Forbidden(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
       default:
         throw new InternalServerError();
     }
   }
 
-  const user = (await response.json()) as PaginatedGames;
+  const paginatedGames = (await response.json()) as PaginatedGames;
 
-  return user;
+  return paginatedGames;
 }
 
 /**
