@@ -10,7 +10,7 @@ import { updateUser, uploadMultimedia } from "@/lib/api";
 import { TOAST_MESSAGES } from "@/lib/constants";
 import { ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { userQueryKey } from "@/lib/query-keys";
+import { userNavbarQueryKey, userQueryKey } from "@/lib/query-keys";
 import { getInitials } from "@/lib/utils";
 
 export function UserAvatar(props: {
@@ -26,6 +26,7 @@ export function UserAvatar(props: {
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: userQueryKey });
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
     },
     onError: withAuthErrors((error) => {
       if (error instanceof ContentTooLarge) {

@@ -94,7 +94,7 @@ function Component() {
   const { user, library } = userQuery.data;
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-background text-foreground min-h-screen mb-20">
+    <div className="container mx-auto bg-background text-foreground">
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4">
