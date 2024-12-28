@@ -943,7 +943,7 @@ export async function removeGameFromCart(userId: string, gameId: string) {
 export async function addGameToCart(userId: string, gameId: string) {
   const token = getToken();
 
-  const response = await fetch(`/api/user/${userId}/cart/games/${gameId}`, {
+  const response = await fetch(`/api/users/${userId}/cart/games/${gameId}`, {
     signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
     method: "POST",
     headers: {

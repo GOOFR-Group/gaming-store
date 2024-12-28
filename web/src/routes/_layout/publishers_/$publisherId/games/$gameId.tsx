@@ -4,8 +4,8 @@ import {
   useMutation,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, useParams } from '@tanstack/react-router'
-import { ShoppingCart, Star } from 'lucide-react'
+import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { LibraryBig, ShoppingCart, Star } from 'lucide-react'
 
 import { Carousel } from '@/components/carousel'
 import { Game } from '@/components/game'
@@ -65,8 +65,9 @@ function gameQueryOptions(gameId: string, publisherId: string) {
       const userId = payload.sub;
       const userGames = await getUserGames(userId);
       const gameData = await getPublisherGame(publisherId, gameId);
+      const cartGames = await getUserCart(userId);
 
-      return { userGames, gameData }
+      return { userGames, gameData, cartGames }
     },
   })
 }
@@ -124,10 +125,10 @@ function Component() {
   }) as { gameId: string; publisherId: string }
 
   const {
-    data: { userGames, gameData },
+    data: { userGames, gameData, cartGames },
   } = useSuspenseQuery(gameQueryOptions(params.gameId, params.publisherId));
 
-  console.log(userGames);
+  console.log(cartGames);
 
   const query = useSuspenseQuery(userQueryOptions())
   const userData = query.data
@@ -218,8 +219,27 @@ function Component() {
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              <AddToCart gameId={gameData.id} userId={userData?.id} />
-              <Button className="w-full text-lg py-6 mt-2" variant="secondary">
+              {userGames.games.find((game: any) => game.id === gameData.id)
+                ?
+                <Link to='/account'>
+                  <Button className="w-full text-lg py-6 mt-2 bg-white text-black" variant="outline">
+                    <LibraryBig />
+                    In Library
+                  </Button>
+                </Link>
+                :
+                cartGames.games.find((game: any) => game.id === gameData.id)
+                  ?
+                  <Link to='/cart'>
+                    <Button className="w-full text-lg py-6 mt-2 bg-white text-black" variant="outline">
+                      <ShoppingCart />
+                      In Cart
+                    </Button>
+                  </Link>
+                  :
+                  <AddToCart gameId={gameData.id} userId={userData?.id} />
+              }
+              <Button className="w-full text-lg py-6 mt-2" variant="secondary" disabled>
                 Add to Wishlist
               </Button>
               <p className="text-sm text-muted-foreground mt-2 text-center">
