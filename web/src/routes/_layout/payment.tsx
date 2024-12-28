@@ -108,9 +108,9 @@ function BillingDetails(props: { user: User }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Username
+                Full Name
               </p>
-              <p className="text-lg">{props.user.username}</p>
+              <p className="text-lg">{props.user.displayName}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Email</p>
@@ -125,7 +125,9 @@ function BillingDetails(props: { user: User }) {
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">VAT</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                VAT No.
+              </p>
               <p className="text-lg">{props.user.vatin}</p>
             </div>
             <div>
