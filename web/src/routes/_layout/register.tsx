@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { format, subYears } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -42,6 +42,7 @@ import { createUser, signInUser } from "@/lib/api";
 import { decodeTokenPayload, storeToken } from "@/lib/auth";
 import { COUNTRIES, MINIMUM_USER_AGE, TOAST_MESSAGES } from "@/lib/constants";
 import { Conflict } from "@/lib/errors";
+import { userNavbarQueryKey } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { passwordRefinement, userAccountDetailsSchema } from "@/lib/zod";
 
@@ -72,6 +73,7 @@ const formSchema = userAccountDetailsSchema
 type RegisterSchemaType = z.infer<typeof formSchema>;
 
 function Component() {
+  const queryClient = useQueryClient();
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -110,6 +112,7 @@ function Component() {
       storeToken(jwt.token, payload.exp);
     },
     async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
       await navigate({ to: "/account" });
     },
     onError(error) {
@@ -143,7 +146,7 @@ function Component() {
   }
 
   return (
-    <div className="flex items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
+    <div className="min-h-[80vh] flex items-center justify-center">
       <Card className="w-full max-w-2xl bg-background/80 backdrop-blur-sm border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

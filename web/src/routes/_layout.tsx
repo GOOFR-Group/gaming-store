@@ -42,6 +42,7 @@ function userNavbarQueryOptions() {
         return { user, cart };
       } catch {
         // Ignore the error since the user might not be signed in.
+        return null;
       }
     },
   });
@@ -195,7 +196,7 @@ function Component() {
         </div>
       </header>
       <main
-        className={cn("min-h-screen px-4 pt-8 pb-20 md:px-6", {
+        className={cn("min-h-screen px-4 py-8 sm:pb-20 md:px-6", {
           "bg-gradient-to-br from-primary to-secondary":
             location.pathname.includes("/signin") ||
             location.pathname.includes("/register"),
