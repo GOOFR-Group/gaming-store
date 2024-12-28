@@ -1,28 +1,22 @@
-import {
-  queryOptions,
-  useMutation,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LibraryBig, ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
 import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import {
-  createUserCartGame,
-  getPublisherGame,
-  getUser,
-  getUserCartGames,
-  getUserGames,
-} from "@/lib/api";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+import { createUserCartGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { TokenMissing } from "@/lib/errors";
-import { gameQueryKey, userQueryKey } from "@/lib/query-keys";
-import { formatCurrency } from "@/lib/utils";
+import { TOAST_MESSAGES } from "@/lib/constants";
+import { withAuthErrors } from "@/lib/middleware";
 
 export const Route = createFileRoute(
   "/_layout/publishers/$publisherId/games/$gameId",
@@ -30,140 +24,43 @@ export const Route = createFileRoute(
   component: Component,
 });
 
-/**
- * Query options for retrieving the signed in user.
- * @returns Query options.
- */
-function userQueryOptions() {
-  return queryOptions({
-    queryKey: userQueryKey,
-    async queryFn() {
-      try {
-        const token = getToken();
-        const payload = decodeTokenPayload(token);
-
-        const userId = payload.sub;
-        const user = await getUser(userId);
-
-        return user;
-      } catch {
-        return null;
-      }
-    },
-  });
-}
-
-function gameQueryOptions(gameId: string, publisherId: string) {
-  return queryOptions({
-    queryKey: gameQueryKey(gameId, publisherId),
-    async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-
-      const userId = payload.sub;
-      const userGames = await getUserGames(userId);
-      const gameData = await getPublisherGame(publisherId, gameId);
-      const cartGames = await getUserCartGames(userId);
-
-      return { userGames, gameData, cartGames };
-    },
-  });
-}
-
-function AddToCart({ gameId, userId }: { gameId: string; userId?: string }) {
-  /**
-   * Adds a game to the cart.
-   */
-
-  const { toast } = useToast();
-
-  const mutation = useMutation({
-    async mutationFn() {
-      await createUserCartGame(userId!, gameId);
-    },
-    onSuccess() {
-      toast({
-        variant: "success",
-        title: "Game Added!",
-        description: "The game was successfully added to your cart.",
-      });
-    },
-    onError(error) {
-      if (error instanceof TokenMissing) {
-        toast({
-          variant: "destructive",
-          title: "Log in to perform this action",
-        });
-        return;
-      }
-
-      toast({
-        variant: "destructive",
-        title: "Oops! An unexpected error occurred",
-        description: "Please try again later or contact the support team.",
-      });
-    },
-  });
-
-  function handleClick() {
-    mutation.mutate();
-  }
-
-  return (
-    <Button className="w-full text-lg py-6" onClick={handleClick}>
-      <ShoppingCart className="mr-2" />
-      Add to Cart
-    </Button>
-  );
-}
-
 function Component() {
   const params = Route.useParams();
 
-  const {
-    data: { userGames, gameData, cartGames },
-  } = useSuspenseQuery(gameQueryOptions(params.gameId, params.publisherId));
-
-  const query = useSuspenseQuery(userQueryOptions());
-  const userData = query.data;
-
-  const getLanguage = (code: string) => {
-    const lang = new Intl.DisplayNames(["en"], { type: "language" });
-    return lang.of(code);
-  };
-
-  const country = gameData.languages.map((language) => getLanguage(language));
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-4">{gameData.title}</h1>
+    <div className="container mx-auto">
+      <h1 className="text-4xl font-bold mb-4">Cosmic Explorers</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <div className="space-y-4">
             <div className="aspect-video w-full max-h-[512px]">
-              <Carousel game={gameData} />
+              <Carousel game={undefined} />
             </div>
           </div>
 
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p className="text-muted-foreground">{gameData.description}</p>
+              <p>
+                Embark on an interstellar journey in Cosmic Explorers, where
+                you'll discover uncharted planets, encounter alien species, and
+                unravel the mysteries of the universe. Build your own spaceship,
+                form alliances with other players, and leave your mark on the
+                galaxy in this expansive multiplayer sci-fi adventure.
+              </p>
 
               <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
-                  {gameData.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary">
-                      {tag.name.toUpperCase()}
-                    </Badge>
-                  ))}
+                  <Badge variant="secondary">Sci-Fi</Badge>
+                  <Badge variant="secondary">Adventure</Badge>
+                  <Badge variant="secondary">Multiplayer</Badge>
                 </div>
 
                 <img
                   alt="Age rating"
                   className="h-12"
-                  src={`/images/pegi/${gameData.ageRating}.png`}
+                  src="/images/pegi/18.png"
                 />
               </div>
             </CardContent>
@@ -176,23 +73,27 @@ function Component() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Minimum:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {gameData.requirements.minimum
-                      .split("\n")
-                      .map((requirement, index) => (
-                        <li key={index}>{requirement}</li>
-                      ))}
+                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                    Minimum
+                  </h3>
+                  <ul className="list-disc list-inside">
+                    <li>OS: Windows 10 64-bit</li>
+                    <li>Processor: Intel Core i5-4460 or AMD FX-6300</li>
+                    <li>Memory: 8 GB RAM</li>
+                    <li>Graphics: NVIDIA GeForce GTX 760</li>
+                    <li>Storage: 50 GB available space</li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Recommended:</h3>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground">
-                    {gameData.requirements.recommended
-                      .split("\n")
-                      .map((requirement, index) => (
-                        <li key={index}>{requirement}</li>
-                      ))}
+                  <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                    Recommended
+                  </h3>
+                  <ul className="list-disc list-inside">
+                    <li>OS: Windows 10 64-bit</li>
+                    <li>Processor: Intel Core i7-4790 or AMD Ryzen 5 1500X</li>
+                    <li>Memory: 16 GB RAM</li>
+                    <li>Graphics: NVIDIA GeForce GTX 1060</li>
+                    <li>Storage: 50 GB available space (SSD recommended)</li>
                   </ul>
                 </div>
               </div>
@@ -204,106 +105,131 @@ function Component() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-3xl font-bold">
-                  {formatCurrency(gameData.price)}
-                </span>
-                <div className="flex items-center p-2 relative">
-                  <span className="w-full -rotate-12 h-1 z-10 absolute top-5 right-0 bg-white"></span>
-                  <span className="w-full rotate-12 h-1 z-10  absolute top-5 right-0 bg-white"></span>
-                  <Star className="text-yellow-400 fill-yellow-400 mr-1 opacity-65" />
-                  <span className="font-semibold opacity-65">4.8</span>
+                <span className="text-3xl font-bold">€59.99</span>
+                <div className="flex items-center">
+                  <Star className="text-yellow-400 fill-yellow-400 mr-1" />
+                  <span className="font-semibold">4.8</span>
                   <span className="text-muted-foreground ml-1">(2,945)</span>
                 </div>
               </div>
-              {userGames.games.find((game) => game.id === gameData.id) ? (
-                <Link to="/account">
+              <AddToCart gameId={params.gameId} />
+              <Tooltip>
+                <TooltipTrigger className="w-full">
                   <Button
-                    className="w-full text-lg py-6 mt-2 bg-white text-black"
-                    variant="outline"
+                    asChild
+                    disabled
+                    className="w-full text-lg py-6 mt-2"
+                    variant="secondary"
                   >
-                    <LibraryBig />
-                    In Library
+                    <span>
+                      <Heart />
+                      Add to Wishlist
+                    </span>
                   </Button>
-                </Link>
-              ) : cartGames.games.find((game) => game.id === gameData.id) ? (
-                <Link to="/cart">
-                  <Button
-                    className="w-full text-lg py-6 mt-2 bg-white text-black"
-                    variant="outline"
-                  >
-                    <ShoppingCart />
-                    In Cart
-                  </Button>
-                </Link>
-              ) : (
-                <AddToCart gameId={gameData.id} userId={userData?.id} />
-              )}
-              <Button
-                disabled
-                className="w-full text-lg py-6 mt-2"
-                variant="secondary"
-              >
-                Add to Wishlist
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2 text-center">
-                Release Date: &nbsp;
-                {gameData.releaseDate
-                  ? new Date(gameData.releaseDate).toLocaleDateString("en-UK", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
-                  : "Unknown Release Date"}
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  This feature is under construction
+                </TooltipContent>
+              </Tooltip>
+              <p className="text-muted-foreground mt-2 text-center">
+                Release Date: June 15, 2023
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Developed by</h3>
-              <p className="text-muted-foreground">{gameData.publisher.name}</p>
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                Developed by
+              </h3>
+              <p>Stellar Games</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">Game Features</h3>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {gameData.features.split("\n").map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
+                Game Features
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Vast, procedurally generated universe</li>
+                <li>Multiplayer co-op and PvP modes</li>
+                <li>Customizable spaceships and characters</li>
+                <li>Dynamic economy and trading system</li>
+                <li>Epic story-driven campaign</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                 Languages Supported
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {country.join(", ")}
+              <p>
+                English, French, German, Spanish, Italian, Russian, Japanese,
+                Korean, Chinese (Simplified and Traditional)
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <section className="py-12 md:py-24 lg:py-32 px-4 md:px-6">
+      <section className="py-12 md:py-24 lg:py-32">
         <h2 className="text-3xl font-bold tracking-tighter mb-8">
           More Like This
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <Game
-            key={gameData.id}
-            image={gameData.previewMultimedia.url}
-            price={59.99}
-            publisher={gameData.publisher.name}
-            title={gameData.title}
-          />
+          {Array.from({ length: 4 }, (_, idx) => {
+            return (
+              <Link key={idx} params={{ gameId: "1" }} to="/games/$gameId">
+                <Game
+                  image="/images/game.jpg"
+                  price={59.99}
+                  publisher="Stellar Games"
+                  title={`Game ${idx}`}
+                />
+              </Link>
+            );
+          })}
         </div>
       </section>
     </div>
+  );
+}
+
+function AddToCart(props: { gameId: string }) {
+  const { toast } = useToast();
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const userId = payload.sub;
+
+      await createUserCartGame(userId, gameId);
+    },
+    onSuccess() {
+      toast({
+        title: "Game added to cart",
+      });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
+
+  /**
+   * Handles on click event on add to cart.
+   */
+  function handleClick() {
+    mutation.mutate(props.gameId);
+  }
+
+  return (
+    <Button className="w-full text-lg py-6" onClick={handleClick}>
+      <ShoppingCart className="mr-2" />
+      Add to Cart
+    </Button>
   );
 }
