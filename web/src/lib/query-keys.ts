@@ -26,8 +26,8 @@ export function gamesQueryKey(filters?: GamesFilters): QueryKey {
  * @param id Game ID.
  * @returns Game query key.
  */
-export function gameQueryKey(id: string): QueryKey {
-  return ["games", id];
+export function gameQueryKey(publisherId: string,gameId:string): QueryKey {
+  return ["games", publisherId,gameId];
 }
 
 /**

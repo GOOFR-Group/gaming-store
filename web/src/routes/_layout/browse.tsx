@@ -117,8 +117,8 @@ function Component() {
             {data.map((game) => (
               <Link
                 key={game.title}
-                params={{ gameId: "1" }}
-                to="/games/$gameId"
+                params={{ gameId: "TODO",publisherId:"TODO"}}
+                to="/publishers/$publisherId/games/$gameId"
               >
                 <Game
                   image={game.image}
