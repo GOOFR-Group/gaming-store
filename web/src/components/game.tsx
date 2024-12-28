@@ -41,7 +41,7 @@ export function Game(props: {
         )}
         {props.download && (
           <Button variant="secondary">
-            Download
+            <span className="hidden sm:block">Download</span>
             <Download className="size-5" />
           </Button>
         )}

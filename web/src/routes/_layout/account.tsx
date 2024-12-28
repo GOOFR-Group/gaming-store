@@ -18,11 +18,12 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnderConstruction } from "@/components/under-construction";
-import { PaginatedGames } from "@/domain/game";
+import { Game as GameDomain } from "@/domain/game";
 import { getUser, getUserGameLibrary } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
@@ -38,7 +39,17 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
-      const library = await getUserGameLibrary(userId);
+      const library = await getBatchPaginatedResponse(async (limit, offset) => {
+        const paginatedGames = await getUserGameLibrary(userId, {
+          limit,
+          offset,
+        });
+
+        return {
+          items: paginatedGames.games,
+          total: paginatedGames.total,
+        };
+      });
 
       return { user, library };
     },
@@ -106,16 +117,16 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games </h3>
-              {library.games.length > 0 ? (
+              {library.length > 0 ? (
                 <ListGamesLibrary library={library} />
               ) : (
-                <div className="mx-auto grid text-center">
+                <div className="mx-auto grid text-center py-6">
                   <p className="text-muted-foreground">
                     Your library is empty, try{" "}
                     <a className="text-primary hover:underline" href="/browse">
                       purchasing some games
                     </a>{" "}
-                    ;first.
+                    first.
                   </p>
                 </div>
               )}
@@ -135,11 +146,14 @@ function Component() {
   );
 }
 
-function ListGamesLibrary(props: { library: PaginatedGames }) {
+function ListGamesLibrary(props: { library: GameDomain[] }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-      {props.library.games.map((game) => (
-        <div key={game.id} className="w-fit max-w-full mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {props.library.map((game) => (
+        <div
+          key={game.id}
+          className="w-fit max-w-full mx-auto border p-4 rounded-lg"
+        >
           <Link params={{ gameId: game.id }} to="/games/$gameId">
             <Game
               download
