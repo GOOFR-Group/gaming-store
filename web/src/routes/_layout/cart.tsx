@@ -59,7 +59,7 @@ function cartQueryOptions() {
 export const Route = createFileRoute("/_layout/cart")({
   component: Component,
   loader(opts) {
-    return opts.context.queryClient.ensureQueryData(userQueryOptions());
+    return opts.context.queryClient.ensureQueryData(cartQueryOptions());
   },
 });
 
