@@ -418,7 +418,7 @@ function useBrowse(
   }
 
   /**
-   * Sorts games by a given sort field and order..
+   * Sorts games by a given sort field and order.
    * @param sort Sort field.
    * @param order Order field.
    */
