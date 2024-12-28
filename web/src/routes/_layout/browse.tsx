@@ -489,7 +489,7 @@ function useBrowse(
       search.title ||
       search.tags ||
       search.quickFilter ||
-      search.price !== undefined
+      search.price
     ),
 
     pages:
