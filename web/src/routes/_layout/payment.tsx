@@ -77,14 +77,14 @@ function Component() {
         <>
           <div className="flex flex-wrap justify-between items-center gap-2 mb-8">
             <h1 className="text-3xl font-bold">Complete Your Purchase</h1>
-            <div className="text-lg mr-4">
+            <div className="text-lg">
               Account Balance:{" "}
               <span className="font-semibold">
                 {formatCurrency(user.balance)}
               </span>
             </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <BillingDetails user={user} />
             <PurchaseSummary
               cart={cart}
@@ -100,7 +100,7 @@ function Component() {
 
 function BillingDetails(props: { user: User }) {
   return (
-    <Card className="h-fit col-span-2">
+    <Card className="h-fit md:col-span-2">
       <CardHeader>
         <CardTitle>Billing Details</CardTitle>
       </CardHeader>
@@ -185,7 +185,7 @@ function PurchaseSummary(props: {
   const subtotal = props.cart.games.reduce((sum, game) => sum + game.price, 0);
 
   return (
-    <Card className="mr-4">
+    <Card>
       <CardHeader>
         <CardTitle>Purchase Summary</CardTitle>
       </CardHeader>
@@ -194,7 +194,7 @@ function PurchaseSummary(props: {
           {props.cart.games.map((game) => (
             <div key={game.id} className="flex justify-between">
               <span>{game.title}</span>
-              <span>{formatCurrency(game.price)}</span>
+              <span>{formatCurrency(game.price, TAX)}</span>
             </div>
           ))}
           <div className="border-t pt-4 space-y-2">
