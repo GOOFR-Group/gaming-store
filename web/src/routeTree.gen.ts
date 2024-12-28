@@ -23,6 +23,7 @@ import { Route as LayoutTermsServiceImport } from "./routes/_layout/terms-servic
 import { Route as LayoutSigninImport } from "./routes/_layout/signin";
 import { Route as LayoutRegisterImport } from "./routes/_layout/register";
 import { Route as LayoutPrivacyPolicyImport } from "./routes/_layout/privacy-policy";
+import { Route as LayoutPaymentImport } from "./routes/_layout/payment";
 import { Route as LayoutCookiePolicyImport } from "./routes/_layout/cookie-policy";
 import { Route as LayoutCartImport } from "./routes/_layout/cart";
 import { Route as LayoutBrowseImport } from "./routes/_layout/browse";
@@ -94,6 +95,11 @@ const LayoutRegisterRoute = LayoutRegisterImport.update({
 
 const LayoutPrivacyPolicyRoute = LayoutPrivacyPolicyImport.update({
   path: "/privacy-policy",
+  getParentRoute: () => LayoutRoute,
+} as any);
+
+const LayoutPaymentRoute = LayoutPaymentImport.update({
+  path: "/payment",
   getParentRoute: () => LayoutRoute,
 } as any);
 
@@ -199,6 +205,13 @@ declare module "@tanstack/react-router" {
       path: "/cookie-policy";
       fullPath: "/cookie-policy";
       preLoaderRoute: typeof LayoutCookiePolicyImport;
+      parentRoute: typeof LayoutImport;
+    };
+    "/_layout/payment": {
+      id: "/_layout/payment";
+      path: "/payment";
+      fullPath: "/payment";
+      preLoaderRoute: typeof LayoutPaymentImport;
       parentRoute: typeof LayoutImport;
     };
     "/_layout/privacy-policy": {
@@ -337,6 +350,7 @@ interface LayoutRouteChildren {
   LayoutBrowseRoute: typeof LayoutBrowseRoute;
   LayoutCartRoute: typeof LayoutCartRoute;
   LayoutCookiePolicyRoute: typeof LayoutCookiePolicyRoute;
+  LayoutPaymentRoute: typeof LayoutPaymentRoute;
   LayoutPrivacyPolicyRoute: typeof LayoutPrivacyPolicyRoute;
   LayoutRegisterRoute: typeof LayoutRegisterRoute;
   LayoutSigninRoute: typeof LayoutSigninRoute;
@@ -351,6 +365,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutBrowseRoute: LayoutBrowseRoute,
   LayoutCartRoute: LayoutCartRoute,
   LayoutCookiePolicyRoute: LayoutCookiePolicyRoute,
+  LayoutPaymentRoute: LayoutPaymentRoute,
   LayoutPrivacyPolicyRoute: LayoutPrivacyPolicyRoute,
   LayoutRegisterRoute: LayoutRegisterRoute,
   LayoutSigninRoute: LayoutSigninRoute,
@@ -409,6 +424,7 @@ export interface FileRoutesByFullPath {
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
   "/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/payment": typeof LayoutPaymentRoute;
   "/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
@@ -433,6 +449,7 @@ export interface FileRoutesByTo {
   "/browse": typeof LayoutBrowseRoute;
   "/cart": typeof LayoutCartRoute;
   "/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/payment": typeof LayoutPaymentRoute;
   "/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/register": typeof LayoutRegisterRoute;
   "/signin": typeof LayoutSigninRoute;
@@ -458,6 +475,7 @@ export interface FileRoutesById {
   "/_layout/browse": typeof LayoutBrowseRoute;
   "/_layout/cart": typeof LayoutCartRoute;
   "/_layout/cookie-policy": typeof LayoutCookiePolicyRoute;
+  "/_layout/payment": typeof LayoutPaymentRoute;
   "/_layout/privacy-policy": typeof LayoutPrivacyPolicyRoute;
   "/_layout/register": typeof LayoutRegisterRoute;
   "/_layout/signin": typeof LayoutSigninRoute;
@@ -486,6 +504,7 @@ export interface FileRouteTypes {
     | "/browse"
     | "/cart"
     | "/cookie-policy"
+    | "/payment"
     | "/privacy-policy"
     | "/register"
     | "/signin"
@@ -509,6 +528,7 @@ export interface FileRouteTypes {
     | "/browse"
     | "/cart"
     | "/cookie-policy"
+    | "/payment"
     | "/privacy-policy"
     | "/register"
     | "/signin"
@@ -532,6 +552,7 @@ export interface FileRouteTypes {
     | "/_layout/browse"
     | "/_layout/cart"
     | "/_layout/cookie-policy"
+    | "/_layout/payment"
     | "/_layout/privacy-policy"
     | "/_layout/register"
     | "/_layout/signin"
@@ -586,6 +607,7 @@ export const routeTree = rootRoute
         "/_layout/browse",
         "/_layout/cart",
         "/_layout/cookie-policy",
+        "/_layout/payment",
         "/_layout/privacy-policy",
         "/_layout/register",
         "/_layout/signin",
@@ -609,6 +631,10 @@ export const routeTree = rootRoute
     },
     "/_layout/cookie-policy": {
       "filePath": "_layout/cookie-policy.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/payment": {
+      "filePath": "_layout/payment.tsx",
       "parent": "/_layout"
     },
     "/_layout/privacy-policy": {

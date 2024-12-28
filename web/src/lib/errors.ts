@@ -123,3 +123,8 @@ export class TokenMissing extends Error {}
  * Represents the error that the JWT payload is missing from the JWT.
  */
 export class TokenPayloadMissing extends Error {}
+
+/**
+ * Represents the error that the user's cart is empty when they are accessing the payment step.
+ */
+export class EmptyCart extends Error {}

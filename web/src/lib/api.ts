@@ -949,9 +949,12 @@ export async function deleteUserCartGame(userId: string, gameId: string) {
 }
 
 /**
- * Retrieves the cart games.
- * @param filters Tags filters.
- * @returns Tags.
+ * Purchases a user shopping cart.
+ * @param userId User ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User not found.
+ * @throws {Conflict} User cart is empty or the balance is insufficient.
  * @throws {InternalServerError} Server internal error.
  */
 export async function purchaseUserCart(userId: string) {
@@ -968,10 +971,14 @@ export async function purchaseUserCart(userId: string) {
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
       case 404:
         throw new NotFound(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
       default:
         throw new InternalServerError();
     }

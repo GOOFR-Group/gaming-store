@@ -73,6 +73,7 @@ function Component() {
       await deleteUserCartGame(user.id, gameId);
     },
     async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: cartQueryKey });
       await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
     },
     onError: withAuthErrors(() => {
@@ -88,11 +89,11 @@ function Component() {
     mutation.mutate(id);
   }
 
-  const subtotal = cart.games.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = cart.games.reduce((sum, game) => sum + game.price, 0);
 
   return (
     <div className="container mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-8">
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
@@ -142,7 +143,7 @@ function Component() {
             </p>
           )}
         </div>
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Order Summary</CardTitle>
           </CardHeader>

@@ -1,75 +1,81 @@
 import { useState } from "react";
 
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PaginatedGames } from "@/domain/game";
+import { User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
-import { getCartGames, getUser, purchaseUserCart } from "@/lib/api";
+import { getUser, getUserCartGames, purchaseUserCart } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { COUNTRIES_MAP, MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
 import { TOAST_MESSAGES } from "@/lib/constants";
-import { cartQueryKey, userQueryKey } from "@/lib/query-keys";
-import { formatCurrency } from "@/lib/utils";
-
-export const Route = createFileRoute("/_layout/payment")({
-  component: () => PaymentPage(),
-});
+import { Conflict, EmptyCart } from "@/lib/errors";
+import { withAuthErrors } from "@/lib/middleware";
+import { paymentQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
+import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their cart.
  * @returns Query options.
  */
-function userQueryOptions() {
+function paymentQueryOptions() {
   return queryOptions({
-    queryKey: userQueryKey,
+    queryKey: paymentQueryKey,
     async queryFn() {
       const token = getToken();
       const payload = decodeTokenPayload(token);
 
       const userId = payload.sub;
       const user = await getUser(userId);
+      const cart = await getUserCartGames(userId);
 
-      return user;
+      if (!cart.total) {
+        throw new EmptyCart();
+      }
+
+      return { user, cart };
     },
   });
 }
 
-/**
- * Query options for retrieving the games from user cart.
- * @returns Query options.
- */
-function cartQueryOptions() {
-  return queryOptions({
-    queryKey: cartQueryKey,
-    async queryFn() {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
+export const Route = createFileRoute("/_layout/payment")({
+  component: Component,
+  loader(opts) {
+    return opts.context.queryClient.ensureQueryData(paymentQueryOptions());
+  },
+  onError(error) {
+    if (error instanceof EmptyCart) {
+      redirect({
+        to: "/cart",
+        replace: true,
+        throw: true,
+      });
+    }
+  },
+});
 
-      const userId = payload.sub;
-      const cartGames = await getCartGames(userId);
-
-      return cartGames;
-    },
-  });
-}
-
-export default function PaymentPage() {
-  const query = useSuspenseQuery(userQueryOptions());
-  const user = query.data;
+function Component() {
   const [isPaymentComplete, setIsPaymentComplete] = useState(false);
+  const {
+    data: { user, cart },
+  } = useSuspenseQuery(paymentQueryOptions());
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       {isPaymentComplete ? (
         <ThankYouMessage />
       ) : (
         <>
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold mb-6 ml-4">
-              Complete Your Purchase
-            </h1>
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-8">
+            <h1 className="text-3xl font-bold">Complete Your Purchase</h1>
             <div className="text-lg mr-4">
               Account Balance:{" "}
               <span className="font-semibold">
@@ -77,9 +83,11 @@ export default function PaymentPage() {
               </span>
             </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            <PaymentForm />
+          <div className="grid md:grid-cols-3 gap-8">
+            <BillingDetails user={user} />
             <PurchaseSummary
+              cart={cart}
+              user={user}
               onPaymentComplete={() => setIsPaymentComplete(true)}
             />
           </div>
@@ -89,15 +97,9 @@ export default function PaymentPage() {
   );
 }
 
-export function PaymentForm() {
-  const query = useSuspenseQuery(userQueryOptions());
-  const user = query.data;
-  const country =
-    COUNTRIES_MAP[user.country.toUpperCase() as keyof typeof COUNTRIES_MAP]
-      ?.name ?? MISSING_VALUE_SYMBOL;
-
+function BillingDetails(props: { user: User }) {
   return (
-    <Card className="ml-4 h-fit col-span-2">
+    <Card className="h-fit col-span-2">
       <CardHeader>
         <CardTitle>Billing Details</CardTitle>
       </CardHeader>
@@ -108,27 +110,29 @@ export function PaymentForm() {
               <p className="text-sm font-medium text-muted-foreground">
                 Username
               </p>
-              <p className="text-lg">{user.username}</p>
+              <p className="text-lg">{props.user.username}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Email</p>
-              <p className="text-lg">{user.email}</p>
+              <p className="text-lg">{props.user.email}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Country
               </p>
-              <p className="text-lg">{country}</p>
+              <p className="text-lg">
+                {getCountryName(props.user.country) ?? MISSING_VALUE_SYMBOL}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">VAT</p>
-              <p className="text-lg">{user.vatin}</p>
+              <p className="text-lg">{props.user.vatin}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Address
               </p>
-              <p className="text-lg">{user.address}</p>
+              <p className="text-lg">{props.user.address}</p>
             </div>
           </div>
         </div>
@@ -137,23 +141,45 @@ export function PaymentForm() {
   );
 }
 
-export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
-  const { data } = useSuspenseQuery(cartQueryOptions());
-  const { data: user } = useSuspenseQuery(userQueryOptions());
-  const [cartItems] = useState(data);
-  const subtotal = cartItems.games.reduce((sum, item) => sum + item.price, 0);
-  const tax = subtotal * 0.23;
-  const total = subtotal + tax;
+function PurchaseSummary(props: {
+  cart: PaginatedGames;
+  user: User;
+  onPaymentComplete: () => void;
+}) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  async function onSubmit() {
-    try {
-      await purchaseUserCart(user.id);
+  const mutation = useMutation({
+    async mutationFn(userId: string) {
+      await purchaseUserCart(userId);
+    },
+    async onSuccess() {
       props.onPaymentComplete();
-    } catch {
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
+    },
+    onError: withAuthErrors((error) => {
+      if (error instanceof Conflict) {
+        toast({
+          variant: "destructive",
+          title: "Insufficient balance",
+          description:
+            "Your current balance is not enough to complete this purchase.",
+        });
+        return;
+      }
+
       toast(TOAST_MESSAGES.unexpectedError);
-    }
+    }),
+  });
+
+  /**
+   * Handles the process of completing the payment.
+   */
+  function handleCompletePayment() {
+    mutation.mutate(props.user.id);
   }
+
+  const subtotal = props.cart.games.reduce((sum, game) => sum + game.price, 0);
 
   return (
     <Card className="mr-4">
@@ -162,28 +188,28 @@ export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {cartItems.games.map((item, index) => (
-            <div key={index} className="flex justify-between">
-              <span>{item.title}</span>
-              <span>{formatCurrency(item.price)}</span>
+          {props.cart.games.map((game) => (
+            <div key={game.id} className="flex justify-between">
+              <span>{game.title}</span>
+              <span>{formatCurrency(game.price)}</span>
             </div>
           ))}
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Tax</span>
-              <span>{formatCurrency(tax)}</span>
+              <span>Tax ({TAX * 100}%)</span>
+              <span>{formatCurrency(subtotal * TAX)}</span>
             </div>
-            <div className="flex justify-between font-bold text-lg mt-4">
+            <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>{formatCurrency(total)}</span>
+              <span>{formatCurrency(subtotal, TAX)}</span>
             </div>
           </div>
         </div>
-        <Button className="w-full mt-4" onClick={onSubmit}>
+        <Button className="w-full mt-4" onClick={handleCompletePayment}>
           Complete Payment
         </Button>
       </CardContent>
@@ -191,7 +217,7 @@ export function PurchaseSummary(props: { onPaymentComplete: () => void }) {
   );
 }
 
-export function ThankYouMessage() {
+function ThankYouMessage() {
   return (
     <div className="container w-full max-w-4xl mx-auto px-4 py-8 bg-background text-foreground min-h-screen text-center">
       <h1 className="text-4xl font-bold mb-2">Thank you for your purchase!</h1>
