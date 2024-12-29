@@ -371,7 +371,10 @@ function AddToCart(props: {
 
   const today = useMemo(() => new Date(), []);
 
-  if ("releaseDate" in props.game && isAfter(props.game.releaseDate, today)) {
+  if (
+    !("releaseDate" in props.game) ||
+    ("releaseDate" in props.game && isAfter(props.game.releaseDate, today))
+  ) {
     return (
       <Tooltip>
         <TooltipTrigger>
