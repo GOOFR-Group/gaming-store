@@ -529,6 +529,7 @@ export function GameForm(props: GameProps) {
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       initialFocus
+                      defaultMonth={field.value}
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
