@@ -110,7 +110,7 @@ function Component() {
                 <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
                   <img
                     alt={game.title}
-                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover"
+                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover aspect-square"
                     src={game.previewMultimedia.url}
                     width={100}
                   />
