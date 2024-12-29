@@ -231,22 +231,26 @@ function Section(props: {
         <ChevronRight size={24} />
       </Link>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
-        {props.games.map((game) => (
-          <Link
-            key={game.title}
-            params={{ gameId: game.id, publisherId: game.publisher.id }}
-            to="/publishers/$publisherId/games/$gameId"
-          >
-            <Game
-              image={game.previewMultimedia.url}
-              price={applyTax(game.price)}
-              publisher={game.publisher.name}
-              title={game.title}
-            />
-          </Link>
-        ))}
-      </div>
+      {props.games.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
+          {props.games.map((game) => (
+            <Link
+              key={game.title}
+              params={{ gameId: game.id, publisherId: game.publisher.id }}
+              to="/publishers/$publisherId/games/$gameId"
+            >
+              <Game
+                image={game.previewMultimedia.url}
+                price={applyTax(game.price)}
+                publisher={game.publisher.name}
+                title={game.title}
+              />
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">No matching games were found.</p>
+      )}
     </section>
   );
 }
