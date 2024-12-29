@@ -1,15 +1,16 @@
 import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Multimedia } from "@/domain/multimedia";
 import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, getMultimediaName } from "@/lib/utils";
 
 export function Game(props: {
   title: string;
   publisher: string;
   image: string;
   price?: number;
-  download?: boolean;
+  downloadMultimedia?: Multimedia;
 }) {
   return (
     <article className="group max-w-60">
@@ -24,7 +25,7 @@ export function Game(props: {
         </p>
         <h3
           className={cn("text-xl font-semibold line-clamp-2", {
-            "h-14": props.download,
+            "h-14": props.downloadMultimedia,
           })}
         >
           {props.title || MISSING_VALUE_SYMBOL}
@@ -38,10 +39,15 @@ export function Game(props: {
             </p>
           </div>
         )}
-        {props.download && (
-          <Button variant="secondary">
-            <span className="hidden sm:block">Download</span>
-            <Download className="size-5" />
+        {props.downloadMultimedia && (
+          <Button asChild variant="secondary">
+            <a
+              download={getMultimediaName(props.downloadMultimedia)}
+              href={props.downloadMultimedia.url}
+            >
+              <span className="hidden sm:block">Download</span>
+              <Download className="size-5" />
+            </a>
           </Button>
         )}
       </div>

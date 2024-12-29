@@ -158,7 +158,7 @@ function ListGamesLibrary(props: { library: GameDomain[] }) {
         >
           <Link params={{ gameId: game.id }} to="/games/$gameId">
             <Game
-              download
+              downloadMultimedia={game.downloadMultimedia}
               image={game.previewMultimedia.url}
               publisher={game.publisher.name}
               title={game.title}
