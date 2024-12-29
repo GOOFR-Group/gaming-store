@@ -45,7 +45,7 @@ type UserData =
     }
   | undefined;
 
-const RELATED_GAMES_LIMIT = 3;
+const RELATED_GAMES_LIMIT = 7;
 
 /**
  * Query options for retrieving the signed in user.
