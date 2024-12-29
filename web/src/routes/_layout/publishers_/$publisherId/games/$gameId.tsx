@@ -58,7 +58,7 @@ function gameQueryOptions(gameId: string, publisherId: string) {
       const relatedGames = (
         await getGames({
           tagIds: game.tags.map((tag) => tag.id),
-          limit: 2,
+          limit: 7,
         })
       ).games;
 
