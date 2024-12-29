@@ -1,11 +1,14 @@
+import { useMemo } from "react";
+
 import {
   queryOptions,
   useMutation,
+  useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { differenceInYears, format, isAfter } from "date-fns";
+import { Heart, Library, ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
 import { Game } from "@/components/game";
@@ -31,7 +34,7 @@ import {
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TAX, TO_BE_ANNOUNCED, TOAST_MESSAGES } from "@/lib/constants";
 import { withAuthErrors } from "@/lib/middleware";
-import { gameQueryKey } from "@/lib/query-keys";
+import { gameQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
 import { formatCurrency, getLanguageName } from "@/lib/utils";
 
 type UserData =
@@ -76,7 +79,7 @@ function gameQueryOptions(gameId: string, publisherId: string) {
           cart,
         };
       } catch {
-        // Ignore error.
+        // Ignore the error since the user might not be signed in.
       }
 
       return {
@@ -112,15 +115,13 @@ function Component() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <div className="space-y-4">
-            <div className="aspect-video w-full max-h-[512px]">
-              <Carousel game={game} />
-            </div>
+            <Carousel game={game} />
           </div>
 
           <Card>
             <CardContent className="pt-6">
               <h2 className="text-2xl font-semibold mb-4">About the Game</h2>
-              <p>{game.description}</p>
+              <p className="whitespace-pre-wrap">{game.description}</p>
 
               <div className="flex flex-wrap items-start justify-between mt-4">
                 <div className="flex gap-2 flex-wrap">
@@ -136,7 +137,8 @@ function Component() {
                 <img
                   alt="Age rating"
                   className="h-12"
-                  src="/images/pegi/18.png"
+                  src={`/images/pegi/${game.ageRating}.png`}
+                  onError={(e) => (e.currentTarget.style.display = "none")}
                 />
               </div>
             </CardContent>
@@ -152,23 +154,17 @@ function Component() {
                   <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                     Minimum
                   </h3>
-                  <ul className="list-disc list-inside">
-                    {game.requirements.minimum.split("\n").map((item, idx) => {
-                      return <li key={idx}>{item}</li>;
-                    })}
-                  </ul>
+                  <p className="whitespace-pre-wrap">
+                    {game.requirements.minimum}
+                  </p>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                     Recommended
                   </h3>
-                  <ul className="list-disc list-inside">
-                    {game.requirements.recommended
-                      .split("\n")
-                      .map((item, idx) => {
-                        return <li key={idx}>{item}</li>;
-                      })}
-                  </ul>
+                  <p className="whitespace-pre-wrap">
+                    {game.requirements.recommended}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -178,7 +174,7 @@ function Component() {
         <div className="space-y-6">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-wrap gap-2 justify-between items-center mb-4">
                 <span className="text-3xl font-bold">
                   {formatCurrency(game.price, TAX)}
                 </span>
@@ -190,7 +186,7 @@ function Component() {
               </div>
 
               <GameActions
-                gameId={game.id}
+                game={game}
                 publisherId={game.publisher.id}
                 userData={userData}
               />
@@ -217,11 +213,7 @@ function Component() {
               <h3 className="font-semibold mb-2 text-muted-foreground text-lg">
                 Game Features
               </h3>
-              <ul className="list-disc list-inside space-y-1">
-                {game.features.split("\n").map((item, idx) => {
-                  return <li key={idx}>{item}</li>;
-                })}
-              </ul>
+              <p className="whitespace-pre-wrap">{game.features}</p>
             </CardContent>
           </Card>
 
@@ -281,43 +273,57 @@ function RelatedGames(props: { games: GameDomain[] }) {
 
 function GameActions(props: {
   publisherId: string;
-  gameId: string;
+  game: GameDomain;
   userData: UserData;
 }) {
-  const { toast } = useToast();
-  const mutation = useMutation({
-    async mutationFn(gameId: string) {
-      const token = getToken();
-      const payload = decodeTokenPayload(token);
-      const userId = payload.sub;
+  const isGameInLibrary = props.userData?.library.games.some(
+    (game) => game.id === props.game.id,
+  );
+  const isGameInCart = props.userData?.cart.games.some(
+    (game) => game.id === props.game.id,
+  );
 
-      await createUserCartGame(userId, gameId);
-    },
-    onSuccess() {
-      toast({
-        title: "Game added to cart",
-      });
-    },
-    onError: withAuthErrors(() => {
-      toast(TOAST_MESSAGES.unexpectedError);
-    }),
-  });
+  return (
+    <div className="flex flex-col gap-2">
+      {isGameInLibrary ? (
+        <Button
+          asChild
+          className="w-full text-lg bg-white text-black hover:bg-neutral-200 hover:text-black"
+          size="lg"
+          variant="outline"
+        >
+          <Link to="/account">
+            <Library />
+            In Library
+          </Link>
+        </Button>
+      ) : isGameInCart ? (
+        <Button
+          asChild
+          className="w-full text-lg bg-white text-black hover:bg-neutral-200 hover:text-black"
+          size="lg"
+          variant="outline"
+        >
+          <Link to="/cart">
+            <ShoppingCart />
+            In Cart
+          </Link>
+        </Button>
+      ) : (
+        <AddToCart
+          game={props.game}
+          publisherId={props.publisherId}
+          userData={props.userData}
+        />
+      )}
 
-  /**
-   * Handles on click event on add to cart.
-   */
-  function handleClick() {
-    mutation.mutate(props.gameId);
-  }
-
-  if (props.userData?.library.games.find((game) => game.id === props.gameId)) {
-    return (
       <Tooltip>
-        <TooltipTrigger className="w-full">
+        <TooltipTrigger>
           <Button
             asChild
             disabled
-            className="w-full text-lg py-6 mt-2"
+            className="w-full text-lg"
+            size="lg"
             variant="secondary"
           >
             <span>
@@ -330,27 +336,87 @@ function GameActions(props: {
           This feature is under construction
         </TooltipContent>
       </Tooltip>
+    </div>
+  );
+}
+
+function AddToCart(props: {
+  publisherId: string;
+  game: GameDomain;
+  userData: UserData;
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    async mutationFn(gameId: string) {
+      const token = getToken();
+      const payload = decodeTokenPayload(token);
+      const userId = payload.sub;
+
+      await createUserCartGame(userId, gameId);
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({
+        queryKey: gameQueryKey(props.game.id, props.publisherId),
+      });
+      await queryClient.invalidateQueries({ queryKey: userNavbarQueryKey });
+      toast({
+        title: "Game added to cart",
+      });
+    },
+    onError: withAuthErrors(() => {
+      toast(TOAST_MESSAGES.unexpectedError);
+    }),
+  });
+
+  const today = useMemo(() => new Date(), []);
+
+  if ("releaseDate" in props.game && isAfter(props.game.releaseDate, today)) {
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <Button asChild disabled className="w-full text-lg" size="lg">
+            <span>
+              <ShoppingCart />
+              Add to Cart
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          This game has not been released
+        </TooltipContent>
+      </Tooltip>
     );
   }
 
-  if (props.userData?.cart.games.find((game) => game.id === props.gameId)) {
-    return (
-      <Button
-        asChild
-        className="w-full text-lg py-6 mt-2 bg-white text-black"
-        variant="outline"
-      >
-        <Link to="/cart">
-          <ShoppingCart />
-          In Cart
-        </Link>
-      </Button>
-    );
+  if (props.userData) {
+    const userAge = differenceInYears(today, props.userData.user.dateOfBirth);
+
+    if (userAge < Number(props.game.ageRating))
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <Button asChild disabled className="w-full text-lg" size="lg">
+              <span>
+                <ShoppingCart />
+                Add to Cart
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Not old enough to purchase
+          </TooltipContent>
+        </Tooltip>
+      );
   }
 
   return (
-    <Button className="w-full text-lg py-6" onClick={handleClick}>
-      <ShoppingCart className="mr-2" />
+    <Button
+      className="w-full text-lg"
+      size="lg"
+      onClick={() => mutation.mutate(props.game.id)}
+    >
+      <ShoppingCart />
       Add to Cart
     </Button>
   );

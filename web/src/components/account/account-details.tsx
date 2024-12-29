@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, subYears } from "date-fns";
 import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { z } from "zod";
 
@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/lib/api";
 import {
   COUNTRIES,
+  MINIMUM_USER_AGE,
   MISSING_VALUE_SYMBOL,
   TOAST_MESSAGES,
 } from "@/lib/constants";
@@ -257,9 +258,12 @@ function EditAccountDetails(props: {
                     <PopoverContent align="start" className="w-auto p-0">
                       <Calendar
                         initialFocus
-                        disabled={(date) => date > new Date()}
+                        defaultMonth={field.value}
                         mode="single"
                         selected={field.value}
+                        disabled={(date) =>
+                          date > subYears(new Date(), MINIMUM_USER_AGE)
+                        }
                         onSelect={field.onChange}
                       />
                     </PopoverContent>

@@ -219,7 +219,7 @@ function Component() {
               <div key={multimedia.id} className="relative isolate">
                 <img
                   alt={`Screenshot ${index + 1}`}
-                  className=" w-full object-cover aspect-video rounded-md"
+                  className="w-full object-cover aspect-video rounded-md"
                   src={multimedia.url}
                 />
                 <span className="absolute z-10 bottom-2 left-2 bg-muted size-8 text-center leading-8 rounded-md text-sm drop-shadow-md">
