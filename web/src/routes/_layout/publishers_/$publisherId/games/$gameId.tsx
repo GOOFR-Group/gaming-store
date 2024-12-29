@@ -413,7 +413,7 @@ function AddToCart(props: {
 
 function RelatedGames(props: { games: GameDomain[] }) {
   return (
-    <section className="py-12">
+    <section className="py-12 md:py-24">
       <h2 className="text-3xl font-bold tracking-tighter mb-8">
         More Like This
       </h2>
