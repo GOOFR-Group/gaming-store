@@ -48,7 +48,7 @@ const browseSearchSchema = z
       .optional()
       .catch(undefined),
     price: z
-      .enum(["free", "under-10", "under-20", "above-50"])
+      .enum(["free", "under-10", "under-20", "under-50", "14.99-above"])
       .optional()
       .catch(undefined),
     quickFilter: z
@@ -117,8 +117,11 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
       case "under-20":
         filters.priceUnder = 20;
         break;
-      case "above-50":
-        filters.priceAbove = 50;
+      case "under-50":
+        filters.priceUnder = 50;
+        break;
+      case "14.99-above":
+        filters.priceAbove = 14.99;
         break;
     }
   }
