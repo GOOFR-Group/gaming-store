@@ -28,7 +28,7 @@ export function Carousel(props: { game: Game }) {
 
   return (
     <div className="w-full">
-      <div className="relative h-[32rem] mb-4">
+      <div className="relative lg:h-[32rem] mb-4">
         {props.game.multimedia.length > 0 ? (
           <img
             alt={`Screenshot ${currentIndex + 1} of ${props.game.title}`}
@@ -64,7 +64,7 @@ export function Carousel(props: { game: Game }) {
       </div>
 
       {props.game.multimedia.length > 0 && (
-        <div className="flex space-x-2 justify-center overflow-x-auto p-2">
+        <div className="flex space-x-2 overflow-x-auto p-2">
           {props.game.multimedia.map((screenshot, index) => (
             <button
               key={index}
@@ -80,7 +80,7 @@ export function Carousel(props: { game: Game }) {
               <img
                 alt={`Screenshot ${index + 1} of ${props.game.title}`}
                 src={screenshot.url}
-                className={`rounded object-cover w-[100px] h-[67px] transition-opacity ${
+                className={`rounded object-cover h-16 aspect-video transition-opacity ${
                   index === currentIndex ? "opacity-100" : "opacity-70"
                 }`}
               />
