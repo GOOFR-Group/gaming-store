@@ -518,54 +518,6 @@ export async function getRecommendedGames(filters: RecommendedGamesFilters) {
 }
 
 /**
- * Retrieves a user given a user ID.
- * @param userId User ID.
- * @param asc order of the content, true by default.
- * @param limit limit of items, 100 by default.
- * @param offset element where it starts, 0 by default.
- * @returns GameList.
- * @throws {Unauthorized} Access token is invalid.
- * @throws {Forbidden} Forbidden access.
- * @throws {NotFound} User not found.
- * @throws {InternalServerError} Server internal error.
- */
-export async function getUserGames(
-  userId: string,
-  asc: boolean = true,
-  limit: number = 100,
-  offset: number = 0,
-) {
-  const token = getToken();
-
-  const response = await fetch(
-    `/api/users/${userId}/games?sort=gameTitle&order=${asc ? "asc" : "desc"}&limit=${limit}&offset=${offset}`,
-    {
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
-  if (response.status >= 400) {
-    const error = (await response.json()) as ApiError;
-    switch (response.status) {
-      case 401:
-        throw new Unauthorized(error.code, error.message);
-      case 403:
-        throw new Forbidden(error.code, error.message);
-      case 404:
-        throw new NotFound(error.code, error.message);
-      default:
-        throw new InternalServerError();
-    }
-  }
-  const user = (await response.json()) as PaginatedGames;
-
-  return user;
-}
-
-/**
  * Retrieves a game from a publisher.
  * @param publisherId Publisher ID.
  * @returns Game of a publisher.
@@ -955,8 +907,6 @@ export async function getUserCartGames(
   if (response.status >= 400) {
     const error = (await response.json()) as ApiError;
     switch (response.status) {
-      case 400:
-        throw new BadRequest(error.code, error.message);
       case 401:
         throw new Unauthorized(error.code, error.message);
       case 403:
