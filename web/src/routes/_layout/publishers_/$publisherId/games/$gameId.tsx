@@ -45,6 +45,8 @@ type UserData =
     }
   | undefined;
 
+const RELATED_GAMES_LIMIT = 7;
+
 /**
  * Query options for retrieving the signed in user.
  * @returns Query options.
@@ -58,7 +60,7 @@ function gameQueryOptions(gameId: string, publisherId: string) {
       const relatedGames = (
         await getGames({
           isActive: true,
-          limit: 7,
+          limit: RELATED_GAMES_LIMIT,
           tagIds:
             game.tags.length > 0
               ? [game.tags[Math.floor(Math.random() * game.tags.length)].id] // Retrieve random tag from the game
@@ -78,7 +80,7 @@ function gameQueryOptions(gameId: string, publisherId: string) {
 
       if (relatedGameIndex > -1) {
         relatedGames.splice(relatedGameIndex, 1);
-      } else {
+      } else if (RELATED_GAMES_LIMIT === relatedGames.length) {
         relatedGames.pop();
       }
 
