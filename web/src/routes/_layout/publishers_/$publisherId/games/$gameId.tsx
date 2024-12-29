@@ -36,7 +36,7 @@ import { TAX, TO_BE_ANNOUNCED, TOAST_MESSAGES } from "@/lib/constants";
 import { withAuthErrors } from "@/lib/middleware";
 import { gameQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
 import { getBatchPaginatedResponse } from "@/lib/request";
-import { formatCurrency, getLanguageName } from "@/lib/utils";
+import { applyTax, formatCurrency, getLanguageName } from "@/lib/utils";
 
 type UserData =
   | {
@@ -471,9 +471,8 @@ function RelatedGames(props: { games: GameDomain[] }) {
                 }}
               >
                 <Game
-                  key={game.id}
                   image={game.previewMultimedia.url}
-                  price={game.price}
+                  price={applyTax(game.price)}
                   publisher={game.publisher.name}
                   title={game.title}
                 />
