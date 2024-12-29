@@ -52,7 +52,7 @@ type UserData =
 function gameQueryOptions(gameId: string, publisherId: string) {
   return queryOptions({
     queryKey: gameQueryKey(gameId, publisherId),
-    staleTime: 0,
+    gcTime: 0,
     async queryFn() {
       const game = await getPublisherGame(publisherId, gameId);
 
