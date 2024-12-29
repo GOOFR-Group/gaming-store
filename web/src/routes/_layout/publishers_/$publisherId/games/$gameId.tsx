@@ -57,8 +57,9 @@ function gameQueryOptions(gameId: string, publisherId: string) {
 
       const relatedGames = (
         await getGames({
-          tagIds: game.tags.map((tag) => tag.id),
+          isActive: true,
           limit: 7,
+          tagIds: game.tags.map((tag) => tag.id),
         })
       ).games;
 
@@ -251,42 +252,6 @@ function Component() {
   );
 }
 
-function RelatedGames(props: { games: GameDomain[] }) {
-  return (
-    <section className="py-12 md:py-24 lg:py-32">
-      <h2 className="text-3xl font-bold tracking-tighter mb-8">
-        More Like This
-      </h2>
-      {props.games.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
-          {props.games.map((game) => {
-            return (
-              <Link
-                key={game.id}
-                to="/publishers/$publisherId/games/$gameId"
-                params={{
-                  publisherId: game.publisher.id,
-                  gameId: game.id,
-                }}
-              >
-                <Game
-                  key={game.id}
-                  image={game.previewMultimedia.url}
-                  price={game.price}
-                  publisher={game.publisher.name}
-                  title={game.title}
-                />
-              </Link>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="text-muted-foreground">No matching games were found.</p>
-      )}
-    </section>
-  );
-}
-
 function GameActions(props: {
   publisherId: string;
   game: GameDomain;
@@ -438,5 +403,41 @@ function AddToCart(props: {
       <ShoppingCart />
       Add to Cart
     </Button>
+  );
+}
+
+function RelatedGames(props: { games: GameDomain[] }) {
+  return (
+    <section className="py-6">
+      <h2 className="text-3xl font-bold tracking-tighter mb-8">
+        More Like This
+      </h2>
+      {props.games.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
+          {props.games.map((game) => {
+            return (
+              <Link
+                key={game.id}
+                to="/publishers/$publisherId/games/$gameId"
+                params={{
+                  publisherId: game.publisher.id,
+                  gameId: game.id,
+                }}
+              >
+                <Game
+                  key={game.id}
+                  image={game.previewMultimedia.url}
+                  price={game.price}
+                  publisher={game.publisher.name}
+                  title={game.title}
+                />
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">No matching games were found.</p>
+      )}
+    </section>
   );
 }
