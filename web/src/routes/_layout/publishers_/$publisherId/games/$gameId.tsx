@@ -20,7 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Game as GameDomain, PaginatedGames } from "@/domain/game";
+import { Game as GameDomain } from "@/domain/game";
 import { User } from "@/domain/user";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -35,13 +35,14 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TAX, TO_BE_ANNOUNCED, TOAST_MESSAGES } from "@/lib/constants";
 import { withAuthErrors } from "@/lib/middleware";
 import { gameQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency, getLanguageName } from "@/lib/utils";
 
 type UserData =
   | {
       user: User;
-      library: PaginatedGames;
-      cart: PaginatedGames;
+      library: GameDomain[];
+      cart: GameDomain[];
     }
   | undefined;
 
@@ -92,8 +93,30 @@ function gameQueryOptions(gameId: string, publisherId: string) {
         const userId = payload.sub;
 
         const user = await getUser(userId);
-        const library = await getUserGameLibrary(userId);
-        const cart = await getUserCartGames(userId);
+        const library = await getBatchPaginatedResponse(
+          async (limit, offset) => {
+            const paginatedGames = await getUserGameLibrary(userId, {
+              limit,
+              offset,
+            });
+
+            return {
+              items: paginatedGames.games,
+              total: paginatedGames.total,
+            };
+          },
+        );
+        const cart = await getBatchPaginatedResponse(async (limit, offset) => {
+          const paginatedGames = await getUserCartGames(userId, {
+            limit,
+            offset,
+          });
+
+          return {
+            items: paginatedGames.games,
+            total: paginatedGames.total,
+          };
+        });
 
         userData = {
           user,
@@ -262,10 +285,10 @@ function GameActions(props: {
   game: GameDomain;
   userData: UserData;
 }) {
-  const isGameInLibrary = props.userData?.library.games.some(
+  const isGameInLibrary = props.userData?.library.some(
     (game) => game.id === props.game.id,
   );
-  const isGameInCart = props.userData?.cart.games.some(
+  const isGameInCart = props.userData?.cart.some(
     (game) => game.id === props.game.id,
   );
 
