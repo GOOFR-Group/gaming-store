@@ -2,7 +2,7 @@ import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Multimedia } from "@/domain/multimedia";
-import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export function Game(props: {
@@ -34,7 +34,7 @@ export function Game(props: {
           <div className="mt-2 flex items-center gap-2 flex-wrap">
             <p>
               {!Number.isNaN(Number(props.price))
-                ? formatCurrency(props.price, TAX)
+                ? formatCurrency(props.price)
                 : MISSING_VALUE_SYMBOL}
             </p>
           </div>

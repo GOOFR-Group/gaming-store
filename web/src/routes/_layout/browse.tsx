@@ -30,10 +30,15 @@ import {
 } from "@/domain/game";
 import { getGames, getRecommendedGames, getTags } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
-import { TAX } from "@/lib/constants";
 import { gamesQueryKey } from "@/lib/query-keys";
 import { getBatchPaginatedResponse } from "@/lib/request";
-import { debounce, getVisiblePages, updateSearchParams } from "@/lib/utils";
+import {
+  applyTax,
+  debounce,
+  getVisiblePages,
+  removeTax,
+  updateSearchParams,
+} from "@/lib/utils";
 
 const VISIBLE_PAGES = 3;
 const PAGE_SIZE = 16;
@@ -113,16 +118,16 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
         filters.priceUnder = 0;
         break;
       case "under-10":
-        filters.priceUnder = 10 / (1 + TAX);
+        filters.priceUnder = removeTax(10);
         break;
       case "under-20":
-        filters.priceUnder = 20 / (1 + TAX);
+        filters.priceUnder = removeTax(20);
         break;
       case "under-50":
-        filters.priceUnder = 50 / (1 + TAX);
+        filters.priceUnder = removeTax(50);
         break;
       case "14.99-above":
-        filters.priceAbove = 14.99 / (1 + TAX);
+        filters.priceAbove = removeTax(14.99);
         break;
     }
   }
@@ -277,7 +282,7 @@ function Component() {
                 >
                   <Game
                     image={game.previewMultimedia.url}
-                    price={game.price}
+                    price={applyTax(game.price)}
                     publisher={game.publisher.name}
                     title={game.title}
                   />

@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 
 import { Multimedia, TemporaryMultimedia } from "@/domain/multimedia";
 
-import { COUNTRIES_MAP, LANGUAGES_MAP } from "./constants";
+import { COUNTRIES_MAP, LANGUAGES_MAP, TAX } from "./constants";
 
 /**
  * Utility function to apply conditional styles using Tailwind CSS.
@@ -181,4 +181,22 @@ export async function calculateHash(file: File) {
     .join("");
 
   return hashHex;
+}
+
+/**
+ * Applies a tax to a given value.
+ * @param value Value to apply the tax.
+ * @returns Value with the tax applied.
+ */
+export function applyTax(value: number) {
+  return value * (1 + TAX);
+}
+
+/**
+ * Removes a tax from a given value.
+ * @param value Value to remove the tax.
+ * @returns Value with the tax removed.
+ */
+export function removeTax(value: number) {
+  return value / (1 + TAX);
 }
