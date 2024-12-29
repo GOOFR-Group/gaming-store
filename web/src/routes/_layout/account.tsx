@@ -125,7 +125,13 @@ function Component() {
                       key={game.id}
                       className="w-fit max-w-full mx-auto border p-4 rounded-lg"
                     >
-                      <Link params={{ gameId: game.id }} to="/games/$gameId">
+                      <Link
+                        to="/publishers/$publisherId/games/$gameId"
+                        params={{
+                          publisherId: game.publisher.id,
+                          gameId: game.id,
+                        }}
+                      >
                         <Game
                           downloadMultimedia={game.downloadMultimedia}
                           image={game.previewMultimedia.url}

@@ -276,9 +276,10 @@ function Component() {
                 <Link
                   key={game.id}
                   className="w-fit max-w-full"
-                  to="/games/$gameId"
+                  to="/publishers/$publisherId/games/$gameId"
                   params={{
                     gameId: game.id,
+                    publisherId: game.publisher.id,
                   }}
                 >
                   <Game

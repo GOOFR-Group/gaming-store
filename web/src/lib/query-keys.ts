@@ -27,11 +27,12 @@ export function gamesQueryKey(
 
 /**
  * Query key used when fetching a game.
- * @param id Game ID.
+ * @param gameId Game ID.
+ * @param publisherId Publisher ID.
  * @returns Game query key.
  */
-export function gameQueryKey(id: string): QueryKey {
-  return ["games", id];
+export function gameQueryKey(gameId: string, publisherId: string): QueryKey {
+  return ["games", gameId, publisherId];
 }
 
 /**

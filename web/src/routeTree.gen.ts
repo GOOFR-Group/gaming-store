@@ -31,11 +31,11 @@ import { Route as LayoutAccountImport } from "./routes/_layout/account";
 import { Route as DistributeLayoutIndexImport } from "./routes/distribute/_layout/index";
 import { Route as DistributeLayoutUnderConstructionImport } from "./routes/distribute/_layout/under-construction";
 import { Route as DistributeLayoutAccountImport } from "./routes/distribute/_layout/account";
-import { Route as LayoutGamesGameIdImport } from "./routes/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesIndexImport } from "./routes/distribute/_layout/games/index";
 import { Route as DistributeLayoutGamesAddImport } from "./routes/distribute/_layout/games/add";
 import { Route as DistributeLayoutGamesGameIdImport } from "./routes/distribute/_layout/games/$gameId";
 import { Route as DistributeLayoutGamesGameIdEditImport } from "./routes/distribute/_layout/games_/$gameId/edit";
+import { Route as LayoutPublishersPublisherIdGamesGameIdImport } from "./routes/_layout/publishers_/$publisherId/games/$gameId";
 
 // Create Virtual Routes
 
@@ -139,11 +139,6 @@ const DistributeLayoutAccountRoute = DistributeLayoutAccountImport.update({
   getParentRoute: () => DistributeLayoutRoute,
 } as any);
 
-const LayoutGamesGameIdRoute = LayoutGamesGameIdImport.update({
-  path: "/games/$gameId",
-  getParentRoute: () => LayoutRoute,
-} as any);
-
 const DistributeLayoutGamesIndexRoute = DistributeLayoutGamesIndexImport.update(
   {
     path: "/games/",
@@ -166,6 +161,12 @@ const DistributeLayoutGamesGameIdEditRoute =
   DistributeLayoutGamesGameIdEditImport.update({
     path: "/games/$gameId/edit",
     getParentRoute: () => DistributeLayoutRoute,
+  } as any);
+
+const LayoutPublishersPublisherIdGamesGameIdRoute =
+  LayoutPublishersPublisherIdGamesGameIdImport.update({
+    path: "/publishers/$publisherId/games/$gameId",
+    getParentRoute: () => LayoutRoute,
   } as any);
 
 // Populate the FileRoutesByPath interface
@@ -284,13 +285,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LayoutIndexImport;
       parentRoute: typeof LayoutImport;
     };
-    "/_layout/games/$gameId": {
-      id: "/_layout/games/$gameId";
-      path: "/games/$gameId";
-      fullPath: "/games/$gameId";
-      preLoaderRoute: typeof LayoutGamesGameIdImport;
-      parentRoute: typeof LayoutImport;
-    };
     "/distribute/_layout/account": {
       id: "/distribute/_layout/account";
       path: "/account";
@@ -333,6 +327,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DistributeLayoutGamesIndexImport;
       parentRoute: typeof DistributeLayoutImport;
     };
+    "/_layout/publishers/$publisherId/games/$gameId": {
+      id: "/_layout/publishers/$publisherId/games/$gameId";
+      path: "/publishers/$publisherId/games/$gameId";
+      fullPath: "/publishers/$publisherId/games/$gameId";
+      preLoaderRoute: typeof LayoutPublishersPublisherIdGamesGameIdImport;
+      parentRoute: typeof LayoutImport;
+    };
     "/distribute/_layout/games/$gameId/edit": {
       id: "/distribute/_layout/games/$gameId/edit";
       path: "/games/$gameId/edit";
@@ -357,7 +358,7 @@ interface LayoutRouteChildren {
   LayoutTermsServiceRoute: typeof LayoutTermsServiceRoute;
   LayoutUnderConstructionRoute: typeof LayoutUnderConstructionRoute;
   LayoutIndexRoute: typeof LayoutIndexRoute;
-  LayoutGamesGameIdRoute: typeof LayoutGamesGameIdRoute;
+  LayoutPublishersPublisherIdGamesGameIdRoute: typeof LayoutPublishersPublisherIdGamesGameIdRoute;
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -372,7 +373,8 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutTermsServiceRoute: LayoutTermsServiceRoute,
   LayoutUnderConstructionRoute: LayoutUnderConstructionRoute,
   LayoutIndexRoute: LayoutIndexRoute,
-  LayoutGamesGameIdRoute: LayoutGamesGameIdRoute,
+  LayoutPublishersPublisherIdGamesGameIdRoute:
+    LayoutPublishersPublisherIdGamesGameIdRoute,
 };
 
 const LayoutRouteWithChildren =
@@ -434,13 +436,13 @@ export interface FileRoutesByFullPath {
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
-  "/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/account": typeof DistributeLayoutAccountRoute;
   "/distribute/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/": typeof DistributeLayoutIndexRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
+  "/publishers/$publisherId/games/$gameId": typeof LayoutPublishersPublisherIdGamesGameIdRoute;
   "/distribute/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
 
@@ -459,12 +461,12 @@ export interface FileRoutesByTo {
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
   "/": typeof LayoutIndexRoute;
-  "/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/account": typeof DistributeLayoutAccountRoute;
   "/distribute/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/games/add": typeof DistributeLayoutGamesAddRoute;
   "/distribute/games": typeof DistributeLayoutGamesIndexRoute;
+  "/publishers/$publisherId/games/$gameId": typeof LayoutPublishersPublisherIdGamesGameIdRoute;
   "/distribute/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
 
@@ -486,13 +488,13 @@ export interface FileRoutesById {
   "/distribute/register": typeof DistributeRegisterRoute;
   "/distribute/signin": typeof DistributeSigninRoute;
   "/_layout/": typeof LayoutIndexRoute;
-  "/_layout/games/$gameId": typeof LayoutGamesGameIdRoute;
   "/distribute/_layout/account": typeof DistributeLayoutAccountRoute;
   "/distribute/_layout/under-construction": typeof DistributeLayoutUnderConstructionRoute;
   "/distribute/_layout/": typeof DistributeLayoutIndexRoute;
   "/distribute/_layout/games/$gameId": typeof DistributeLayoutGamesGameIdRoute;
   "/distribute/_layout/games/add": typeof DistributeLayoutGamesAddRoute;
   "/distribute/_layout/games/": typeof DistributeLayoutGamesIndexRoute;
+  "/_layout/publishers/$publisherId/games/$gameId": typeof LayoutPublishersPublisherIdGamesGameIdRoute;
   "/distribute/_layout/games/$gameId/edit": typeof DistributeLayoutGamesGameIdEditRoute;
 }
 
@@ -514,13 +516,13 @@ export interface FileRouteTypes {
     | "/distribute/register"
     | "/distribute/signin"
     | "/"
-    | "/games/$gameId"
     | "/distribute/account"
     | "/distribute/under-construction"
     | "/distribute/"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
     | "/distribute/games"
+    | "/publishers/$publisherId/games/$gameId"
     | "/distribute/games/$gameId/edit";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -538,12 +540,12 @@ export interface FileRouteTypes {
     | "/distribute/register"
     | "/distribute/signin"
     | "/"
-    | "/games/$gameId"
     | "/distribute/account"
     | "/distribute/under-construction"
     | "/distribute/games/$gameId"
     | "/distribute/games/add"
     | "/distribute/games"
+    | "/publishers/$publisherId/games/$gameId"
     | "/distribute/games/$gameId/edit";
   id:
     | "__root__"
@@ -563,13 +565,13 @@ export interface FileRouteTypes {
     | "/distribute/register"
     | "/distribute/signin"
     | "/_layout/"
-    | "/_layout/games/$gameId"
     | "/distribute/_layout/account"
     | "/distribute/_layout/under-construction"
     | "/distribute/_layout/"
     | "/distribute/_layout/games/$gameId"
     | "/distribute/_layout/games/add"
     | "/distribute/_layout/games/"
+    | "/_layout/publishers/$publisherId/games/$gameId"
     | "/distribute/_layout/games/$gameId/edit";
   fileRoutesById: FileRoutesById;
 }
@@ -614,7 +616,7 @@ export const routeTree = rootRoute
         "/_layout/terms-service",
         "/_layout/under-construction",
         "/_layout/",
-        "/_layout/games/$gameId"
+        "/_layout/publishers/$publisherId/games/$gameId"
       ]
     },
     "/_layout/account": {
@@ -690,10 +692,6 @@ export const routeTree = rootRoute
       "filePath": "_layout/index.tsx",
       "parent": "/_layout"
     },
-    "/_layout/games/$gameId": {
-      "filePath": "_layout/games/$gameId.tsx",
-      "parent": "/_layout"
-    },
     "/distribute/_layout/account": {
       "filePath": "distribute/_layout/account.tsx",
       "parent": "/distribute/_layout"
@@ -717,6 +715,10 @@ export const routeTree = rootRoute
     "/distribute/_layout/games/": {
       "filePath": "distribute/_layout/games/index.tsx",
       "parent": "/distribute/_layout"
+    },
+    "/_layout/publishers/$publisherId/games/$gameId": {
+      "filePath": "_layout/publishers_/$publisherId/games/$gameId.tsx",
+      "parent": "/_layout"
     },
     "/distribute/_layout/games/$gameId/edit": {
       "filePath": "distribute/_layout/games_/$gameId/edit.tsx",
