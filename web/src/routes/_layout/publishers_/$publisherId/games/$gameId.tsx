@@ -58,9 +58,25 @@ function gameQueryOptions(gameId: string, publisherId: string) {
       const relatedGames = (
         await getGames({
           tagIds: game.tags.map((tag) => tag.id),
-          limit: 6,
+          limit: 2,
         })
-      ).games.filter((game) => game.id != game.id);
+      ).games;
+
+      let relatedGameIndex = -1;
+      for (let i = 0; i < relatedGames.length; i++) {
+        const relatedGame = relatedGames[i];
+
+        if (relatedGame.id === game.id) {
+          relatedGameIndex = i;
+          break;
+        }
+      }
+
+      if (relatedGameIndex > -1) {
+        relatedGames.splice(relatedGameIndex, 1);
+      } else {
+        relatedGames.pop();
+      }
 
       let userData: UserData = undefined;
       try {
@@ -236,37 +252,37 @@ function Component() {
 }
 
 function RelatedGames(props: { games: GameDomain[] }) {
-  if (!props.games.length) {
-    return;
-  }
-
   return (
-    <section className="py-12 md:py-24 lg:py-32 px-4 md:px-6">
+    <section className="py-12 md:py-24 lg:py-32">
       <h2 className="text-3xl font-bold tracking-tighter mb-8">
         More Like This
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {props.games.map((game) => {
-          return (
-            <Link
-              key={game.id}
-              to="/publishers/$publisherId/games/$gameId"
-              params={{
-                publisherId: game.publisher.id,
-                gameId: game.id,
-              }}
-            >
-              <Game
+      {props.games.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 *:mx-auto">
+          {props.games.map((game) => {
+            return (
+              <Link
                 key={game.id}
-                image={game.previewMultimedia.url}
-                price={game.price}
-                publisher={game.publisher.name}
-                title={game.title}
-              />
-            </Link>
-          );
-        })}
-      </div>
+                to="/publishers/$publisherId/games/$gameId"
+                params={{
+                  publisherId: game.publisher.id,
+                  gameId: game.id,
+                }}
+              >
+                <Game
+                  key={game.id}
+                  image={game.previewMultimedia.url}
+                  price={game.price}
+                  publisher={game.publisher.name}
+                  title={game.title}
+                />
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-muted-foreground">No matching games were found.</p>
+      )}
     </section>
   );
 }
