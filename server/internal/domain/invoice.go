@@ -4,6 +4,9 @@ package domain
 type Invoice struct {
 	User       User
 	Games      []Game
-	TotalPrice float64
+	Subtotal   GamePrice
+	TaxPercent string
+	Tax        GamePrice
+	TotalPrice GamePrice
 	CreatedAt  string
 }
