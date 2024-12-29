@@ -2,13 +2,13 @@ import { useState } from "react";
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Gamepad2, Heart, UserIcon } from "lucide-react";
+import { Gamepad2, Heart, UserIcon } from "lucide-react";
 
 import { AccountDetails } from "@/components/account/account-details";
 import { AddFunds } from "@/components/account/add-funds";
 import { SignOut } from "@/components/account/sign-out";
 import { UserAvatar } from "@/components/account/user-avatar";
-import { Button } from "@/components/ui/button";
+import { Game } from "@/components/game";
 import {
   Card,
   CardContent,
@@ -18,14 +18,15 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnderConstruction } from "@/components/under-construction";
-import { getUser } from "@/lib/api";
+import { getUser, getUserGameLibrary } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
 import { userQueryKey } from "@/lib/query-keys";
+import { getBatchPaginatedResponse } from "@/lib/request";
 import { formatCurrency, getCountryName } from "@/lib/utils";
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the signed in user and their game library.
  * @returns Query options.
  */
 function userQueryOptions() {
@@ -37,8 +38,21 @@ function userQueryOptions() {
 
       const userId = payload.sub;
       const user = await getUser(userId);
+      const library = await getBatchPaginatedResponse(async (limit, offset) => {
+        const paginatedGames = await getUserGameLibrary(userId, {
+          limit,
+          offset,
+          sort: "gameTitle",
+          order: "asc",
+        });
 
-      return user;
+        return {
+          items: paginatedGames.games,
+          total: paginatedGames.total,
+        };
+      });
+
+      return { user, library };
     },
   });
 }
@@ -52,9 +66,9 @@ export const Route = createFileRoute("/_layout/account")({
 
 function Component() {
   const [activeTab, setActiveTab] = useState("library");
-  const query = useSuspenseQuery(userQueryOptions());
-
-  const user = query.data;
+  const {
+    data: { user, library },
+  } = useSuspenseQuery(userQueryOptions());
 
   return (
     <div className="container mx-auto bg-background text-foreground">
@@ -104,36 +118,35 @@ function Component() {
             </TabsList>
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  "Game 1",
-                  "Game 2",
-                  "Game 3",
-                  "Game 4",
-                  "Game 5",
-                  "Game 6",
-                ].map((game) => (
-                  <div key={game}>
-                    <Link params={{ gameId: "1" }} to="/games/$gameId">
-                      <img
-                        alt="Game cover"
-                        className="object-cover h-[400px] rounded-lg w-full"
-                        src="/images/game.jpg"
-                      />
-                    </Link>
-                    <div className="p-4 flex items-center justify-between flex-wrap">
-                      <div>
-                        <p className="text-sm text-gray-300">Stellar Games</p>
-                        <h3 className="text-xl font-semibold">{game}</h3>
-                      </div>
-                      <Button size="icon" variant="secondary">
-                        <Download className="size-5" />
-                        <span className="sr-only">Download</span>
-                      </Button>
+              {library.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {library.map((game) => (
+                    <div
+                      key={game.id}
+                      className="w-fit max-w-full mx-auto border p-4 rounded-lg"
+                    >
+                      <Link params={{ gameId: game.id }} to="/games/$gameId">
+                        <Game
+                          downloadMultimedia={game.downloadMultimedia}
+                          image={game.previewMultimedia.url}
+                          publisher={game.publisher.name}
+                          title={game.title}
+                        />
+                      </Link>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mx-auto grid text-center py-6">
+                  <p className="text-muted-foreground">
+                    Your library is empty, try{" "}
+                    <a className="text-primary hover:underline" href="/browse">
+                      purchasing some games
+                    </a>{" "}
+                    first.
+                  </p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent className="mt-4" value="account">

@@ -1,11 +1,16 @@
-import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
-import { formatCurrency } from "@/lib/utils";
+import { Download } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Multimedia } from "@/domain/multimedia";
+import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export function Game(props: {
   title: string;
   publisher: string;
-  price: number;
   image: string;
+  price?: number;
+  downloadMultimedia?: Multimedia;
 }) {
   return (
     <article className="group max-w-60">
@@ -18,16 +23,34 @@ export function Game(props: {
         <p className="text-sm text-gray-300">
           {props.publisher || MISSING_VALUE_SYMBOL}
         </p>
-        <h3 className="text-xl font-semibold line-clamp-2">
+        <h3
+          className={cn("text-xl font-semibold line-clamp-2", {
+            "h-14": props.downloadMultimedia,
+          })}
+        >
           {props.title || MISSING_VALUE_SYMBOL}
         </h3>
-        <div className="mt-2 flex items-center gap-2 flex-wrap">
-          <p>
-            {!Number.isNaN(Number(props.price))
-              ? formatCurrency(props.price, TAX)
-              : MISSING_VALUE_SYMBOL}
-          </p>
-        </div>
+        {props.price !== undefined && (
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <p>
+              {!Number.isNaN(Number(props.price))
+                ? formatCurrency(props.price)
+                : MISSING_VALUE_SYMBOL}
+            </p>
+          </div>
+        )}
+        {props.downloadMultimedia && (
+          <Button asChild variant="secondary">
+            <a
+              download
+              href={props.downloadMultimedia.url}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="hidden sm:block">Download</span>
+              <Download className="size-5" />
+            </a>
+          </Button>
+        )}
       </div>
     </article>
   );

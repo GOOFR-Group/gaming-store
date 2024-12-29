@@ -18,7 +18,7 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL, TAX, TO_BE_ANNOUNCED } from "@/lib/constants";
 import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
-import { formatCurrency, getLanguageName } from "@/lib/utils";
+import { applyTax, formatCurrency, getLanguageName } from "@/lib/utils";
 
 /**
  * Query options for retrieving a game of the signed in publisher.
@@ -145,7 +145,7 @@ function Component() {
             <h3 className="font-semibold mb-1">Preview</h3>
             <GamePreview
               previewMultimediaUrl={game.previewMultimedia.url}
-              price={game.price}
+              price={applyTax(game.price)}
               publisherName={game.publisher.name}
               title={game.title}
             />
