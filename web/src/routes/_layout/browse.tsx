@@ -30,6 +30,7 @@ import {
 } from "@/domain/game";
 import { getGames, getRecommendedGames, getTags } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
+import { TAX } from "@/lib/constants";
 import { gamesQueryKey } from "@/lib/query-keys";
 import { getBatchPaginatedResponse } from "@/lib/request";
 import { debounce, getVisiblePages, updateSearchParams } from "@/lib/utils";
@@ -112,16 +113,16 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
         filters.priceUnder = 0;
         break;
       case "under-10":
-        filters.priceUnder = 10;
+        filters.priceUnder = 10 / (1 + TAX);
         break;
       case "under-20":
-        filters.priceUnder = 20;
+        filters.priceUnder = 20 / (1 + TAX);
         break;
       case "under-50":
-        filters.priceUnder = 50;
+        filters.priceUnder = 50 / (1 + TAX);
         break;
       case "14.99-above":
-        filters.priceAbove = 14.99;
+        filters.priceAbove = 14.99 / (1 + TAX);
         break;
     }
   }
