@@ -18,11 +18,7 @@ import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL, TAX, TO_BE_ANNOUNCED } from "@/lib/constants";
 import { BadRequest, NotFound } from "@/lib/errors";
 import { gameQueryKey } from "@/lib/query-keys";
-import {
-  formatCurrency,
-  getLanguageName,
-  getMultimediaName,
-} from "@/lib/utils";
+import { formatCurrency, getLanguageName } from "@/lib/utils";
 
 /**
  * Query options for retrieving a game of the signed in publisher.
@@ -91,10 +87,7 @@ function Component() {
         <div className="flex-1 flex gap-2 first:*:ml-auto">
           {game.downloadMultimedia ? (
             <Button asChild variant="secondary">
-              <a
-                download={getMultimediaName(game.downloadMultimedia)}
-                href={game.downloadMultimedia.url}
-              >
+              <a download href={game.downloadMultimedia.url}>
                 <Download />
               </a>
             </Button>

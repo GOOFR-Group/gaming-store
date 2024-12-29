@@ -855,7 +855,7 @@ export function GameForm(props: GameProps) {
                         variant="ghost"
                       >
                         <a
-                          download={getMultimediaName(gameFiles)}
+                          download
                           href={
                             "url" in gameFiles
                               ? gameFiles.url

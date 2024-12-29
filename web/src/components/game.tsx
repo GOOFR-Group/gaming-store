@@ -42,8 +42,9 @@ export function Game(props: {
         {props.downloadMultimedia && (
           <Button asChild variant="secondary">
             <a
-              download={getMultimediaName(props.downloadMultimedia)}
+              download
               href={props.downloadMultimedia.url}
+              onClick={(e) => e.stopPropagation()}
             >
               <span className="hidden sm:block">Download</span>
               <Download className="size-5" />
