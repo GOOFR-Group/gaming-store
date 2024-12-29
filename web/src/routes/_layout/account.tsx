@@ -43,7 +43,7 @@ function userQueryOptions() {
         const paginatedGames = await getUserGameLibrary(userId, {
           limit,
           offset,
-          sort: "title",
+          sort: "gameTitle",
           order: "asc",
         });
 
