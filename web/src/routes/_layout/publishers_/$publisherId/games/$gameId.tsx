@@ -59,7 +59,10 @@ function gameQueryOptions(gameId: string, publisherId: string) {
         await getGames({
           isActive: true,
           limit: 7,
-          tagIds: game.tags.map((tag) => tag.id),
+          tagIds:
+            game.tags.length > 0
+              ? [game.tags[Math.floor(Math.random() * game.tags.length)].id] // Retrieve random tag from the game
+              : undefined,
         })
       ).games;
 
