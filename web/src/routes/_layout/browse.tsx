@@ -157,6 +157,7 @@ function gamesQueryOptions(search: BrowseSearchSchemaType) {
         filters.order = "asc";
         break;
       case "best-sellers":
+        filters.releaseDateBefore = format(new Date(), "yyyy-MM-dd");
         filters.sort = "userCount";
         filters.order = "desc";
         break;

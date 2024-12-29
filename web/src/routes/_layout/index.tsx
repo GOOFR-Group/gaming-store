@@ -52,6 +52,7 @@ function homeGamesQueryOptions() {
             isActive: true,
             sort: "userCount",
             order: "desc",
+            releaseDateBefore: format(new Date(), "yyyy-MM-dd"),
           }),
           getBatchPaginatedResponse(async (limit, offset) => {
             const paginatedTags = await getTags({ limit, offset });
