@@ -53,3 +53,8 @@ export const publisherQueryKey: QueryKey = ["publisher"];
  * Query key used when fetching the user's information for the navbar.
  */
 export const userNavbarQueryKey: QueryKey = ["cart", "user"];
+
+/**
+ * Query key used when fetching the payment information.
+ */
+export const paymentQueryKey: QueryKey = ["payment"];

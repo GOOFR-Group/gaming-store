@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -50,6 +51,16 @@ func (t GameTitle) Valid() bool {
 
 // GamePrice defines the game price type.
 type GamePrice float64
+
+// String returns the game price in string format with 2 decimal places.
+func (p GamePrice) String() string {
+	return fmt.Sprintf("%.2f", p)
+}
+
+// WithTax returns the game price with the tax applied.
+func (p GamePrice) WithTax() GamePrice {
+	return p * (1 + Tax)
+}
 
 // Valid returns true if the game price is valid, false otherwise.
 func (p GamePrice) Valid() bool {

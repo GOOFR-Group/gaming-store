@@ -4,6 +4,17 @@
 <body style="font-family: trebuchet ms, sans-serif">
     <h2>Hi {{.User.DisplayName}}!</h2>
     <p>Thank you for your purchase!</p>
+
+    <table>
+        <tr>
+            <td style="padding: 0 10px">Purchase date (UTC):</td>
+            <td style="padding: 0 10px">{{.CreatedAt}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0 10px">VAT No.:</td>
+            <td style="padding: 0 10px">{{.User.Vatin}}</td>
+        </tr>
+    </table>
     <br>
 
     <h3>Here are your new games:</h3>
@@ -25,21 +36,23 @@
         {{end}}
     </table>
     <br>
+    <br>
 
     <table>
         <tr>
-            <td style="padding: 0 10px">Total Price:</td>
-            <td style="padding: 0 10px">€{{.TotalPrice}}</td>
+            <td style="padding: 0 10px">Subtotal:</td>
+            <td style="padding: 0 10px; text-align: right">€{{.Subtotal}}</td>
         </tr>
         <tr>
-            <td style="padding: 0 10px">Purchase date (UTC):</td>
-            <td style="padding: 0 10px">{{.CreatedAt}}</td>
+            <td style="padding: 0 10px">Tax ({{.TaxPercent}}%):</td>
+            <td style="padding: 0 10px; text-align: right">€{{.Tax}}</td>
         </tr>
         <tr>
-            <td style="padding: 0 10px">VAT No.:</td>
-            <td style="padding: 0 10px">{{.User.Vatin}}</td>
+            <td style="padding: 0 10px">Total:</td>
+            <td style="padding: 0 10px; text-align: right">€{{.TotalPrice}}</td>
         </tr>
     </table>
+    <br>
 
     <p>
         Best regards,<br>

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"time"
@@ -204,14 +205,14 @@ func (s *service) PurchaseUserCart(ctx context.Context, userID uuid.UUID) error 
 			return domain.ErrUserCartEmpty
 		}
 
-		var totalPrice float64
+		var subtotal domain.GamePrice
 		for _, game := range games {
-			totalPrice += float64(game.Price)
+			subtotal += game.Price
 		}
 
-		totalPrice = totalPrice * (1 + domain.Tax)
+		totalPrice := subtotal.WithTax()
 
-		newUserBalance := user.Balance - totalPrice
+		newUserBalance := user.Balance - float64(totalPrice)
 		if newUserBalance < 0 {
 			return domain.ErrUserBalanceInsufficient
 		}
@@ -233,9 +234,20 @@ func (s *service) PurchaseUserCart(ctx context.Context, userID uuid.UUID) error 
 			return err
 		}
 
+		gamesWithTax := make([]domain.Game, len(games))
+
+		for i, game := range games {
+			game.Price = game.Price.WithTax()
+
+			gamesWithTax[i] = game
+		}
+
 		invoice := domain.Invoice{
 			User:       user,
-			Games:      games,
+			Games:      gamesWithTax,
+			Subtotal:   subtotal,
+			TaxPercent: fmt.Sprintf("%.0f", 100*domain.Tax),
+			Tax:        domain.GamePrice(subtotal * domain.Tax),
 			TotalPrice: totalPrice,
 			CreatedAt:  time.Now().UTC().Format(time.DateOnly),
 		}
