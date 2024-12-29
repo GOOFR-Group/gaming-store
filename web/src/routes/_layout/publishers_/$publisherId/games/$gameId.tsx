@@ -378,6 +378,24 @@ function AddToCart(props: {
     );
   }
 
+  if (!props.game.isActive) {
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <Button asChild disabled className="w-full text-lg" size="lg">
+            <span>
+              <ShoppingCart />
+              Add to Cart
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          This game is unlisted from the store
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
   if (props.userData) {
     const userAge = differenceInYears(today, props.userData.user.dateOfBirth);
 
