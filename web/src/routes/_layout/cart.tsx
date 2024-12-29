@@ -108,15 +108,23 @@ function Component() {
             cart.games.map((game) => (
               <Card key={game.id}>
                 <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
-                  <img
-                    alt={game.title}
-                    className="rounded-md mr-4 max-h-[100px] h-auto object-cover aspect-square"
-                    src={game.previewMultimedia.url}
-                  />
+                  <Link params={{ gameId: game.id }} to="/games/$gameId">
+                    <img
+                      alt={game.title}
+                      className="rounded-md mr-4 max-h-[100px] h-auto object-cover aspect-square"
+                      src={game.previewMultimedia.url}
+                    />
+                  </Link>
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex flex-wrap justify-between items-start">
                       <div>
-                        <h2 className="text-lg font-semibold">{game.title}</h2>
+                        <Link
+                          className="text-lg font-semibold hover:underline"
+                          params={{ gameId: game.id }}
+                          to="/games/$gameId"
+                        >
+                          {game.title}
+                        </Link>
                         <p className="text-sm text-muted-foreground">
                           {game.publisher.name}
                         </p>
