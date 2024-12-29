@@ -42,6 +42,8 @@ function cartQueryOptions() {
         const paginatedGames = await getUserCartGames(userId, {
           limit,
           offset,
+          sort: "createdAt",
+          order: "desc",
         });
         total = paginatedGames.total;
 
@@ -89,11 +91,11 @@ function Component() {
     mutation.mutate(id);
   }
 
-  const subtotal = cart.games.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = cart.games.reduce((sum, game) => sum + game.price, 0);
 
   return (
     <div className="container mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-wrap justify-between items-center gap-2 mb-8">
         <h1 className="text-3xl font-bold">Your Cart</h1>
         <div className="text-lg">
           Account Balance:{" "}
@@ -106,15 +108,32 @@ function Component() {
             cart.games.map((game) => (
               <Card key={game.id}>
                 <CardContent className="p-4 flex flex-wrap items-start gap-4 sm:gap-0">
-                  <img
-                    alt={game.title}
-                    className="rounded-md mr-4 max-h-[100px] aspect-square h-auto object-cover"
-                    src={game.previewMultimedia.url}
-                  />
+                  <Link
+                    to="/publishers/$publisherId/games/$gameId"
+                    params={{
+                      publisherId: game.publisher.id,
+                      gameId: game.id,
+                    }}
+                  >
+                    <img
+                      alt={game.title}
+                      className="rounded-md mr-4 max-h-[100px] h-auto object-cover aspect-square"
+                      src={game.previewMultimedia.url}
+                    />
+                  </Link>
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex flex-wrap justify-between items-start">
                       <div>
-                        <h2 className="text-lg font-semibold">{game.title}</h2>
+                        <Link
+                          className="text-lg font-semibold hover:underline"
+                          to="/publishers/$publisherId/games/$gameId"
+                          params={{
+                            publisherId: game.publisher.id,
+                            gameId: game.id,
+                          }}
+                        >
+                          {game.title}
+                        </Link>
                         <p className="text-sm text-muted-foreground">
                           {game.publisher.name}
                         </p>
@@ -142,7 +161,7 @@ function Component() {
             </p>
           )}
         </div>
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle>Order Summary</CardTitle>
           </CardHeader>
@@ -162,7 +181,9 @@ function Component() {
           </CardContent>
           <CardFooter>
             <Button asChild disabled={!cart.total}>
-              <Link className="w-full">Proceed to Checkout</Link>
+              <Link className="w-full" to="/payment">
+                Proceed to Checkout
+              </Link>
             </Button>
           </CardFooter>
         </Card>

@@ -65,3 +65,13 @@ export interface UserCartGamesFilters {
   sort?: string;
   order?: string;
 }
+
+/**
+ * Represents the filters available for filtering the user game library.
+ */
+export interface UserGameLibraryFilters {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  order?: string;
+}

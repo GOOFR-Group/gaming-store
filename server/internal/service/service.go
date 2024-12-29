@@ -1,5 +1,8 @@
 package service
 
+//go:generate go run go.uber.org/mock/mockgen -destination mock_service_test.gen.go -package service -typed . AuthenticationService,DataStore,ObjectStore,SMTP
+//go:generate go run go.uber.org/mock/mockgen -destination mock_tx_test.gen.go -package service -typed github.com/jackc/pgx/v5 Tx
+
 import (
 	"context"
 	"fmt"

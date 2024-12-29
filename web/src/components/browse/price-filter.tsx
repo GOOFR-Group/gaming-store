@@ -9,7 +9,8 @@ const PRICE_OPTIONS: {
   { label: "Free", value: "free" },
   { label: "Under €10", value: "under-10" },
   { label: "Under €20", value: "under-20" },
-  { label: "Above €50", value: "above-50" },
+  { label: "Under €50", value: "under-50" },
+  { label: "€14.99 and above", value: "14.99-above" },
 ];
 
 export function PriceFilter(props: {

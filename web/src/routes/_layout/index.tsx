@@ -10,6 +10,7 @@ import { getGames, getRecommendedGames, getTags } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { homeQueryKey } from "@/lib/query-keys";
 import { getBatchPaginatedResponse } from "@/lib/request";
+import { applyTax } from "@/lib/utils";
 
 /**
  * Query options for retrieving the home page games.
@@ -51,6 +52,7 @@ function homeGamesQueryOptions() {
             isActive: true,
             sort: "userCount",
             order: "desc",
+            releaseDateBefore: format(new Date(), "yyyy-MM-dd"),
           }),
           getBatchPaginatedResponse(async (limit, offset) => {
             const paginatedTags = await getTags({ limit, offset });
@@ -238,7 +240,7 @@ function Section(props: {
           >
             <Game
               image={game.previewMultimedia.url}
-              price={game.price}
+              price={applyTax(game.price)}
               publisher={game.publisher.name}
               title={game.title}
             />

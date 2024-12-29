@@ -69,12 +69,11 @@ import {
   LANGUAGES,
   MAX_MULTIMEDIA_FILE_SIZE,
   MISSING_VALUE_SYMBOL,
-  TAX,
   TOAST_MESSAGES,
 } from "@/lib/constants";
 import { Conflict, ContentTooLarge } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
-import { calculateHash, cn, getMultimediaName } from "@/lib/utils";
+import { calculateHash, cn, getMultimediaName, removeTax } from "@/lib/utils";
 
 import { GamePreview } from "../game-preview";
 import { MultimediaUploadList } from "./multimedia-uploader";
@@ -273,7 +272,7 @@ export function GameForm(props: GameProps) {
       if (props.mode === "add") {
         const newGame: NewGame = {
           title: data.title,
-          price: data.price / (1 + TAX),
+          price: removeTax(data.price),
           isActive: data.isActive,
           description: data.description,
           ageRating: data.ageRating,
@@ -327,7 +326,7 @@ export function GameForm(props: GameProps) {
 
       const editableGame: EditableGame = {
         title: data.title,
-        price: data.price / (1 + TAX),
+        price: removeTax(data.price),
         isActive: data.isActive,
         description: data.description,
         ageRating: data.ageRating,
@@ -855,7 +854,7 @@ export function GameForm(props: GameProps) {
                         variant="ghost"
                       >
                         <a
-                          download={getMultimediaName(gameFiles)}
+                          download
                           href={
                             "url" in gameFiles
                               ? gameFiles.url

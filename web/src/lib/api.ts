@@ -23,6 +23,7 @@ import {
   User,
   UserCartGamesFilters,
   UserCredentials,
+  UserGameLibraryFilters,
 } from "@/domain/user";
 
 import { getToken } from "./auth";
@@ -141,6 +142,59 @@ export async function getUser(id: string) {
   const user = (await response.json()) as User;
 
   return user;
+}
+
+/**
+ * Retrieves a user's game library.
+ * @param userId User ID.
+ * @param [filters] Filters.
+ * @returns User's game library.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function getUserGameLibrary(
+  userId: string,
+  filters?: UserGameLibraryFilters,
+) {
+  const token = getToken();
+
+  const searchParams = new URLSearchParams();
+  if (filters?.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+  if (filters?.offset) {
+    searchParams.set("offset", String(filters.offset));
+  }
+  if (filters?.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+  if (filters?.order) {
+    searchParams.set("order", filters.order);
+  }
+
+  const response = await fetch(`/api/users/${userId}/games?${searchParams}`, {
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+
+  const paginatedGames = (await response.json()) as PaginatedGames;
+
+  return paginatedGames;
 }
 
 /**
@@ -985,6 +1039,43 @@ export async function deleteUserCartGame(userId: string, gameId: string) {
         throw new Unauthorized(error.code, error.message);
       case 403:
         throw new Forbidden(error.code, error.message);
+      case 409:
+        throw new Conflict(error.code, error.message);
+      default:
+        throw new InternalServerError();
+    }
+  }
+}
+
+/**
+ * Purchases a user shopping cart.
+ * @param userId User ID.
+ * @throws {Unauthorized} Access token is invalid.
+ * @throws {Forbidden} Forbidden access.
+ * @throws {NotFound} User not found.
+ * @throws {Conflict} User cart is empty or the balance is insufficient.
+ * @throws {InternalServerError} Server internal error.
+ */
+export async function purchaseUserCart(userId: string) {
+  const token = getToken();
+
+  const response = await fetch(`/api/users/${userId}/cart/purchase`, {
+    method: "POST",
+    signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status >= 400) {
+    const error = (await response.json()) as ApiError;
+    switch (response.status) {
+      case 401:
+        throw new Unauthorized(error.code, error.message);
+      case 403:
+        throw new Forbidden(error.code, error.message);
+      case 404:
+        throw new NotFound(error.code, error.message);
       case 409:
         throw new Conflict(error.code, error.message);
       default:
