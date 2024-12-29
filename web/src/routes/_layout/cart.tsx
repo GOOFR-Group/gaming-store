@@ -112,7 +112,6 @@ function Component() {
                     alt={game.title}
                     className="rounded-md mr-4 max-h-[100px] h-auto object-cover aspect-square"
                     src={game.previewMultimedia.url}
-                    width={100}
                   />
                   <div className="flex-grow flex flex-col justify-between">
                     <div className="flex flex-wrap justify-between items-start">
