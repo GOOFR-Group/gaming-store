@@ -48,7 +48,7 @@ type UserData =
 const RELATED_GAMES_LIMIT = 7;
 
 /**
- * Query options for retrieving the signed in user.
+ * Query options for retrieving the game data.
  * @returns Query options.
  */
 function gameQueryOptions(gameId: string, publisherId: string) {
