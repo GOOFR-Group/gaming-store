@@ -3,7 +3,7 @@ import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Multimedia } from "@/domain/multimedia";
 import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
-import { cn, formatCurrency, getMultimediaName } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export function Game(props: {
   title: string;
