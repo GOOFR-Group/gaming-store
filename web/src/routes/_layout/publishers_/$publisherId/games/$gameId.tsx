@@ -357,6 +357,24 @@ function AddToCart(props: {
 
   const today = useMemo(() => new Date(), []);
 
+  if (!props.game.isActive) {
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <Button asChild disabled className="w-full text-lg" size="lg">
+            <span>
+              <ShoppingCart />
+              Add to Cart
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          This game is unlisted from the store
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
   if (
     !("releaseDate" in props.game) ||
     ("releaseDate" in props.game && isAfter(props.game.releaseDate, today))
@@ -373,24 +391,6 @@ function AddToCart(props: {
         </TooltipTrigger>
         <TooltipContent side="bottom">
           This game has not been released
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (!props.game.isActive) {
-    return (
-      <Tooltip>
-        <TooltipTrigger>
-          <Button asChild disabled className="w-full text-lg" size="lg">
-            <span>
-              <ShoppingCart />
-              Add to Cart
-            </span>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          This game is unlisted from the store
         </TooltipContent>
       </Tooltip>
     );
