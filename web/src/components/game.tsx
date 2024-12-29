@@ -1,9 +1,8 @@
 import { Download } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { MISSING_VALUE_SYMBOL, TAX } from "@/lib/constants";
 import { cn, formatCurrency } from "@/lib/utils";
-
-import { Button } from "./ui/button";
 
 export function Game(props: {
   title: string;
