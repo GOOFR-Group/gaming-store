@@ -52,13 +52,12 @@ type UserData =
 function gameQueryOptions(gameId: string, publisherId: string) {
   return queryOptions({
     queryKey: gameQueryKey(gameId, publisherId),
-    gcTime: 0,
     async queryFn() {
       const game = await getPublisherGame(publisherId, gameId);
 
       const relatedGames = (
         await getGames({
-          tagIds: game.tags.map((x) => x.id),
+          tagIds: game.tags.map((tag) => tag.id),
           limit: 6,
         })
       ).games.filter((game) => game.id != game.id);
