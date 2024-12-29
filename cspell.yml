@@ -21,12 +21,14 @@ ignoreWords:
   - fkey
   - Futuna
   - golangci
+  - gomock
   - GOPATH
   - GOOFR
   - healthcheck
   - ihttp
   - ILIKE
   - iobjectStore
+  - iofs
   - ismtp
   - isready
   - Kitts
@@ -47,15 +49,18 @@ ignoreWords:
   - Réunion
   - Rica
   - Ryzen
+  - schemaname
   - signin
   - sslmode
   - stretchr
+  - tablename
   - testcontainers
   - Tokelau
   - tseslint
   - vatin
   - Viet
 ignorePaths:
+  - "*.gen.go"
   - .golangci.yml
   - go.mod
   - go.sum
