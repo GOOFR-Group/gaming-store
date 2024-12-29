@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnderConstruction } from "@/components/under-construction";
-import { Game as GameDomain } from "@/domain/game";
 import { getUser, getUserGameLibrary } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { MISSING_VALUE_SYMBOL } from "@/lib/constants";
@@ -120,7 +119,23 @@ function Component() {
             <TabsContent className="mt-4" value="library">
               <h3 className="text-lg font-semibold mb-2">My Games</h3>
               {library.length > 0 ? (
-                <ListGamesLibrary library={library} />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {library.map((game) => (
+                    <div
+                      key={game.id}
+                      className="w-fit max-w-full mx-auto border p-4 rounded-lg"
+                    >
+                      <Link params={{ gameId: game.id }} to="/games/$gameId">
+                        <Game
+                          downloadMultimedia={game.downloadMultimedia}
+                          image={game.previewMultimedia.url}
+                          publisher={game.publisher.name}
+                          title={game.title}
+                        />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="mx-auto grid text-center py-6">
                   <p className="text-muted-foreground">
@@ -144,28 +159,6 @@ function Component() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function ListGamesLibrary(props: { library: GameDomain[] }) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {props.library.map((game) => (
-        <div
-          key={game.id}
-          className="w-fit max-w-full mx-auto border p-4 rounded-lg"
-        >
-          <Link params={{ gameId: game.id }} to="/games/$gameId">
-            <Game
-              downloadMultimedia={game.downloadMultimedia}
-              image={game.previewMultimedia.url}
-              publisher={game.publisher.name}
-              title={game.title}
-            />
-          </Link>
-        </div>
-      ))}
     </div>
   );
 }
