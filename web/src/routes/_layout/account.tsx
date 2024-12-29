@@ -116,7 +116,7 @@ function Component() {
               </TabsTrigger>
             </TabsList>
             <TabsContent className="mt-4" value="library">
-              <h3 className="text-lg font-semibold mb-2">My Games </h3>
+              <h3 className="text-lg font-semibold mb-2">My Games</h3>
               {library.length > 0 ? (
                 <ListGamesLibrary library={library} />
               ) : (
