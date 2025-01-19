@@ -11,6 +11,7 @@ import { differenceInYears, format, isAfter } from "date-fns";
 import { Heart, Library, ShoppingCart, Star } from "lucide-react";
 
 import { Carousel } from "@/components/carousel";
+import { Error } from "@/components/error";
 import { Game } from "@/components/game";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
 } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { TAX, TO_BE_ANNOUNCED, TOAST_MESSAGES } from "@/lib/constants";
+import { BadRequest, NotFound } from "@/lib/errors";
 import { withAuthErrors } from "@/lib/middleware";
 import { gameQueryKey, userNavbarQueryKey } from "@/lib/query-keys";
 import { getBatchPaginatedResponse } from "@/lib/request";
@@ -144,6 +146,22 @@ export const Route = createFileRoute(
     return opts.context.queryClient.ensureQueryData(
       gameQueryOptions(opts.params.gameId, opts.params.publisherId),
     );
+  },
+  errorComponent(errorProps) {
+    // If the game ID is not a valid UUID, a BadRequest is thrown.
+    // This error is visually identical to a NotFound error.
+    if (
+      errorProps.error instanceof BadRequest ||
+      errorProps.error instanceof NotFound
+    ) {
+      return (
+        <Error
+          className="border-none"
+          description="The game you are looking for does not exist."
+          title="Game Not Found"
+        />
+      );
+    }
   },
 });
 
