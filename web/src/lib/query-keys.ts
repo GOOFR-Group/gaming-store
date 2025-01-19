@@ -36,6 +36,19 @@ export function gameQueryKey(gameId: string, publisherId: string): QueryKey {
 }
 
 /**
+ * Query key used when fetching a game in the distribution routes.
+ * @param gameId Game ID.
+ * @param publisherId Publisher ID.
+ * @returns Game query key.
+ */
+export function distributeGameQueryKey(
+  gameId: string,
+  publisherId: string,
+): QueryKey {
+  return ["games", "distribute", gameId, publisherId];
+}
+
+/**
  * Query key used when fetching the cart information.
  */
 export const cartQueryKey: QueryKey = ["cart"];
