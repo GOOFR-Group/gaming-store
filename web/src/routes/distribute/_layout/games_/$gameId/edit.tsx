@@ -13,7 +13,7 @@ import {
 import { getPublisherGame } from "@/lib/api";
 import { decodeTokenPayload, getToken } from "@/lib/auth";
 import { BadRequest, NotFound } from "@/lib/errors";
-import { gameQueryKey } from "@/lib/query-keys";
+import { distributeGameQueryKey } from "@/lib/query-keys";
 import { applyTax } from "@/lib/utils";
 
 /**
@@ -27,7 +27,7 @@ function publisherGameQueryOptions(gameId: string) {
   const publisherId = payload.sub;
 
   return queryOptions({
-    queryKey: gameQueryKey(gameId, publisherId),
+    queryKey: distributeGameQueryKey(gameId, publisherId),
     async queryFn() {
       return await getPublisherGame(publisherId, gameId);
     },
